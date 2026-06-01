@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 import {
   Star, MessageSquare, ArrowRight, ShieldCheck, Clock, CheckCircle2,
   Building2, UserPlus, Zap, Lock, FileText, CheckCircle, HeartPulse,
@@ -13,7 +15,7 @@ import DoxezWorkflow from "./DoxezWorkFlow";
 import img1 from "../assets/IITBBSR.png";
 import img2 from "../assets/StartupIndia.png";
 import img3 from "../assets/StartupOdisha.png";
-import nurse from "../assets/prev.png";
+import nurse from "../assets/nurse34.png";
 import Priya from "../assets/Priya.jpg";
 import Arjun from "../assets/Arjun.jpg";
 // import sneha from "../assets/Snhea.jpg";
@@ -72,10 +74,11 @@ function Reveal({ children, delay = 0, style = {} }) {
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const [heroForm, setHeroForm] = useState({ name: "", phone: "", gender: "", disease: "", otherDisease: "", ayushman: "", location: "" });
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [errors, setErrors] = useState({});
+  const [showTimeSlotModal, setShowTimeSlotModal] = useState(false);
+  const [selectedSlot, setSelectedSlot] = useState("");
+  const [showThankYou, setShowThankYou] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [services, setServices] = useState([]);
   const scrollRef = useRef(null);
@@ -137,37 +140,56 @@ export default function HomePage() {
   // 🛡️ CRM API Configuration
   const CRM_API_URL = import.meta.env.VITE_API_URL || "https://crm.doxez.in";
 
-  const validate = () => {
-    const e = {};
-    if (!heroForm.name.trim()) e.name = "Required";
-    if (!heroForm.phone.trim() || !/^\d{10}$/.test(heroForm.phone)) e.phone = "Valid 10-digit number required";
-    if (!heroForm.gender) e.gender = "Required";
-    if (!heroForm.disease) e.disease = "Required";
-    if (heroForm.disease === "Others" && !heroForm.otherDisease.trim()) e.otherDisease = "Specify disease";
-    setErrors(e);
-    return Object.keys(e).length === 0;
-  };
+  const formik = useFormik({
+    initialValues: {
+      name: "",
+      email: "",
+      phone: "",
+      location: "",
+      gender: "",
+      disease: "",
+      otherDisease: "",
+      ayushman: ""
+    },
+    validationSchema: Yup.object({
+      name: Yup.string().required("Required"),
+      email: Yup.string().email("Invalid email format"),
+      phone: Yup.string().matches(/^\d{10}$/, "Valid 10-digit number required").required("Required"),
+      gender: Yup.string().required("Required"),
+      disease: Yup.string().required("Required"),
+      otherDisease: Yup.string().when("disease", {
+        is: "Others",
+        then: () => Yup.string().required("Specify disease"),
+        otherwise: () => Yup.string().notRequired(),
+      })
+    }),
+    onSubmit: (values) => {
+      // Show time slot modal first, before calling API
+      setSelectedSlot("");
+      setShowTimeSlotModal(true);
+    }
+  });
 
-  const handleHeroSubmit = async (e) => {
-    if (e) e.preventDefault();
-    if (!validate()) return;
-
+  const handleTimeSlotSubmit = async () => {
+    setShowTimeSlotModal(false);
     setLoading(true);
     try {
       await axios.post(`${CRM_API_URL}/api/leads/public/booking`, {
-        patientName: heroForm.name,
-        patientPhone: heroForm.phone,
-        patientGender: heroForm.gender,
-        treatmentRequired: heroForm.disease === "Others" ? heroForm.otherDisease : heroForm.disease,
-        hasAyushmanCard: heroForm.ayushman === "Yes",
-        city: heroForm.location,
+        patientName: formik.values.name,
+        patientPhone: formik.values.phone,
+        patientEmail: formik.values.email,
+        email: formik.values.email,
+        patientGender: formik.values.gender,
+        treatmentRequired: formik.values.disease === "Others" ? formik.values.otherDisease : formik.values.disease,
+        hasAyushmanCard: formik.values.ayushman === "Yes",
+        city: formik.values.location,
         patientAge: 0,
+        preferredCallTime: selectedSlot,
         source: "Homepage Hero Form"
       });
 
-      setSubmitted(true);
-      setHeroForm({ name: "", phone: "", gender: "", disease: "", otherDisease: "", ayushman: "" });
-      setTimeout(() => setSubmitted(false), 5000);
+      formik.resetForm();
+      setShowThankYou(true);
     } catch (err) {
       console.error("Home booking failed:", err);
       alert("Consultation request failed. Please call support.");
@@ -176,10 +198,151 @@ export default function HomePage() {
     }
   };
 
+  const TIME_SLOTS = ["10AM - 12PM", "12PM - 2PM", "2PM - 5PM"];
+
   return (
     <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", background: "#fff", color: "#111827", overflowX: "hidden" }}>
+
+      {/* ── TIME SLOT MODAL (Doxez Original Design) ── */}
+      {showTimeSlotModal && (
+        <div style={{
+          position: "fixed", inset: 0,
+          background: "rgba(5,15,35,0.72)",
+          backdropFilter: "blur(8px)", zIndex: 9999,
+          display: "flex", alignItems: "center", justifyContent: "center", padding: 20
+        }}>
+          <div style={{
+            background: "#ffffff",
+            borderRadius: 12, width: "100%", maxWidth: 460,
+            boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)",
+            animation: "slideUp 0.3s ease-out",
+            overflow: "hidden", position: "relative"
+          }}>
+            {/* Clean Professional Header */}
+            <div style={{
+              background: "#0f172a",
+              padding: "20px 24px",
+              display: "flex", alignItems: "center", justifyContent: "space-between"
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                <Clock size={20} color="#38bdf8" />
+                <h3 style={{ color: "#ffffff", fontWeight: 600, fontSize: 17, margin: 0 }}>
+                  Select Callback Time
+                </h3>
+              </div>
+              <button onClick={() => setShowTimeSlotModal(false)} style={{
+                background: "transparent", border: "none", color: "#94a3b8",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 24, cursor: "pointer", transition: "color 0.2s", padding: 0, lineHeight: 1
+              }}>×</button>
+            </div>
+
+            <div style={{ padding: "32px 24px 24px" }}>
+              <p style={{ color: "#475569", fontSize: 15, margin: "0 0 24px", lineHeight: 1.5, textAlign: "center" }}>
+                Please choose your preferred time window for our care coordinator to reach out.
+              </p>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 32 }}>
+                {[
+                  { slot: "10AM - 12PM" },
+                  { slot: "12PM - 2PM" },
+                  { slot: "2PM - 5PM" },
+                ].map(({ slot }) => {
+                  const active = selectedSlot === slot;
+                  return (
+                    <button key={slot} onClick={() => setSelectedSlot(slot)} style={{
+                      display: "flex", alignItems: "center", justifyContent: "space-between",
+                      padding: "16px 20px", borderRadius: 8, cursor: "pointer",
+                      border: active ? "1.5px solid #e8631c" : "1px solid #cbd5e1",
+                      background: active ? "#fffaf5" : "#ffffff",
+                      transition: "all 0.15s ease", outline: "none",
+                      boxShadow: active ? "0 2px 8px rgba(232, 99, 28, 0.1)" : "none"
+                    }}>
+                      <span style={{ fontSize: 15, fontWeight: active ? 700 : 500, color: active ? "#e8631c" : "#334155" }}>
+                        {slot}
+                      </span>
+                      {active && <CheckCircle2 size={18} color="#e8631c" />}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button
+                onClick={handleTimeSlotSubmit}
+                disabled={loading || !selectedSlot}
+                style={{
+                  width: "100%", padding: "14px",
+                  background: (loading || !selectedSlot) ? "#cbd5e1" : "#e8631c",
+                  color: "#fff", border: "none", borderRadius: 8,
+                  fontWeight: 600, fontSize: 16, cursor: (loading || !selectedSlot) ? "not-allowed" : "pointer",
+                  transition: "background 0.2s"
+                }}
+              >
+                {loading ? "Processing..." : "Confirm Time"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── THANK YOU POPUP (Doxez Original Design) ── */}
+      {showThankYou && (
+        <div style={{
+          position: "fixed", inset: 0,
+          background: "rgba(5,15,35,0.72)",
+          backdropFilter: "blur(8px)", zIndex: 9999,
+          display: "flex", alignItems: "center", justifyContent: "center", padding: 20
+        }}>
+          <div style={{
+            background: "#ffffff",
+            borderRadius: 12, width: "100%", maxWidth: 420,
+            boxShadow: "0 25px 50px -12px rgba(0,0,0,0.25)",
+            animation: "slideUp 0.3s ease-out",
+            overflow: "hidden", position: "relative"
+          }}>
+            <button onClick={() => setShowThankYou(false)} style={{
+              position: "absolute", top: 16, right: 16,
+              background: "transparent", border: "none", color: "#94a3b8",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              fontSize: 24, cursor: "pointer", padding: 0, lineHeight: 1
+            }}>×</button>
+
+            <div style={{ padding: "40px 32px 32px", textAlign: "center" }}>
+              <div style={{
+                width: 64, height: 64, borderRadius: "50%", background: "#10b981",
+                display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px",
+                boxShadow: "0 8px 16px -4px rgba(16, 185, 129, 0.3)"
+              }}>
+                <CheckCircle2 size={32} color="#ffffff" />
+              </div>
+
+              <h2 style={{ color: "#0f172a", fontWeight: 700, fontSize: 22, margin: "0 0 12px" }}>
+                Request Submitted
+              </h2>
+              <p style={{ color: "#475569", fontSize: 15, margin: "0 0 32px", lineHeight: 1.6 }}>
+                Thank you for choosing us. Our customer care will call you {selectedSlot ? `between ${selectedSlot}` : "shortly"}.
+              </p>
+
+              <button onClick={() => setShowThankYou(false)} style={{
+                width: "100%", padding: "14px",
+                background: "#0f172a", color: "#fff",
+                border: "none", borderRadius: 8,
+                fontWeight: 600, fontSize: 15, cursor: "pointer",
+                transition: "background 0.2s"
+              }}>
+                Done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
+
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(40px) scale(0.97); }
+          to   { opacity: 1; transform: translateY(0)   scale(1);    }
+        }
         
         .hp-hero { padding: 190px 24px 60px; min-height: 75vh; display: flex; align-items: center; background: linear-gradient(to bottom, #f0f7ff 0%, #ffffff 100%); }
 
@@ -327,6 +490,9 @@ export default function HomePage() {
             justify-content: center;
             margin-top: 32px !important;
           }
+          .nurse-wrapper {
+            margin-top: 60px !important;
+          }
         }
         .stat-card h3 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 28px; font-weight: 800; color: #1e4b8f; margin-bottom: 2px; }
         .stat-card p { font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.1em; line-height: 1.2; }
@@ -341,12 +507,20 @@ export default function HomePage() {
           .stat-card h3 { font-size: 20px !important; }
           .stat-card p { font-size: 9px !important; letter-spacing: 0.02em !important; }
         }
+        @media (max-width: 480px) {
+          .hero-title { font-size: 28px !important; }
+          .nurse-wrapper {
+            width: 280px !important;
+            height: 280px !important;
+          }
+        }
 
         .nurse-wrapper {
-          width: 380px;
-          height: 380px;
+          width: 350px;
+          height: 350px;
           position: relative;
-          margin-top: 0px;
+          margin: 0 auto;
+          flex-shrink: 0;
         }
         .nurse-bg-circle {
           position: absolute;
@@ -356,13 +530,17 @@ export default function HomePage() {
           box-shadow: 0 40px 100px -12px rgba(30,75,143,0.15);
         }
         .nurse-img {
-          width: 115%;
-          height: 120%;
+          width: 100%;
+          height: 100%;
           object-fit: contain;
           position: absolute;
-          bottom: 0;
-          left: -7.5%;
+          bottom: 8px;
+          left: 0;
+          transform: scale(1.30);
+          transform-origin: bottom center;
           z-index: 10;
+          -webkit-mask-image: linear-gradient(to bottom, black 65%, transparent 95%);
+          mask-image: linear-gradient(to bottom, black 65%, transparent 95%);
         }
 
         .partner-section { padding: 24px 24px 60px; border-bottom: 1px solid #f3f4f6; text-align: center; overflow: hidden; }
@@ -745,27 +923,33 @@ export default function HomePage() {
                     <p style={{ fontSize: 11, color: "#64748b", lineHeight: 1.5 }}>Get expert advice for your surgical needs.</p>
                   </div>
 
-                  <form onSubmit={handleHeroSubmit} style={{ display: "flex", flexDirection: "column", gap: 10 }}>                    <div style={{ position: "relative" }}>
-                    <input type="text" placeholder="Patient Name" disabled={loading} value={heroForm.name} onChange={e => setHeroForm({ ...heroForm, name: e.target.value })} style={{ width: "100%", padding: "14px 16px", borderRadius: 12, border: `1.5px solid ${errors.name ? "#ef4444" : "#e2e8f0"}`, fontSize: 14, outline: "none", background: "#f8fafc", boxSizing: "border-box" }} />
-                    {errors.name && <p style={{ color: "#ef4444", fontSize: 10, marginTop: 4, fontWeight: 600 }}>{errors.name}</p>}
-                  </div>
+                  <form onSubmit={formik.handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                    <div style={{ position: "relative" }}>
+                      <input type="text" name="name" placeholder="Patient Name" disabled={loading} value={formik.values.name} onChange={formik.handleChange} onBlur={formik.handleBlur} style={{ width: "100%", padding: "11px 14px", borderRadius: 10, border: `1.5px solid ${formik.touched.name && formik.errors.name ? "#ef4444" : "#e2e8f0"}`, fontSize: 13, outline: "none", background: "#f8fafc", boxSizing: "border-box" }} />
+                      {formik.touched.name && formik.errors.name && <p style={{ color: "#ef4444", fontSize: 10, marginTop: 4, fontWeight: 600 }}>{formik.errors.name}</p>}
+                    </div>
+
+                    <div style={{ position: "relative" }}>
+                      <input type="email" name="email" placeholder="Email Address (Optional)" disabled={loading} value={formik.values.email} onChange={formik.handleChange} onBlur={formik.handleBlur} style={{ width: "100%", padding: "11px 14px", borderRadius: 10, border: `1.5px solid ${formik.touched.email && formik.errors.email ? "#ef4444" : "#e2e8f0"}`, fontSize: 13, outline: "none", background: "#f8fafc", boxSizing: "border-box" }} />
+                      {formik.touched.email && formik.errors.email && <p style={{ color: "#ef4444", fontSize: 10, marginTop: 4, fontWeight: 600 }}>{formik.errors.email}</p>}
+                    </div>
 
                     <div style={{ position: "relative" }}>
                       <select
-                        value={heroForm.location}
-                        onChange={e => setHeroForm({ ...heroForm, location: e.target.value })}
-                        // disabled
+                        name="location"
+                        value={formik.values.location}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
                         style={{
                           width: "100%",
-                          padding: "14px 16px",
-                          borderRadius: 12,
+                          padding: "11px 14px",
+                          borderRadius: 10,
                           border: "1.5px solid #e2e8f0",
-                          fontSize: 14,
+                          fontSize: 13,
                           outline: "none",
                           background: "#f1f4f6ff",
                           boxSizing: "border-box",
                           color: "#72757bff",
-                          // cursor: "not-allowed",
                           appearance: "auto"
                         }}
                       >
@@ -776,22 +960,22 @@ export default function HomePage() {
 
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
                       <div style={{ position: "relative" }}>
-                        <input type="tel" placeholder="WhatsApp No." disabled={loading} value={heroForm.phone} onChange={e => setHeroForm({ ...heroForm, phone: e.target.value.replace(/\D/g, "").slice(0, 10) })} style={{ width: "100%", padding: "14px 16px", borderRadius: 12, border: `1.5px solid ${errors.phone ? "#ef4444" : "#e2e8f0"}`, fontSize: 14, outline: "none", background: "#f8fafc", boxSizing: "border-box" }} />
-                        {errors.phone && <p style={{ color: "#ef4444", fontSize: 10, marginTop: 4, fontWeight: 600 }}>{errors.phone}</p>}
+                        <input type="tel" name="phone" placeholder="WhatsApp No." disabled={loading} value={formik.values.phone} onChange={(e) => { e.target.value = e.target.value.replace(/\D/g, "").slice(0, 10); formik.handleChange(e); }} onBlur={formik.handleBlur} style={{ width: "100%", padding: "11px 14px", borderRadius: 10, border: `1.5px solid ${formik.touched.phone && formik.errors.phone ? "#ef4444" : "#e2e8f0"}`, fontSize: 13, outline: "none", background: "#f8fafc", boxSizing: "border-box" }} />
+                        {formik.touched.phone && formik.errors.phone && <p style={{ color: "#ef4444", fontSize: 10, marginTop: 4, fontWeight: 600 }}>{formik.errors.phone}</p>}
                       </div>
                       <div style={{ position: "relative" }}>
-                        <select disabled={loading} value={heroForm.gender} onChange={e => setHeroForm({ ...heroForm, gender: e.target.value })} style={{ width: "100%", padding: "14px 16px", borderRadius: 12, border: `1.5px solid ${errors.gender ? "#ef4444" : "#e2e8f0"}`, fontSize: 14, outline: "none", color: "#475569", background: "#f8fafc", boxSizing: "border-box" }}>
+                        <select name="gender" disabled={loading} value={formik.values.gender} onChange={formik.handleChange} onBlur={formik.handleBlur} style={{ width: "100%", padding: "11px 14px", borderRadius: 10, border: `1.5px solid ${formik.touched.gender && formik.errors.gender ? "#ef4444" : "#e2e8f0"}`, fontSize: 13, outline: "none", color: "#475569", background: "#f8fafc", boxSizing: "border-box" }}>
                           <option value="">Gender</option>
                           <option value="Male">Male</option>
                           <option value="Female">Female</option>
                           <option value="Other">Other</option>
                         </select>
-                        {errors.gender && <p style={{ color: "#ef4444", fontSize: 10, marginTop: 4, fontWeight: 600 }}>{errors.gender}</p>}
+                        {formik.touched.gender && formik.errors.gender && <p style={{ color: "#ef4444", fontSize: 10, marginTop: 4, fontWeight: 600 }}>{formik.errors.gender}</p>}
                       </div>
                     </div>
 
                     <div style={{ position: "relative" }}>
-                      <select disabled={loading} value={heroForm.disease} onChange={e => setHeroForm({ ...heroForm, disease: e.target.value })} style={{ width: "100%", padding: "14px 16px", borderRadius: 12, border: `1.5px solid ${errors.disease ? "#ef4444" : "#e2e8f0"}`, fontSize: 14, outline: "none", color: "#475569", background: "#f8fafc", boxSizing: "border-box" }}>
+                      <select name="disease" disabled={loading} value={formik.values.disease} onChange={formik.handleChange} onBlur={formik.handleBlur} style={{ width: "100%", padding: "11px 14px", borderRadius: 10, border: `1.5px solid ${formik.touched.disease && formik.errors.disease ? "#ef4444" : "#e2e8f0"}`, fontSize: 13, outline: "none", color: "#475569", background: "#f8fafc", boxSizing: "border-box" }}>
                         <option value="">Select Disease / Treatment</option>
                         <option value="Proctology">Piles, Fissure, Fistula</option>
                         <option value="Laparoscopy">Hernia, Gallstone</option>
@@ -800,23 +984,23 @@ export default function HomePage() {
                         <option value="Orthopedics">Orthopedics</option>
                         <option value="Others">Others</option>
                       </select>
-                      {errors.disease && <p style={{ color: "#ef4444", fontSize: 10, marginTop: 4, fontWeight: 600 }}>{errors.disease}</p>}
+                      {formik.touched.disease && formik.errors.disease && <p style={{ color: "#ef4444", fontSize: 10, marginTop: 4, fontWeight: 600 }}>{formik.errors.disease}</p>}
                     </div>
 
-                    {heroForm.disease === "Others" && (
+                    {formik.values.disease === "Others" && (
                       <div style={{ position: "relative", marginTop: "-4px" }}>
-                        <input type="text" placeholder="Please specify the disease" disabled={loading} value={heroForm.otherDisease} onChange={e => setHeroForm({ ...heroForm, otherDisease: e.target.value })} style={{ width: "100%", padding: "14px 16px", borderRadius: 12, border: `1.5px solid ${errors.otherDisease ? "#ef4444" : "#e2e8f0"}`, fontSize: 14, outline: "none", background: "#f8fafc", boxSizing: "border-box" }} />
-                        {errors.otherDisease && <p style={{ color: "#ef4444", fontSize: 10, marginTop: 4, fontWeight: 600 }}>{errors.otherDisease}</p>}
+                        <input type="text" name="otherDisease" placeholder="Please specify the disease" disabled={loading} value={formik.values.otherDisease} onChange={formik.handleChange} onBlur={formik.handleBlur} style={{ width: "100%", padding: "11px 14px", borderRadius: 10, border: `1.5px solid ${formik.touched.otherDisease && formik.errors.otherDisease ? "#ef4444" : "#e2e8f0"}`, fontSize: 13, outline: "none", background: "#f8fafc", boxSizing: "border-box" }} />
+                        {formik.touched.otherDisease && formik.errors.otherDisease && <p style={{ color: "#ef4444", fontSize: 10, marginTop: 4, fontWeight: 600 }}>{formik.errors.otherDisease}</p>}
                       </div>
                     )}
 
-                    <select disabled={loading} value={heroForm.ayushman} onChange={e => setHeroForm({ ...heroForm, ayushman: e.target.value })} style={{ width: "100%", padding: "14px 16px", borderRadius: 12, border: "1.5px solid #e2e8f0", fontSize: 14, outline: "none", color: "#475569", background: "#f8fafc", boxSizing: "border-box" }}>
+                    <select name="ayushman" disabled={loading} value={formik.values.ayushman} onChange={formik.handleChange} onBlur={formik.handleBlur} style={{ width: "100%", padding: "11px 14px", borderRadius: 10, border: "1.5px solid #e2e8f0", fontSize: 13, outline: "none", color: "#475569", background: "#f8fafc", boxSizing: "border-box" }}>
                       <option value="">Ayushman Bharat?</option>
                       <option value="Yes">Yes, I have an Ayushman Card</option>
                       <option value="No">No, I don't have one</option>
                     </select>
 
-                    <button type="submit" disabled={loading} style={{ width: "100%", padding: "16px", background: loading ? "#94a3b8" : "#ff8800", color: "#fff", borderRadius: 12, border: "none", fontWeight: 800, fontSize: 15, cursor: loading ? "not-allowed" : "pointer", marginTop: 8, boxShadow: "0 8px 20px -6px rgba(255,136,0,0.4)", transition: "all 0.2s", display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}
+                    <button type="submit" disabled={loading} style={{ width: "100%", padding: "12px", background: loading ? "#94a3b8" : "#ff8800", color: "#fff", borderRadius: 10, border: "none", fontWeight: 800, fontSize: 14, cursor: loading ? "not-allowed" : "pointer", marginTop: 8, boxShadow: "0 8px 20px -6px rgba(255,136,0,0.4)", transition: "all 0.2s", display: "flex", alignItems: "center", justifyContent: "center", gap: 10 }}
                       onMouseOver={(e) => !loading && (e.currentTarget.style.transform = "translateY(-1px)")}
                       onMouseOut={(e) => !loading && (e.currentTarget.style.transform = "translateY(0)")}
                     >

@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import logoImg from "../assets/LOGO22.png";
+import logoImg from "../assets/DOXEZ_LOGHO.png";
 
 export default function SplashScreen({ onDone }) {
   const [phase, setPhase] = useState(0);
@@ -242,6 +242,19 @@ export default function SplashScreen({ onDone }) {
       letter-spacing: -0.04em;
       animation: sp_nameIn 0.7s cubic-bezier(0.22,1,0.36,1) both;
     }
+    .sp_logo_main {
+      width: 220px;
+      height: auto;
+      object-fit: contain;
+      display: block;
+      margin: 0 auto;
+      animation: sp_nameIn 0.7s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    @media (max-width: 640px) {
+      .sp_logo_main {
+        width: 150px;
+      }
+    }
     .sp_brand_accent {
       color: #0b76ff;
     }
@@ -334,29 +347,7 @@ export default function SplashScreen({ onDone }) {
             {/* Brand name */}
             {phase >= 2 && (
               <div className="sp_text_block">
-                <img src={logoImg} alt="DoxEZ" style={{
-                  width: 220, height: "auto",
-                  objectFit: "contain",
-                  display: "block",
-                  margin: "0 auto 8px",
-                  animation: "sp_nameIn 0.7s cubic-bezier(0.22,1,0.36,1) both",
-                }} />
-
-                {/* Divider */}
-                {phase >= 3 && (
-                  <div className="sp_divider_wrap">
-                    <div className="sp_divider_line" />
-                    <div className="sp_divider_dot" />
-                    <div className="sp_divider_line right" />
-                  </div>
-                )}
-
-                {/* Tagline */}
-                {phase >= 3 && (
-                  <div className="sp_tagline">
-                    Connecting care, Delivering Expertise.
-                  </div>
-                )}
+                <img src={logoImg} alt="DoxEZ" className="sp_logo_main" />
               </div>
             )}
           </div>
