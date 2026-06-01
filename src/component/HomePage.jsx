@@ -776,7 +776,7 @@ export default function HomePage() {
 
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
                       <div style={{ position: "relative" }}>
-                        <input type="tel" placeholder="Mobile Number" disabled={loading} value={heroForm.phone} onChange={e => setHeroForm({ ...heroForm, phone: e.target.value.replace(/\D/g, "").slice(0, 10) })} style={{ width: "100%", padding: "14px 16px", borderRadius: 12, border: `1.5px solid ${errors.phone ? "#ef4444" : "#e2e8f0"}`, fontSize: 14, outline: "none", background: "#f8fafc", boxSizing: "border-box" }} />
+                        <input type="tel" placeholder="WhatsApp No." disabled={loading} value={heroForm.phone} onChange={e => setHeroForm({ ...heroForm, phone: e.target.value.replace(/\D/g, "").slice(0, 10) })} style={{ width: "100%", padding: "14px 16px", borderRadius: 12, border: `1.5px solid ${errors.phone ? "#ef4444" : "#e2e8f0"}`, fontSize: 14, outline: "none", background: "#f8fafc", boxSizing: "border-box" }} />
                         {errors.phone && <p style={{ color: "#ef4444", fontSize: 10, marginTop: 4, fontWeight: 600 }}>{errors.phone}</p>}
                       </div>
                       <div style={{ position: "relative" }}>
