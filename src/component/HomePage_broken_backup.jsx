@@ -32,14 +32,14 @@ import img3 from "../assets/StartupOdisha.png";
 import imgH from "../assets/prev.png";
 import Priya from "../assets/Priya.jpg";
 import Arjun from "../assets/Arjun.jpg";
-import sneha from "../assets/Snhea.jpg";
+// import sneha from "../assets/Snhea.jpg";
 import Prof from "../assets/prof.jpg";
 
 /* ── Testimonials data ── */
 const TESTIMONIALS = [
   { name: "Dr. Priya Sharma", dept: "Cardiology", rating: 5, msg: "DoxEZ connected me with 3 placements in just one week. The verification process was smooth and facilities trusted my credentials instantly.", avatar: Priya, color: "#1E1B4B" },
   { name: "Dr. Arjun Mehta", dept: "Anaesthesiology", rating: 5, msg: "Best platform for locum doctors in India. Got my first case within 24 hours of registration. The automated workflow is brilliant.", avatar: Arjun, color: "#2DD4BF" },
-  { name: "Dr. Sneha Patel", dept: "Paediatrics", rating: 5, msg: "The automatic billing and transparent payout made everything stress-free. I focus on patients, DoxEZ handles the rest.", avatar: sneha, color: "#10B981" },
+  // { name: "Dr. Sneha Patel", dept: "Paediatrics", rating: 5, msg: "The automatic billing and transparent payout made everything stress-free. I focus on patients, DoxEZ handles the rest.", avatar: sneha, color: "#10B981" },
 ];
 
 const PARTNER_LOGOS = [img1, img2, img3, img1, img2, img3];
@@ -294,7 +294,7 @@ export default function HomePage() {
                 { name: "Dr. Priya Sharma", msg: "Verified placements in under a week.", avatar: Priya },
                 { name: "Dr. Arjun Mehta", msg: "Automated payouts are a game changer.", avatar: Arjun },
                 { name: "Dr. Rajesh Kumar", msg: "Matched within 2km of my home.", avatar: Prof },
-                { name: "Dr. Sneha Patel", msg: "Transparent and stress-free.", avatar: sneha }
+                // { name: "Dr. Sneha Patel", msg: "Transparent and stress-free.", avatar: sneha }
               ].map((t, i) => (
                 <motion.div
                   key={i}

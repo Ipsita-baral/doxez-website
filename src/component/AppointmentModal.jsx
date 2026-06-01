@@ -91,26 +91,29 @@ export default function AppointmentModal({ onClose }) {
           style={{
             position: "relative",
             width: "100%",
-            maxWidth: 520,
-            maxHeight: "90vh",
+            maxWidth: 500,
+            maxHeight: "92vh",
             overflowY: "auto",
             background: "#ffffff",
             borderRadius: 24,
-            padding: "40px",
+            padding: "32px",
             boxShadow: "0 40px 100px -15px rgba(0,0,0,0.25)",
-            border: "1px solid rgba(255,255,255,0.2)"
+            border: "1px solid rgba(255,255,255,0.2)",
+            msOverflowStyle: "none",
+            scrollbarWidth: "none"
           }}
         >
           <style>{`
-            .modal-container { padding: 40px !important; }
-            .form-grid-3 { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 16px; }
-            .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+            .modal-container { padding: 32px !important; }
+            .modal-container::-webkit-scrollbar { display: none; }
+            .form-grid-3 { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 12px; }
+            .form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
             
             @media (max-width: 640px) {
-              .modal-container { padding: 24px 20px !important; border-radius: 20px !important; }
-              .form-grid-3, .form-grid-2 { grid-template-columns: 1fr !important; gap: 12px !important; }
-              .modal-title { font-size: 20px !important; }
-              .modal-desc { font-size: 13px !important; }
+              .modal-container { padding: 24px 16px !important; border-radius: 20px !important; }
+              .form-grid-3, .form-grid-2 { grid-template-columns: 1fr !important; gap: 10px !important; }
+              .modal-title { font-size: 19px !important; }
+              .modal-desc { font-size: 12px !important; }
             }
 
             .appointment-letter {
@@ -167,15 +170,15 @@ export default function AppointmentModal({ onClose }) {
 
           {!submitted ? (
             <>
-              <div style={{ marginBottom: 36, textAlign: "center" }}>
-                <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "#eff6ff", color: "#1e4b8f", padding: "6px 14px", borderRadius: 99, fontSize: 10, fontWeight: 800, textTransform: "uppercase", marginBottom: 16, border: "1px solid #dbeafe" }}>
+              <div style={{ marginBottom: 28, textAlign: "center" }}>
+                <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "#eff6ff", color: "#1e4b8f", padding: "6px 14px", borderRadius: 99, fontSize: 10, fontWeight: 800, textTransform: "uppercase", marginBottom: 12, border: "1px solid #dbeafe" }}>
                   <HeartPulse size={12} /> Doxez Healthcare
                 </div>
-                <h2 className="modal-title" style={{ fontSize: 26, fontWeight: 800, color: "#0b1f3a", marginBottom: 10 }}>Book Your Appointment</h2>
-                <p className="modal-desc" style={{ color: "#64748b", fontSize: 14 }}>Request a callback from our medical experts. We'll contact you shortly to confirm your visit.</p>
+                <h2 className="modal-title" style={{ fontSize: 24, fontWeight: 800, color: "#0b1f3a", marginBottom: 8 }}>Book Your Appointment</h2>
+                <p className="modal-desc" style={{ color: "#64748b", fontSize: 13, lineHeight: 1.4 }}>Request a callback from our medical experts. We'll contact you shortly to confirm your visit.</p>
               </div>
 
-              <form onSubmit={formik.handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+              <form onSubmit={formik.handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                 {/* Patient Name, Age & Gender */}
                 <div className="form-grid-3">
                   <div>
@@ -224,7 +227,7 @@ export default function AppointmentModal({ onClose }) {
                 </div>
 
                 {/* Selection Sequence: Disease -> Specify (if needed) -> Ayushman */}
-                <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                   <div>
                     <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", marginBottom: 6 }}>Select Disease</label>
                     <select disabled={loading} {...formik.getFieldProps("specialty")} style={{ width: "100%", padding: "12px 14px", borderRadius: 12, border: `1.5px solid ${formik.touched.specialty && formik.errors.specialty ? "#ef4444" : "#e2e8f0"}`, fontSize: 13, outline: "none" }}>
@@ -274,27 +277,27 @@ export default function AppointmentModal({ onClose }) {
           ) : (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
               <div style={{ textAlign: "center", padding: "40px 0" }}>
-                <div style={{ 
-                  background: "#f0f9ff", 
-                  padding: "24px", 
-                  borderRadius: "20px", 
-                  fontSize: "14px", 
-                  color: "#0c4a6e", 
-                  fontWeight: 700, 
-                  display: "flex", 
-                  gap: 16, 
-                  alignItems: "flex-start", 
-                  border: "2px solid #e0f2fe", 
+                <div style={{
+                  background: "#f0f9ff",
+                  padding: "24px",
+                  borderRadius: "20px",
+                  fontSize: "14px",
+                  color: "#0c4a6e",
+                  fontWeight: 700,
+                  display: "flex",
+                  gap: 16,
+                  alignItems: "flex-start",
+                  border: "2px solid #e0f2fe",
                   lineHeight: 1.6,
                   textAlign: "left",
                   marginBottom: "32px",
                   boxShadow: "0 10px 25px rgba(224, 242, 254, 0.5)"
                 }}>
-                   <Info size={24} style={{ marginTop: 2, flexShrink: 0, color: "#1e4b8f" }} /> 
-                   <span>Your consultation is being prioritized. A Doxez Medical Advisor will contact you shortly to finalize your visit details.</span>
+                  <Info size={24} style={{ marginTop: 2, flexShrink: 0, color: "#1e4b8f" }} />
+                  <span>Your consultation is being prioritized. Our team of experts will contact you shortly to finalize your visit details.</span>
                 </div>
 
-                <button 
+                <button
                   onClick={onClose}
                   style={{
                     width: "100%",

@@ -13,36 +13,44 @@ import HowItWorks from './component/HowItWorks';
 import ScrollToTop from "./component/ScrollToTop";
 import SplashScreen from './component/SplashScreen';
 import Animation from './component/Animation'
-import PartnerWithUs from './component/PartnerWithUs'
+import PartnerOnboarding from './component/PartnerOnboarding'
 import Careers from './component/Careers'
-import DoctorOnboarding from './component/DoctorOnboarding'
+import ServicesPage from './component/ServicesPage';
+import ServiceDetailPage from './component/ServiceDetailPage';
 
 function App() {
-    const [splashDone, setSplashDone] = useState(false);
+  const [splashDone, setSplashDone] = useState(() => {
+    return sessionStorage.getItem('doxez_splash_done') === 'true';
+  });
 
   if (!splashDone) {
-    return <SplashScreen onDone={() => setSplashDone(true)} />;
+    return <SplashScreen onDone={() => {
+      sessionStorage.setItem('doxez_splash_done', 'true');
+      setSplashDone(true);
+    }} />;
   }
-  
+
   return (
     <>
-    <BrowserRouter>
-    <ScrollToTop />
-       <Header />
-    <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/service" element={<Service />} />
-        <Route path="/ContactUs" element={<ContactUs />} />
-        <Route path="/about" element={<AboutUs />} />
-        <Route path="/HowItWorks" element={<HowItWorks />} />
-        <Route path="/Animation" element={<Animation/>} />
-        <Route path="/hospital-partner" element={<PartnerWithUs />} />
-        <Route path="/doctor-onboard" element={<DoctorOnboarding />} />
-        <Route path="/careers" element={<Careers />} />
-    </Routes>
-     <Footer />
-     <WhatsAppButton />
-    </BrowserRouter>
+      <BrowserRouter>
+        <ScrollToTop />
+        <Header />
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/service" element={<Service />} />
+          <Route path="/ContactUs" element={<ContactUs />} />
+          <Route path="/about" element={<AboutUs />} />
+          <Route path="/HowItWorks" element={<HowItWorks />} />
+          <Route path="/Animation" element={<Animation />} />
+          <Route path="/partner-onboard" element={<PartnerOnboarding />} />
+          <Route path="/careers" element={<Careers />} />
+          {/* <Route path="/services" element={<ServicesPage />} /> */}
+          <Route path="/services/:categoryId" element={<ServicesPage />} />
+          <Route path="/services/:categoryId/:treatmentId" element={<ServiceDetailPage />} />
+        </Routes>
+        <Footer />
+        <WhatsAppButton />
+      </BrowserRouter>
     </>
   )
 }

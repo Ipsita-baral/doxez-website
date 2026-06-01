@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { NavLink, Link, useLocation } from "react-router-dom";
-import { Phone, Mail, ChevronDown, X, Menu, Calendar } from "lucide-react";
-import DoxeZ from "./../assets/WhatsApp_Image_2026-03-06_at_18.13.31-removebg-preview.png";
+import { Phone, Mail, ChevronDown, X, Menu, Calendar, Building2, Home, Activity, Settings, Info, UserPlus, LogIn, ChevronRight, MessageSquare } from "lucide-react";
+import DoxeZ from "./../assets/relogo.png";
 import AppointmentModal from "./AppointmentModal";
 
 export default function Header() {
@@ -41,7 +41,7 @@ export default function Header() {
           --doxez-dark: #0b1f3a;
           --text-main: #1e293b;
           --text-light: #64748b;
-          --bg-glass: rgba(255, 255, 255, 0.90);
+          --bg-glass: rgba(255, 255, 255, 1);
         }
 
         /* ── TOP CONTACT BAR ── */
@@ -80,12 +80,12 @@ export default function Header() {
         /* ── MAIN FLOATING HEADER ── */
         .nx-header {
           position: fixed;
-          top: 54px;
+          top: 60px;
           left: 50%;
           transform: translateX(-50%);
           width: 95%;
           max-width: 1200px;
-          height: 70px;
+          height: 80px;
           background: var(--bg-glass);
           backdrop-filter: blur(16px);
           -webkit-backdrop-filter: blur(16px);
@@ -100,15 +100,23 @@ export default function Header() {
           transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .nx-header.scrolled {
-          top: 12px;
+          top: 0;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 95%;
+          max-width: 1200px;
+          height: 70px;
+          border-radius: 0 0 20px 20px;
           box-shadow: 0 15px 50px -10px rgba(11, 31, 58, 0.12);
         }
 
         /* LOGO */
         .nx-logo img {
-          height: 69px;
+          height: 90px;
           display: block;
+          transition: height 0.4s;
         }
+        .nx-header.scrolled .nx-logo img { height: 76px; }
 
         /* DESKTOP NAV */
         .nx-nav {
@@ -215,6 +223,29 @@ export default function Header() {
           box-shadow: 0 6px 20px rgba(255, 136, 0, 0.4);
         }
 
+        .nx-partner-btn {
+          font-family: 'DM Sans', sans-serif;
+          font-size: 14.5px;
+          font-weight: 600;
+          color: var(--doxez-dark);
+          text-decoration: none;
+          padding: 0 16px;
+          height: 46px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          cursor: pointer;
+          transition: all 0.2s;
+          border-radius: 12px;
+          border: 1.5px solid rgba(11, 31, 58, 0.12);
+        }
+        .nx-partner-btn:hover {
+          background: #f8fbff;
+          border-color: var(--doxez-blue);
+          color: var(--doxez-blue);
+          transform: translateY(-2px);
+        }
+
         .nx-ham {
           display: none;
           width: 46px; height: 46px;
@@ -229,41 +260,42 @@ export default function Header() {
         .nx-ham:hover { opacity: 0.7; }
 
         @media(max-width: 1024px) {
-          .nx-cta { display: none; }
+          .nx-cta, .nx-partner-btn { display: none; }
           .nx-ham { display: flex; }
           .nx-header { padding: 0 16px; }
         }
         @media(max-width: 640px) {
           .nx-topbar { justify-content: center; padding: 0; font-size: 11px; height: 32px;}
-          .nx-header { top: 40px; height: 62px; width: 94%; border-radius: 16px;}
-          .nx-header.scrolled { top: 12px; }
-          .nx-logo img { height: 50px; }
+          .nx-header { top: 44px; height: 64px; width: 94%; border-radius: 16px;}
+          .nx-header.scrolled { top: 0; left: 50%; transform: translateX(-50%); height: 60px; width: 94%; border-radius: 0 0 16px 16px; }
+          .nx-logo img { height: 58px; }
+          .nx-header.scrolled .nx-logo img { height: 50px; }
           .nx-ham { width: 40px; height: 40px; }
         }
 
         /* ── MOBILE MENU ── */
         .nx-mob-overlay {
           position: fixed; inset: 0;
-          background: rgba(0,0,0,0.4);
-          backdrop-filter: blur(4px);
+          background: rgba(11, 31, 58, 0.4);
+          backdrop-filter: blur(8px);
           z-index: 1099;
           opacity: 0; visibility: hidden;
-          transition: all 0.3s;
+          transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .nx-mob-overlay.open { opacity: 1; visibility: visible; }
 
         .nx-mob {
           position: fixed;
           top: 0; right: 0; bottom: 0;
-          width: 320px;
-          max-width: 100vw;
-          background: #fff;
+          width: 340px;
+          max-width: 85vw;
+          background: #ffffff;
           z-index: 1100;
           transform: translateX(100%);
-          transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+          transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
           display: flex;
           flex-direction: column;
-          box-shadow: -10px 0 30px rgba(11,31,58,0.1);
+          box-shadow: -20px 0 60px rgba(11,31,58,0.15);
         }
         .nx-mob.open { transform: translateX(0); }
 
@@ -271,52 +303,131 @@ export default function Header() {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 20px;
-          border-bottom: 1px solid #f1f5f9;
+          padding: 16px 20px;
+          background: linear-gradient(to bottom, #f8fbff, #ffffff);
+          border-bottom: 1px solid rgba(11,31,58,0.05);
         }
-        .nx-mob-head img { height: 40px; }
+        .nx-mob-head img { height: 44px; }
         .nx-mob-close {
           width: 40px; height: 40px;
-          border-radius: 50%;
-          background: #f4f8fc;
-          border: none;
+          border-radius: 12px;
+          background: #ffffff;
+          border: 1px solid rgba(11,31,58,0.08);
           color: var(--doxez-dark);
           display: flex; align-items: center; justify-content: center;
           cursor: pointer;
+          transition: all 0.2s;
         }
+        .nx-mob-close:active { transform: scale(0.9); background: #f1f5f9; }
 
         .nx-mob-body {
-          padding: 20px;
+          padding: 16px 20px;
           overflow-y: auto;
           flex: 1;
+          background: #ffffff;
         }
+
         .nx-mlink {
-          display: block;
+          display: flex;
+          align-items: center;
+          gap: 14px;
           font-family: 'DM Sans', sans-serif;
-          font-size: 16px;
+          font-size: 15px;
           font-weight: 700;
           color: var(--text-main);
           text-decoration: none;
-          padding: 16px 0;
-          border-bottom: 1px solid #f1f5f9;
+          padding: 12px 16px;
+          margin-bottom: 4px;
+          border-radius: 14px;
+          transition: all 0.2s;
+          border: 1px solid transparent;
         }
-        .nx-mlink.active { color: var(--doxez-blue); }
+        .nx-mlink:active {
+          background: #f4f8fc;
+          color: var(--doxez-blue);
+          transform: translateX(4px);
+        }
+        .nx-mlink.active {
+          background: rgba(11, 118, 255, 0.06);
+          color: var(--doxez-blue);
+          border-color: rgba(11, 118, 255, 0.1);
+        }
 
         .nx-msec {
           font-family: 'DM Sans', sans-serif;
-          font-size: 12px;
+          font-size: 11px;
           font-weight: 800;
           color: var(--text-light);
           text-transform: uppercase;
-          letter-spacing: 0.1em;
-          margin: 30px 0 10px;
+          letter-spacing: 0.15em;
+          margin: 20px 0 12px 16px;
+          opacity: 0.6;
         }
+
         .nx-msub {
-          display: block;
+          display: flex;
+          align-items: center;
+          gap: 12px;
           font-family: 'DM Sans', sans-serif;
-          font-size: 15px;
+          font-size: 14px;
           font-weight: 600;
           color: var(--text-light);
+          text-decoration: none;
+          padding: 12px 16px;
+          margin-bottom: 4px;
+          border-radius: 12px;
+          transition: all 0.2s;
+        }
+        .nx-msub:active {
+          background: #f8fafc;
+          color: var(--text-main);
+          transform: translateX(4px);
+        }
+
+        .nx-mob-foot {
+          padding: 24px;
+          background: #ffffff;
+          border-top: 1px solid rgba(11,31,58,0.05);
+        }
+
+        .nx-mob-cta {
+          width: 100%;
+          height: 56px;
+          background: linear-gradient(135deg, #ff8800, #ffaa00);
+          color: #fff;
+          font-family: 'DM Sans', sans-serif;
+          font-size: 16px;
+          font-weight: 800;
+          border: none;
+          border-radius: 16px;
+          display: flex; align-items: center; justify-content: center;
+          gap: 10px;
+          box-shadow: 0 10px 25px rgba(255, 136, 0, 0.3);
+          transition: all 0.2s;
+        }
+        .nx-mob-cta:active { transform: scale(0.98); opacity: 0.9; }
+
+        .nx-partner-card {
+          background: transparent;
+          border-radius: 12px;
+          padding: 10px 16px;
+          margin-bottom: 12px;
+          color: var(--doxez-dark);
+          text-decoration: none;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          border: 1.5px solid rgba(11, 31, 58, 0.12);
+          transition: all 0.2s;
+        }
+        .nx-partner-card:active { background: #f8fbff; border-color: #0b76ff; color: #0b76ff; }
+        .nx-pcard-left { display: flex; align-items: center; gap: 14px; }
+        .nx-pcard-icon { 
+          color: #0b76ff;
+          display: flex; align-items: center; justify-content: center;
+        }
+        .nx-pcard-text h4 { margin: 0; font-size: 15px; font-weight: 700; }
+        .nx-pcard-text p { display: none; }
           text-decoration: none;
           padding: 12px 0;
         }
@@ -366,8 +477,7 @@ export default function Header() {
               Our Company <ChevronDown size={14} style={{ transition: "transform 0.2s", transform: activeDrop === "company" ? "rotate(180deg)" : "rotate(0)" }} />
             </button>
             <div className={`nx-drop ${activeDrop === "company" ? "open" : ""}`} onMouseEnter={() => enterDrop("company")} onMouseLeave={leaveDrop}>
-              <Link to="/hospital-partner" onClick={() => setActiveDrop(null)}>Partner With Us</Link>
-              <Link to="/doctor-onboard" onClick={() => setActiveDrop(null)}>Doctor Onboarding</Link>
+              <Link to="/partner-onboard" onClick={() => setActiveDrop(null)}>Partner With Us</Link>
               <Link to="/about" onClick={() => setActiveDrop(null)}>About Us</Link>
             </div>
           </li>
@@ -378,6 +488,9 @@ export default function Header() {
 
         {/* Right CTA */}
         <div className="nx-right">
+          <a href="https://crm.doxez.in/" target="_blank" rel="noopener noreferrer" className="nx-partner-btn">
+            <Building2 size={18} /> Partner Login
+          </a>
           <button className="nx-cta" onClick={() => setShowModal(true)}>
             <Calendar size={18} /> Book Appointment
           </button>
@@ -397,19 +510,41 @@ export default function Header() {
           </button>
         </div>
         <div className="nx-mob-body">
-          <NavLink to="/" className={({ isActive }) => `nx-mlink ${isActive ? "active" : ""}`}>Home</NavLink>
-          <NavLink to="/service" className={({ isActive }) => `nx-mlink ${isActive ? "active" : ""}`}>Services</NavLink>
-          <NavLink to="/HowItWorks" className={({ isActive }) => `nx-mlink ${isActive ? "active" : ""}`}>How It Works</NavLink>
-          <NavLink to="/ContactUs" className={({ isActive }) => `nx-mlink ${isActive ? "active" : ""}`}>Contact Us</NavLink>
+          {/* Partner Login Card */}
+          <a href="https://crm.doxez.in/" target="_blank" rel="noopener noreferrer" className="nx-partner-card">
+            <div className="nx-pcard-icon">
+              <Building2 size={20} />
+            </div>
+            <div className="nx-pcard-text">
+              <h4>Partner Login</h4>
+            </div>
+            <ChevronRight size={18} style={{ marginLeft: "auto", opacity: 0.4 }} />
+          </a>
+
+          <NavLink to="/" className={({ isActive }) => `nx-mlink ${isActive ? "active" : ""}`}>
+            <Home size={20} /> Home
+          </NavLink>
+          <NavLink to="/service" className={({ isActive }) => `nx-mlink ${isActive ? "active" : ""}`}>
+            <Activity size={20} /> Services
+          </NavLink>
+          <NavLink to="/HowItWorks" className={({ isActive }) => `nx-mlink ${isActive ? "active" : ""}`}>
+            <Settings size={20} /> How It Works
+          </NavLink>
+          <NavLink to="/ContactUs" className={({ isActive }) => `nx-mlink ${isActive ? "active" : ""}`}>
+            <MessageSquare size={20} /> Contact Us
+          </NavLink>
 
           <div className="nx-msec">Our Company</div>
-          <NavLink to="/hospital-partner" className="nx-msub">Partner With Us</NavLink>
-          <NavLink to="/doctor-onboard" className="nx-msub">Doctor Onboarding</NavLink>
-          <NavLink to="/about" className="nx-msub">About Us</NavLink>
+          <NavLink to="/partner-onboard" className="nx-msub">
+            <Building2 size={18} /> Partner With Us
+          </NavLink>
+          <NavLink to="/about" className="nx-msub">
+            <Info size={18} /> About Us
+          </NavLink>
         </div>
         <div className="nx-mob-foot">
           <button className="nx-mob-cta" onClick={() => { setShowModal(true); setMenuOpen(false); }}>
-            <Calendar size={18} /> Book Appointment
+            <Calendar size={20} /> Book Appointment
           </button>
         </div>
       </div>

@@ -1,6 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
-import { Star, MessageSquare, ShieldCheck, Clock, CheckCircle2, Building2, UserPlus, Zap, Lock, FileText, CheckCircle, HeartPulse, Activity, Loader2, CheckCircle2 as CheckIcon, ChevronRight, ChevronLeft } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import {
+  Star, MessageSquare, ArrowRight, ShieldCheck, Clock, CheckCircle2,
+  Building2, UserPlus, Zap, Lock, FileText, CheckCircle, HeartPulse,
+  Activity, Loader2, CheckCircle2 as CheckIcon, ChevronRight, ChevronLeft,
+  Stethoscope, Heart, Mic, Sparkles, Bone, Brain, ShieldPlus, Shield, Search
+} from "lucide-react";
 import DoxezWorkflow from "./DoxezWorkFlow";
 
 // Local Assets
@@ -10,9 +16,18 @@ import img3 from "../assets/StartupOdisha.png";
 import nurse from "../assets/prev.png";
 import Priya from "../assets/Priya.jpg";
 import Arjun from "../assets/Arjun.jpg";
-import sneha from "../assets/Snhea.jpg";
+// import sneha from "../assets/Snhea.jpg";
 import Vikram from "../assets/orthopedic.jpg";
 import Ananya from "../assets/doctor5.jpg";
+import proctologyIcon from "../assets/proctologii.png";
+import urology from "../assets/urology.png";
+import Gynecology from "../assets/Gynecology.png";
+import ENT from "../assets/ENT.png";
+import orthopedics from "../assets/orthopedics.png";
+import cosmeticIcon from "../assets/cumaaticc.png";
+import generalSurgeryIcon from "../assets/generalsurgery.png";
+
+
 
 /* ── REVEAL COMPONENT ── */
 function useReveal() {
@@ -56,11 +71,31 @@ function Reveal({ children, delay = 0, style = {} }) {
 }
 
 export default function HomePage() {
+  const navigate = useNavigate();
   const [heroForm, setHeroForm] = useState({ name: "", phone: "", gender: "", disease: "", otherDisease: "", ayushman: "", location: "" });
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [errors, setErrors] = useState({});
+  const [searchQuery, setSearchQuery] = useState("");
+  const [services, setServices] = useState([]);
   const scrollRef = useRef(null);
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:8000";
+        console.log("Fetching services from backend...", baseUrl);
+        const response = await axios.get(`${baseUrl}/api/services/catalog`);
+        console.log("API Response:", response.data);
+        if (response.data.success && response.data.data.length > 0) {
+          setServices(response.data.data);
+        }
+      } catch (error) {
+        console.error("Error fetching services:", error);
+      }
+    };
+    fetchServices();
+  }, []);
 
   // Auto-scroll testimonials
   useEffect(() => {
@@ -92,6 +127,13 @@ export default function HomePage() {
     }
   };
 
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/services?search=${encodeURIComponent(searchQuery)}`);
+    }
+  };
+
   // 🛡️ CRM API Configuration
   const CRM_API_URL = import.meta.env.VITE_API_URL || "https://crm.doxez.in";
 
@@ -117,9 +159,9 @@ export default function HomePage() {
         patientPhone: heroForm.phone,
         patientGender: heroForm.gender,
         treatmentRequired: heroForm.disease === "Others" ? heroForm.otherDisease : heroForm.disease,
-        hasAyushmanCard: heroForm.ayushman === "Yes", // Send as Boolean
-        city: heroForm.location, // Default city
-        patientAge: 0, // Send as Number
+        hasAyushmanCard: heroForm.ayushman === "Yes",
+        city: heroForm.location,
+        patientAge: 0,
         source: "Homepage Hero Form"
       });
 
@@ -139,7 +181,67 @@ export default function HomePage() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
         
-        .hp-hero { padding: 100px 24px 60px; min-height: 80vh; display: flex; align-items: center; }
+        .hp-hero { padding: 190px 24px 60px; min-height: 75vh; display: flex; align-items: center; background: linear-gradient(to bottom, #f0f7ff 0%, #ffffff 100%); }
+
+        .svc-tiles-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 20px;
+          max-width: 1200px;
+          margin: 0 auto;
+        }
+        @media (max-width: 1024px) { .svc-tiles-grid { grid-template-columns: repeat(4, 1fr); } }
+        @media (max-width: 768px)  { .svc-tiles-grid { grid-template-columns: repeat(3, 1fr); gap: 14px; } }
+        @media (max-width: 640px) {
+          .svc-tiles-grid { 
+            grid-template-columns: repeat(2, 1fr) !important; 
+            gap: 12px !important;
+          }
+          .svc-tiles-grid a > div { padding: 20px 16px !important; }
+          .svc-tiles-grid a div[style*="width: 64"] { width: 48px !important; height: 48px !important; margin-bottom: 12px !important; }
+          .svc-tiles-grid a h3 { font-size: 13px !important; }
+          .svc-tiles-grid a p { font-size: 10px !important; }
+          .svc-section { padding: 40px 20px !important; }
+        }
+
+        
+        .search-container {
+          max-width: 600px;
+          width: 100%;
+          background: #fff;
+          border: 1px solid #e2e8f0;
+          border-radius: 16px;
+          padding: 8px 16px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin-top: 32px;
+          box-shadow: 0 10px 25px rgba(30, 75, 143, 0.05);
+        }
+        .search-container input {
+          border: none;
+          outline: none;
+          width: 100%;
+          font-size: 16px;
+          padding: 12px 0;
+          color: #1e293b;
+        }
+        .search-container input::placeholder { color: #94a3b8; }
+        .search-btn {
+          background: #ff8800;
+          color: #fff;
+          border: none;
+          padding: 10px 24px;
+          border-radius: 12px;
+          font-weight: 700;
+          cursor: pointer;
+          transition: background 0.2s;
+        }
+        .search-btn:hover { background: #e67a00; }
+
+        @media (max-width: 1024px) {
+          .hp-hero { padding: 140px 20px 60px; align-items: flex-start; }
+        }
         .hp-inner { max-width: 1280px; margin: 0 auto; width: 100%; }
         
         .badge-main {
@@ -172,8 +274,8 @@ export default function HomePage() {
           font-size: 0.52em;
           font-weight: 600;
           color: #1e4b8f;
-          margin-top: 2px;
-          line-height: 1.3;
+          margin-top: 6px;
+          line-height: 1.4;
           letter-spacing: 0;
           opacity: 0.9;
         }
@@ -181,16 +283,15 @@ export default function HomePage() {
         .ayushman-small {
           display: inline-flex;
           align-items: center;
-          margin-bottom: 12px;
-          margin-top: 9px;
+          margin-top: 16px;
+          margin-bottom: 16px;
           gap: 6px;
           background: #eef4ff;
           color: #1e4b8f;
-          padding: 5px 12px;
+          padding: 6px 16px;
           border-radius: 99px;
           font-size: 12px;
           font-weight: 700;
-          margin-top: 4px;
           border: 1px solid rgba(30,75,143,0.1);
           white-space: nowrap;
         }
@@ -200,24 +301,25 @@ export default function HomePage() {
           line-height: 1.6;
           color: #4b5563;
           max-width: 540px;
-          margin-bottom: 20px;
+          margin-bottom: 16px;
         }
 
         .stats-row {
           display: flex;
-          gap: 30px;
-          border-top: 1px solid #f3f4f6;
+          gap: 32px;
+          border-top: 1px solid #f1f5f9;
           padding-top: 24px;
-          margin-top: 9px;
+          margin-top: 24px;
           flex-wrap: nowrap;
           justify-content: flex-start;
         }
 
         .aws-branding {
-          margin-top: 74px;
+          margin-top: 40px;
           display: flex;
           align-items: center;
           gap: 12px;
+          opacity: 0.8;
         }
 
         @media (max-width: 900px) {
@@ -226,8 +328,8 @@ export default function HomePage() {
             margin-top: 32px !important;
           }
         }
-        .stat-card h3 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 36px; font-weight: 800; color: #1e4b8f; margin-bottom: 2px; }
-        .stat-card p { font-size: 11px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.1em; line-height: 1.2; }
+        .stat-card h3 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 28px; font-weight: 800; color: #1e4b8f; margin-bottom: 2px; }
+        .stat-card p { font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.1em; line-height: 1.2; }
         .stat-card { border-left: 3px solid #eef4ff; padding-left: 16px; }
 
         @media (max-width: 640px) {
@@ -263,7 +365,7 @@ export default function HomePage() {
           z-index: 10;
         }
 
-        .partner-section { padding: 40px 24px; border-bottom: 1px solid #f3f4f6; text-align: center; overflow: hidden; }
+        .partner-section { padding: 24px 24px 60px; border-bottom: 1px solid #f3f4f6; text-align: center; overflow: hidden; }
         .logos-wrapper {
           display: flex;
           width: 100%;
@@ -292,8 +394,8 @@ export default function HomePage() {
         @keyframes pulse-soft { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 0.4; } }
         @keyframes float-up { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 
-        .section-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 32px; font-weight: 800; color: #0b1f3a; margin-bottom: 16px; }
-        .section-sub { color: #6b7280; font-size: 16px; max-width: 600px; margin: 0 auto; line-height: 1.6; }
+        .section-title { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 28px; font-weight: 800; color: #0b1f3a; margin-bottom: 12px; }
+        .section-sub { color: #6b7280; font-size: 15px; max-width: 600px; margin: 0 auto; line-height: 1.5; }
 
         .ayu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; }
         .ayu-list li { display: flex; align-items: center; gap: 12px; font-size: 15px; color: #374151; font-weight: 600; margin-bottom: 16px; }
@@ -358,6 +460,68 @@ export default function HomePage() {
           color: #1e4b8f;
           box-shadow: 0 10px 30px rgba(0,0,0,0.08);
         }
+
+        .svc-section {
+          padding: 60px 24px;
+          background: #fff;
+        }
+        .svc-icon-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+          gap: 32px;
+          max-width: 1200px;
+          margin: 40px auto 0;
+        }
+        .svc-icon-card {
+          background: #fff;
+          border: 1px solid #e2e8f0;
+          border-radius: 32px;
+          padding: 40px;
+          transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+          text-decoration: none;
+          position: relative;
+        }
+        .svc-icon-card:hover {
+          transform: translateY(-12px);
+          border-color: #3b82f6;
+          box-shadow: 0 40px 80px -20px rgba(30, 75, 143, 0.12);
+        }
+        .svc-icon-box {
+          width: 64px;
+          height: 64px;
+          background: #f8fafc;
+          color: #3b82f6;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.4s;
+          border: 1px solid #e2e8f0;
+        }
+        .svc-tile {
+          transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1) !important;
+        }
+        .svc-tile:hover {
+          transform: translateY(-10px);
+          border-color: #3b82f6 !important;
+          box-shadow: 0 30px 60px -12px rgba(30, 75, 143, 0.15) !important;
+        }
+        .svc-tile:hover .tile-icon {
+          transform: scale(1.1);
+          box-shadow: 0 10px 20px rgba(59, 130, 246, 0.1);
+        }
+
+        .svc-icon-card:hover .svc-icon-box {
+          background: #fff;
+          color: #3b82f6;
+          border-color: #3b82f6;
+          transform: scale(1.1);
+          box-shadow: 0 10px 20px rgba(59, 130, 246, 0.1);
+        }
+
         .arrow-btn:hover { background: #fff; box-shadow: 0 15px 45px rgba(30, 75, 143, 0.2); color: #0b76ff; transform: translateY(-50%) scale(1.1); }
         .arrow-btn:active { transform: translateY(-50%) scale(0.95); }
         .arrow-btn.left { left: -64px; }
@@ -397,7 +561,7 @@ export default function HomePage() {
 
         /* Hero responsive */
         @media (max-width: 1024px) {
-          .hp-hero { padding-top: 80px; }
+          .hp-hero { padding: 120px 20px 60px !important; }
           .hp-hero .hp-inner { flex-direction: column !important; align-items: center !important; text-align: center !important; }
           .hero-sub { margin: 0 auto 40px !important; }
           .stats-row { justify-content: center !important; }
@@ -406,7 +570,7 @@ export default function HomePage() {
         }
 
         @media (max-width: 640px) {
-          .hp-hero { padding: 60px 16px 30px !important; min-height: unset !important; }
+          .hp-hero { padding: 130px 16px 30px !important; min-height: unset !important; }
           .hero-title { font-size: 1.5rem !important; }
           .hero-sub { font-size: 14px !important; }
           .nurse-wrapper { width: 220px !important; height: 220px !important; }
@@ -427,7 +591,11 @@ export default function HomePage() {
         }
 
         /* Ayushman section responsive */
-        @media (max-width: 640px) {
+        @media (max-width: 768px) {
+          .svc-section { padding: 130px 0 !important; }
+          .svc-inner   { padding: 0 16px !important; }
+          .svc-grid    { grid-template-columns: 1fr !important; gap: 16px !important; }
+          .why-grid    { grid-template-columns: 1fr !important; gap: 16px !important; }
           .ayu-section { padding: 40px 16px !important; }
           .ayu-content-text { text-align: center !important; }
           .ayu-checklist { display: inline-grid !important; text-align: left !important; margin: 0 auto !important; }
@@ -443,8 +611,10 @@ export default function HomePage() {
         }
 
         /* Trust section responsive */
-        @media (max-width: 640px) {
-          .trust-section { padding: 40px 16px !important; }
+        @media (max-width: 480px) {
+          .svc-section { padding: 40px 20px !important; }
+          .svc-inner   { padding: 0 !important; }
+          .trust-section { padding: 40px 20px !important; }
           .trust-card { padding: 24px 20px !important; }
         }
 
@@ -454,6 +624,17 @@ export default function HomePage() {
           .how-it-works-section { padding: 40px 16px !important; }
           .how-it-works-section div[style*="marginBottom: 80"] { margin-bottom: 40px !important; }
           .testimonials-section div[style*="marginBottom: 64"] { margin-bottom: 32px !important; }
+          .workflow-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
+          .workflow-line { display: none !important; }
+        }
+
+        /* Workflow Grid Responsive */
+        @media (max-width: 1024px) {
+          .workflow-grid { grid-template-columns: repeat(3, 1fr) !important; gap: 32px !important; }
+          .workflow-line { display: none !important; }
+        }
+        @media (max-width: 768px) {
+          .workflow-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 24px !important; }
         }
       `}</style>
 
@@ -494,13 +675,50 @@ export default function HomePage() {
                   <p>Google Rating</p>
                 </div>
               </div>
+
+              {/* Quick Partner Login for Doctors/Hospitals */}
+              {/* <div style={{ marginTop: 28, display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+                <span style={{ fontSize: 13, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em" }}>Partner Portal:</span>
+                <a href="https://crm.doxez.in/" target="_blank" rel="noopener noreferrer"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 6,
+                    color: "#0b76ff",
+                    fontWeight: 800,
+                    fontSize: 14,
+                    textDecoration: "none",
+                    padding: "10px 18px",
+                    borderRadius: "12px",
+                    background: "rgba(11, 118, 255, 0.06)",
+                    border: "1.5px solid rgba(11, 118, 255, 0.15)",
+                    transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)"
+                  }}
+                  onMouseOver={e => {
+                    e.currentTarget.style.background = "#0b76ff";
+                    e.currentTarget.style.color = "#fff";
+                    e.currentTarget.style.transform = "translateY(-2px)";
+                    e.currentTarget.style.boxShadow = "0 8px 20px rgba(11, 118, 255, 0.2)";
+                  }}
+                  onMouseOut={e => {
+                    e.currentTarget.style.background = "rgba(11, 118, 255, 0.06)";
+                    e.currentTarget.style.color = "#0b76ff";
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
+                >
+                  <Building2 size={16} /> Doctor / Hospital Login <ChevronRight size={16} />
+                </a>
+              </div> */}
             </Reveal>
 
             {/* AWS Branding */}
-            <div className="aws-branding">
-              <span style={{ fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.1em" }}>Infrastructure powered by</span>
-              <img src="https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg" alt="AWS" style={{ height: 32 }} />
-            </div>
+            <Reveal delay={0.35}>
+              <div className="aws-branding">
+                <span style={{ fontSize: 12, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.1em" }}>Infrastructure powered by</span>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/9/93/Amazon_Web_Services_Logo.svg" alt="AWS" style={{ height: 32 }} />
+              </div>
+            </Reveal>
           </div>
 
           {/* CENTER: Nurse */}
@@ -523,7 +741,7 @@ export default function HomePage() {
               {!submitted ? (
                 <>
                   <div style={{ marginBottom: 16, textAlign: "center" }}>
-                    <h3 style={{ fontSize: 22, fontWeight: 800, color: "#0b1f3a", marginBottom: 6, }}>Book Free Consultation</h3>
+                    <h3 style={{ fontSize: 22, fontWeight: 800, color: "#0b1f3a", marginBottom: 6, }}>Book Appointment</h3>
                     <p style={{ fontSize: 11, color: "#64748b", lineHeight: 1.5 }}>Get expert advice for your surgical needs.</p>
                   </div>
 
@@ -622,33 +840,90 @@ export default function HomePage() {
             </div>
           </Reveal>
         </div>
-      </section>
+      </section >
 
-      {/* ── PARTNER SECTION ── */}
-      <section className="partner-section">
+
+
+      {/* ── SERVICES GRID ── */}
+      < section className="svc-section" >
         <div className="hp-inner">
-          <Reveal>
-            <p style={{ fontSize: 11, fontWeight: 800, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.25em", marginBottom: 32 }}>Recognized by</p>
-            <div className="logos-wrapper">
-              <div className="partner-logos">
-                <img src={img1} alt="IIT Bhubaneswar" />
-                <img src={img2} alt="Startup India" style={{ transform: "scale(1.7)" }} />
-                <img src={img3} alt="Startup Odisha" style={{ transform: "scale(1.7)" }} />
-                <img src={img1} alt="Partner" />
-                <img src={img2} alt="Partner" style={{ transform: "scale(1.7)" }} />
-                <img src={img1} alt="IIT Bhubaneswar" />
-                <img src={img2} alt="Startup India" style={{ transform: "scale(1.7)" }} />
-                <img src={img3} alt="Startup Odisha" style={{ transform: "scale(1.7)" }} />
-                <img src={img1} alt="Partner" />
-                <img src={img2} alt="Partner" style={{ transform: "scale(1.7)" }} />
-              </div>
-            </div>
-          </Reveal>
+          <div style={{ textAlign: "center", marginBottom: 60 }}>
+            <Reveal>
+              <div className="badge-main" style={{ marginBottom: 16 }}>Our Services</div>
+              <h2 className="section-title">Specialized Surgical Care</h2>
+              <p className="section-sub">Doxez connects you with expert surgeons and right hospitals for a wide range of surgical procedures.</p>
+            </Reveal>
+          </div>
+
+          <div className="svc-tiles-grid">
+            {(services.length > 0 ? services : [
+              { id: "proctology", serviceName: "Proctology", description: "Piles, Fistula & more", iconUrl: proctologyIcon, color: "#3b82f6", bg: "#eff6ff" },
+              { id: "urology", serviceName: "Urology", description: "Kidney, Prostate & more", iconUrl: urology, color: "#8b5cf6", bg: "#f5f3ff" },
+              { id: "general-surgery", serviceName: "General Surgery", description: "Hernia, Gallstone & more", iconUrl: generalSurgeryIcon, color: "#10b981", bg: "#f0fdf4" },
+              { id: "gynecology", serviceName: "Gynecology", description: "IVF, Fibroid & more", iconUrl: Gynecology, color: "#ec4899", bg: "#fdf2f8" },
+              { id: "ent", serviceName: "ENT", description: "Sinus, Tonsil & more", iconUrl: ENT, color: "#f59e0b", bg: "#fffbeb" },
+              { id: "cosmetic", serviceName: "Cosmetic Surgery", description: "Gynecomastia, Lipo & more", iconUrl: cosmeticIcon, color: "#06b6d4", bg: "#ecfeff" },
+              { id: "orthopedics", serviceName: "Orthopedics", description: "Joint, Spine & more", iconUrl: orthopedics, color: "#6366f1", bg: "#eef2ff" },
+              { id: "neurosurgery", serviceName: "Neurosurgery", description: "Slip Disc, Sciatica & more", iconUrl: null, color: "#0f172a", bg: "#f8fafc" },
+            ]).map((cat, i) => (
+              <Reveal key={cat._id || cat.id} delay={i * 0.04}>
+                <Link
+                  to={`/services/${cat._id || cat.id}`}
+                  style={{ textDecoration: "none" }}
+                >
+                  <div style={{
+                    background: "#fff",
+                    border: "1.5px solid #f1f5f9",
+                    borderRadius: "20px",
+                    padding: "28px 24px",
+                    textAlign: "center",
+                    transition: "all 0.3s cubic-bezier(0.22,1,0.36,1)",
+                    cursor: "pointer",
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    justifyContent: "center"
+                  }} className="svc-tile">
+                    <div style={{
+                      width: 64, height: 64,
+                      background: cat.bg || "#f8fafc",
+                      borderRadius: "18px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: cat.color || "#1e293b",
+                      marginBottom: 16,
+                      transition: "transform 0.3s ease"
+                    }} className="tile-icon">
+                      {cat.iconUrl ? (
+                        <img
+                          src={
+                            typeof cat.iconUrl === 'string' && cat.iconUrl.startsWith('http')
+                              ? cat.iconUrl
+                              : (cat._id
+                                ? `${import.meta.env.VITE_API_URL || "https://crm.doxez.in"}${cat.iconUrl}`
+                                : cat.iconUrl)
+                          }
+                          alt={cat.serviceName}
+                          style={{ width: 32, height: 32, objectFit: "contain" }}
+                        />
+                      ) : (
+                        <Brain size={28} />
+                      )}
+                    </div>
+                    <h3 style={{ fontSize: 17, fontWeight: 800, color: "#0b1f3a", marginBottom: 6 }}>{cat.serviceName || cat.title}</h3>
+                    <p style={{ fontSize: 13, color: "#64748b", fontWeight: 500 }}>{cat.shortDesc || cat.description || cat.desc}</p>
+                  </div>
+                </Link>
+              </Reveal>
+            ))}
+          </div>
         </div>
-      </section>
+      </section >
 
       {/* ── AYUSHMAN SUPPORT ── */}
-      <section className="ayu-section" style={{ padding: "100px 24px", background: "#f8fafc" }}>
+      <section className="ayu-section" style={{ padding: "60px 24px", background: "#f8fafc" }}>
         <div className="hp-inner" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "60px" }}>
 
           {/* Left: Animated Visual — hidden on mobile via CSS */}
@@ -705,7 +980,7 @@ export default function HomePage() {
       </section>
 
       {/* ── HOW IT WORKS SECTION ── */}
-      <section className="how-it-works-section" style={{ padding: "100px 24px", background: "#fcfdfe", borderTop: "1px solid #f1f5f9" }}>
+      <section className="how-it-works-section" style={{ padding: "60px 24px", background: "#fcfdfe", borderTop: "1px solid #f1f5f9" }}>
         <div className="hp-inner">
           <div style={{ textAlign: "center", marginBottom: 80 }}>
             <Reveal>
@@ -738,7 +1013,7 @@ export default function HomePage() {
                 {
                   id: "01",
                   title: "Book Free Consultation",
-                  desc: "Connect with a Medical Advisor to discuss your symptoms.",
+                  desc: "Connect with a experts to discuss your symptoms.",
                   icon: <MessageSquare size={22} />,
                   color: "#1e4b8f"
                 },
@@ -898,7 +1173,7 @@ export default function HomePage() {
       </section>
 
       {/* ── TESTIMONIALS ── */}
-      <section className="testimonials-section" style={{ padding: "100px 24px" }}>
+      <section className="testimonials-section" style={{ padding: "80px 24px 40px" }}>
         <div className="hp-inner">
           <div style={{ textAlign: "center", marginBottom: 64 }}>
             <Reveal>
@@ -921,7 +1196,7 @@ export default function HomePage() {
               {[
                 { name: "Dr. Priya Sharma", role: "Cardiologist", msg: "The best platform for locum doctors in India. I was matched with a high-intensity department in under 4 hours.", avatar: Priya, rating: 5 },
                 { name: "Dr. Arjun Mehta", role: "Anaesthesiologist", msg: "Transparent billing and instant payouts. Doxez has completely changed how I manage my professional shifts.", avatar: Arjun, rating: 5 },
-                { name: "Dr. Sneha Patel", role: "Pediatrician", msg: "Verified credentials mean hospitals trust me instantly. I focus on patient care while Doxez handles the rest.", avatar: sneha, rating: 5 },
+                // { name: "Dr. Sneha Patel", role: "Pediatrician", msg: "Verified credentials mean hospitals trust me instantly. I focus on patient care while Doxez handles the rest.", avatar: sneha, rating: 5 },
                 { name: "Dr. Vikram Singh", role: "Orthopedic Surgeon", msg: "Finding high-quality surgical cases has never been easier. The platform's interface is intuitive and the support is top-notch.", avatar: Vikram, rating: 5 },
                 { name: "Dr. Ananya Iyer", role: "General Surgeon", msg: "Doxez provides the flexibility I need to balance my private practice with additional surgical opportunities.", avatar: Ananya, rating: 5 }
               ].map((t, i) => (
@@ -941,6 +1216,29 @@ export default function HomePage() {
               ))}
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* ── PARTNER SECTION ── */}
+      <section className="partner-section">
+        <div className="hp-inner">
+          <Reveal>
+            <p style={{ fontSize: 11, fontWeight: 800, color: "#94a3b8", textTransform: "uppercase", letterSpacing: "0.25em", marginBottom: 32 }}>Recognized by</p>
+            <div className="logos-wrapper">
+              <div className="partner-logos">
+                <img src={img1} alt="IIT Bhubaneswar" />
+                <img src={img2} alt="Startup India" style={{ transform: "scale(1.7)" }} />
+                <img src={img3} alt="Startup Odisha" style={{ transform: "scale(1.7)" }} />
+                <img src={img1} alt="Partner" />
+                <img src={img2} alt="Partner" style={{ transform: "scale(1.7)" }} />
+                <img src={img1} alt="IIT Bhubaneswar" />
+                <img src={img2} alt="Startup India" style={{ transform: "scale(1.7)" }} />
+                <img src={img3} alt="Startup Odisha" style={{ transform: "scale(1.7)" }} />
+                <img src={img1} alt="Partner" />
+                <img src={img2} alt="Partner" style={{ transform: "scale(1.7)" }} />
+              </div>
+            </div>
+          </Reveal>
         </div>
       </section>
     </div>

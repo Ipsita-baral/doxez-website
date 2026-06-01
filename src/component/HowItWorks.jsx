@@ -83,7 +83,7 @@ const CSS = `
   .rv-fade { animation-name: revealFade; }
 
   /* ── How Doxez Works ── */
-  .dw-section { padding: 100px 0 80px; background: #f4f8fc; }
+  .dw-section { padding: 160px 0 80px; background: #f4f8fc; }
   .dw-inner { max-width: 1140px; margin: 0 auto; padding: 0 40px; }
   .dw-grid {
     display: grid;
@@ -175,7 +175,7 @@ const CSS = `
     .dw-inner, .ay-inner { padding: 0 20px !important; }
   }
   @media (max-width: 580px) {
-    .dw-section { padding: 40px 0 32px !important; }
+    .dw-section { padding: 120px 0 32px !important; }
     .ay-section { padding: 32px 0 40px !important; }
     section[style*="padding: 112px 0"] { padding: 40px 0 !important; }
     section[style*="padding: 80px 0 120px"] { padding: 40px 0 60px !important; }
@@ -191,12 +191,12 @@ const CSS = `
    FAQ DATA
 ═══════════════════════════════════════ */
 const faqs = [
-  { q: "How quickly can Doxez deploy a professional?", a: "For urgent needs, we typically deploy a verified professional within 4 hours. For planned or recurring placements we confirm within 24 hours of receiving your requirement." },
-  { q: "Are all professionals background-checked?", a: "Yes — every professional undergoes credential verification, licence checks and background assessment before being listed in the Doxez network." },
-  { q: "What roles does Doxez cover?", a: "Doctors, Nurses, Pharmacists, Physiotherapists, Lab Technicians, GDAs, OT Technicians and Allied Health Staff. We continuously grow our network across specializations." },
-  { q: "Can I use Doxez for long-term placements?", a: "Absolutely. Doxez supports emergency cover, short-term shifts, extended contracts and permanent placements — we adapt to what your facility needs." },
-  { q: "How is billing handled?", a: "We provide clear, itemized, GST-compliant invoices for every engagement. No hidden fees — you pay only for the professional time and service used." },
-  { q: "What if the placement isn't the right fit?", a: "Contact your Doxez account manager immediately. We resolve issues quickly and present a vetted alternative professional without delay." },
+  { q: "What is Doxez?", a: "Doxez is India's leading digital platform for end-to-end surgical care facilitation. We connect patients with verified doctors and top-tier hospitals, ensuring a seamless journey from consultation to recovery." },
+  { q: "How does Doxez help with Ayushman Bharat?", a: "We help patients find Ayushman-empanelled hospitals, check bed availability, and provide complete support for the treatment process." },
+  { q: "Is Doxez a hospital?", a: "No, Doxez is a facilitator platform. We partner with highly skilled surgeons and top-tier hospitals to ensure you get the best medical care at the most affordable prices." },
+  { q: "Are there any charges for using Doxez services?", a: "Doxez simplifies surgical care by coordinating between patients, surgeons, and hospitals. Our priority is to ensure you receive high-quality treatment with full coordination support. For specific details regarding our service structure, please connect with our team of experts." },
+  { q: "How do I book an appointment?", a: "You can book a free consultation by filling out the form on our homepage or by calling our support line. Our team of experts will then guide you through the entire process." },
+  { q: "What surgical specialties does Doxez cover?", a: "We facilitate a wide range of surgeries including Proctology (Piles, Fistula), Urology (Kidney Stones), General Surgery (Hernia, Gallstone), Gynecology, ENT, Orthopedics, and more." },
 ];
 
 /* ═══════════════════════════════════════
@@ -233,23 +233,22 @@ function StatNum({ value, suffix = "", prefix = "" }) {
   );
 }
 
-function FAQItem({ q, a, delay }) {
-  const [open, setOpen] = useState(false);
+function FAQItem({ q, a, delay, isOpen, onToggle }) {
   return (
     <Reveal delay={delay}>
-      <div className={`faq-item${open ? " open" : ""}`}>
-        <div className="faq-trigger" onClick={() => setOpen(o => !o)}>
+      <div className={`faq-item${isOpen ? " open" : ""}`}>
+        <div className="faq-trigger" onClick={onToggle}>
           <span style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 15, fontWeight: 700, color: "#0b1f3a", lineHeight: 1.4 }}>{q}</span>
           <div style={{
             width: 30, height: 30, borderRadius: "50%", flexShrink: 0,
-            background: open ? "#0b76ff" : "#eef4fb",
-            border: `1.5px solid ${open ? "#0b76ff" : "#dde7f0"}`,
+            background: isOpen ? "#0b76ff" : "#eef4fb",
+            border: `1.5px solid ${isOpen ? "#0b76ff" : "#dde7f0"}`,
             display: "flex", alignItems: "center", justifyContent: "center",
-            color: open ? "white" : "#4a6080", fontSize: 18, fontWeight: 300,
-            transform: open ? "rotate(45deg)" : "none", transition: "all 0.3s",
+            color: isOpen ? "white" : "#4a6080", fontSize: 18, fontWeight: 300,
+            transform: isOpen ? "rotate(45deg)" : "none", transition: "all 0.3s",
           }}>+</div>
         </div>
-        {open && (
+        {isOpen && (
           <div style={{ margin: "0 28px 22px", paddingTop: 16, borderTop: "1px solid #dde7f0", fontSize: 14.5, lineHeight: 1.85, color: "#4a6080" }}>
             {a}
           </div>
@@ -521,6 +520,7 @@ function SpecialtiesSection() {
    MAIN PAGE
 ═══════════════════════════════════════ */
 export default function HowItWorksPage() {
+  const [activeFaq, setActiveFaq] = useState(null);
   return (
     <div style={{ fontFamily: "'DM Sans', sans-serif", background: "#f4f8fc", color: "#0b1f3a", overflowX: "hidden" }}>
       <style>{CSS}</style>
@@ -550,7 +550,7 @@ export default function HowItWorksPage() {
                   Questions we hear most often
                 </h2>
                 <p style={{ fontSize: 15, lineHeight: 1.85, color: "#4a6080", marginBottom: 32 }}>
-                  Everything you need to know about working with DoxEZ — for facilities and professionals alike.
+                  Everything you need to know about Doxez surgical facilitation services — for patients and families alike.
                 </p>
                 <div style={{ background: "#0b1f3a", borderRadius: 20, padding: "26px 28px" }}>
                   <div style={{ fontSize: 12, color: "rgba(255,255,255,0.45)", marginBottom: 10, fontWeight: 600, letterSpacing: "0.06em", textTransform: "uppercase" }}>Still have questions?</div>
@@ -561,7 +561,14 @@ export default function HowItWorksPage() {
             </Reveal>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {faqs.map((f, i) => (
-                <FAQItem key={f.q} q={f.q} a={f.a} delay={i * 0.06} />
+                <FAQItem
+                  key={f.q}
+                  q={f.q}
+                  a={f.a}
+                  delay={i * 0.06}
+                  isOpen={activeFaq === i}
+                  onToggle={() => setActiveFaq(activeFaq === i ? null : i)}
+                />
               ))}
             </div>
           </div>
@@ -577,10 +584,10 @@ export default function HowItWorksPage() {
               <div style={{ position: "absolute", inset: 0, backgroundImage: "linear-gradient(rgba(255,255,255,0.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.018) 1px,transparent 1px)", backgroundSize: "50px 50px", pointerEvents: "none" }} />
               <div style={{ position: "relative", zIndex: 1 }}>
                 <h2 className="cta-title" style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: "clamp(2rem,4.5vw,3.2rem)", fontWeight: 800, color: "white", letterSpacing: "-0.03em", lineHeight: 1.1, maxWidth: 660, margin: "0 auto 16px" }}>
-                  Ready to experience a smarter way to staff?
+                  Ready to experience a smarter way to handle your surgery?
                 </h2>
                 <p className="cta-text" style={{ fontSize: 17, color: "rgba(255,255,255,0.52)", maxWidth: 500, margin: "0 auto 44px", lineHeight: 1.9 }}>
-                  Reach out to our team. We will guide you through the process and match you with the right professionals — fast.
+                  Reach out to our team. We will guide you through the process and connect you with the right specialists — fast.
                 </p>
                 <div style={{ display: "flex", gap: 14, justifyContent: "center", flexWrap: "wrap" }}>
                   {[

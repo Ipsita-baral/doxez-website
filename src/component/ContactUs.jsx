@@ -86,11 +86,11 @@ export default function ContactUs() {
         .content-wrap {
           max-width: 1160px;
           margin: 0 auto;
-          padding: 64px 24px 80px;
+          padding: 140px 24px 80px;
         }
 
         @media (max-width: 640px) {
-          .content-wrap { padding: 32px 16px 40px; }
+          .content-wrap { padding: 110px 16px 40px; }
         }
 
         /* Hero */
@@ -365,8 +365,8 @@ export default function ContactUs() {
               Get in <span>Touch</span>
             </h1>
             <p className="hero-sub">
-              We're here to help you find the right medical professionals for your facility.
-              Reach out to our staffing experts today.
+              We're here to help you with your surgical journey and Ayushman Bharat coordination.
+              Reach out to our team of experts today.
             </p>
           </div>
 
@@ -418,9 +418,9 @@ export default function ContactUs() {
                     {errors.name && <span style={{ color: "red", fontSize: "12px" }}>{errors.name}</span>}
                   </div>
                   <div className="field-group" style={{ marginBottom: 0 }}>
-                    <label htmlFor="org">Organization</label>
+                    <label htmlFor="org">Preferred Hospital (Optional)</label>
                     <input
-                      id="org" type="text" placeholder="City General Hospital"
+                      id="org" type="text" placeholder="e.g. AIIMS or nearby hospital"
                       value={formData.org}
                       onChange={e => setFormData({ ...formData, org: e.target.value })}
                       onFocus={() => setFocused("org")} onBlur={() => setFocused("")}
@@ -450,16 +450,17 @@ export default function ContactUs() {
                 </div>
 
                 <div className="field-group">
-                  <label htmlFor="role">Your Role</label>
+                  <label htmlFor="role">Your Status</label>
                   <select
                     id="role"
                     value={formData.role}
                     onChange={e => setFormData({ ...formData, role: e.target.value })}
                     onFocus={() => setFocused("role")} onBlur={() => setFocused("")}
                   >
-                    <option value="">Select your role</option>
-                    <option value="admin">Hospital Administrator</option>
-                    <option value="pro">Healthcare Professional</option>
+                    <option value="">I am a...</option>
+                    <option value="patient">Patient</option>
+                    <option value="caretaker">Caretaker/Family Member</option>
+                    <option value="doctor">Doctor</option>
                     <option value="other">Other</option>
                   </select>
                 </div>

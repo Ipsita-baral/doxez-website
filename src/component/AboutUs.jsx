@@ -99,40 +99,40 @@ function Counter({ value, suffix = "" }) {
    DATA
 ════════════════════════════════════════ */
 const stats = [
-  { icon: Users, value: "10000", suffix: "+", label: "Verified Professionals", color: "#0ea5e9" },
-  { icon: Building2, value: "500", suffix: "+", label: "Partner Facilities", color: "#10b981" },
-  { icon: Clock, value: "4", suffix: " hrs", label: "Avg. Fill Time", color: "#f59e0b" },
-  { icon: Star, value: "99", suffix: "%", label: "Satisfaction Rate", color: "#8b5cf6" },
+  { icon: Users, value: "5000", suffix: "+", label: "Happy Patients", color: "#0ea5e9" },
+  { icon: Building2, value: "100", suffix: "+", label: "Partner Hospitals", color: "#10b981" },
+  { icon: Clock, value: "24", suffix: "/7", label: "Support Available", color: "#f59e0b" },
+  { icon: Star, value: "98", suffix: "%", label: "Success Rate", color: "#8b5cf6" },
 ];
 
 const whatWeDo = [
-  { icon: Users, color: "#0ea5e9", bg: "#e0f2fe", title: "Connect Healthcare Facilities", desc: "We connect hospitals, clinics and nursing homes with skilled healthcare professionals quickly and efficiently, ensuring facilities always have access to the right talent." },
-  { icon: ShieldCheck, color: "#10b981", bg: "#d1fae5", title: "Verified Medical Professionals", desc: "Every professional on the DOXEZ platform undergoes thorough verification — credential checks, background screening and skill assessment before listing." },
-  { icon: BriefcaseMedical, color: "#f59e0b", bg: "#fef3c7", title: "Flexible Staffing Solutions", desc: "From emergency cover tonight to long-term workforce planning, DOXEZ provides flexible solutions tailored for every healthcare organisation's needs." },
-  { icon: HeartPulse, color: "#ef4444", bg: "#fee2e2", title: "Support Better Patient Care", desc: "By connecting facilities with skilled professionals faster, we free up hospital teams to focus entirely on delivering exceptional patient outcomes." },
+  { icon: HeartPulse, color: "#ef4444", bg: "#fee2e2", title: "Personalized Surgical Care", desc: "We guide you through every step of your surgical journey, from finding the right specialist to ensuring a smooth post-operative recovery." },
+  { icon: ShieldCheck, color: "#10b981", bg: "#d1fae5", title: "Ayushman Bharat Support", desc: "We simplify Ayushman Bharat coordination, helping you find empanelled hospitals and handling all documentation for a 100% cashless experience." },
+  { icon: Building2, color: "#0ea5e9", bg: "#e0f2fe", title: "Vetted Hospital Network", desc: "Every hospital in our network is strictly audited for safety, hygiene, and surgical excellence, ensuring you receive world-class treatment." },
+  { icon: Users, color: "#f59e0b", bg: "#fef3c7", title: "Dedicated experts", desc: "Our team of experts is available 24/7 to answer your queries, coordinate admissions, and provide emotional support to families." },
 ];
 
 const whyList = [
-  "Verified doctors, nurses and healthcare staff",
-  "Sub-4-hour placement for urgent cover",
-  "OTP-based time tracking — zero billing disputes",
-  "Transparent, auto-calculated invoicing",
-  "Dedicated account manager for every facility",
-  "Trusted by 500+ healthcare organisations",
+  "Verified and highly experienced surgeons",
+  "End-to-end Ayushman Bharat & Insurance support",
+  "100% transparent pricing with no hidden costs",
+  "Faster admissions and reduced waiting times",
+  "Personalized care coordination for every patient",
+  "Trusted by thousands of families across India",
 ];
 
 const values = [
-  { icon: "🛡️", title: "Trust First", desc: "Every decision starts with: will this make patients safer and facilities more confident?" },
-  { icon: "⚡", title: "Speed Matters", desc: "In healthcare, delay costs lives. Our systems are built to respond in minutes, not days." },
-  { icon: "🤝", title: "Fair for Everyone", desc: "Hospitals get great professionals. Doctors get fair pay. No hidden markups, ever." },
-  { icon: "📊", title: "Data Transparency", desc: "Full audit trails, verified timesheets, and transparent invoicing — always." },
+  { icon: "🛡️", title: "Patient Safety First", desc: "Every decision we make is centered around ensuring the safest and most effective surgical outcomes for our patients." },
+  { icon: "⚡", title: "Swift Coordination", desc: "In medical emergencies, every second counts. Our technology ensures lightning-fast admission and surgical scheduling." },
+  { icon: "🤝", title: "Empathy & Support", desc: "We don't just facilitate surgeries; we provide emotional and logistical support to patients and their loved ones." },
+  { icon: "📊", title: "Radical Transparency", desc: "From surgical costs to hospital ratings, we provide all the information you need to make informed decisions." },
 ];
 
 const missionItems = [
-  "Built by healthcare insiders",
-  "Technology-first, human-centred",
-  "Operational in under 4 hours",
-  "Zero billing disputes with OTP tracking",
+  "Built by doctors for patients",
+  "Simplifying complex surgical journeys",
+  "Accessible care for everyone",
+  "Technology-driven coordination",
 ];
 
 /* ════════════════════════════════════════
@@ -173,7 +173,7 @@ export default function AboutUs() {
     @keyframes checkIn { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
 
     /* ── LAYOUT ── */
-    .au-section { padding: 80px 24px 100px; }
+    .au-section { padding: 160px 24px 100px; }
     .au-inner   { max-width: 1100px; margin: 0 auto; }
     .grid-2     { display: grid; grid-template-columns: 1fr 1fr; }
     .grid-4     { display: grid; }
@@ -231,7 +231,7 @@ export default function AboutUs() {
       .cta-box      { padding: 52px 32px !important; border-radius: 22px !important; }
       .cta-box h2   { font-size: 30px !important; }
       .why-img      { height: 340px !important; }
-      .au-section   { padding: 60px 20px 72px !important; }
+      .au-section   { padding: 130px 20px 72px !important; }
       .what-card    { flex-direction: column !important; }
       .values-title { font-size: 32px !important; }
       .wwd-title    { font-size: 32px !important; }
@@ -241,7 +241,7 @@ export default function AboutUs() {
     @media (max-width: 580px) {
       .grid-4       { grid-template-columns: 1fr !important; }
       .stats-row    { grid-template-columns: 1fr 1fr !important; }
-      .au-section   { padding: 32px 16px 40px !important; }
+      .au-section   { padding: 120px 16px 40px !important; }
       .mission-box  { padding: 32px 20px !important; border-radius: 20px !important; }
       .mission-box h2 { font-size: 24px !important; }
       .cta-box      { padding: 32px 18px !important; border-radius: 18px !important; }
@@ -351,10 +351,10 @@ export default function AboutUs() {
                     Our Mission
                   </div>
                   <h2 style={{ fontFamily: "'Bricolage Grotesque', sans-serif", fontSize: 36, fontWeight: 800, color: "#fff", lineHeight: 1.2, marginBottom: 20 }}>
-                    Healthcare facilities should never go short-staffed.
+                    Every patient deserves seamless surgical care.
                   </h2>
                   <p style={{ fontSize: 16, color: "rgba(255,255,255,0.58)", lineHeight: 1.8 }}>
-                    Doxez was built to solve a real crisis — hospitals struggling to find verified professionals at short notice. We created a trusted network and the technology to connect them instantly, so patient care is never compromised.
+                    Doxez was founded to bridge the gap between patients and quality healthcare. We simplify the overwhelming process of finding the right surgeon and navigating hospital admissions, especially for those relying on Ayushman Bharat and insurance.
                   </p>
                 </div>
 

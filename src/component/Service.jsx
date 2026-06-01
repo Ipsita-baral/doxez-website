@@ -1,9 +1,23 @@
 import { useState, useEffect, useRef } from "react";
 import { Activity, Bone, Baby, Brain } from "lucide-react";
-import genSurgeon from "../assets/generalsurgeon.jpg";
+// import genSurgeon from "../assets/generalsurgeon.jpg";
 import orthoImg from "../assets/orthopedic.jpg";
 import othersImg from "../assets/others.jpg";
-import gynaeImg from "../assets/gynae.png";
+import proctologyIcon from "../assets/proctologii.png";
+import urology from "../assets/urology.png";
+import Gynecology from "../assets/Gynecology.png";
+import ENT from "../assets/ENT.png";
+import orthopedics from "../assets/orthopedics.png";
+import cosmeticIcon from "../assets/cumaaticc.png";
+import generalSurgeryIcon from "../assets/generalsurgery.png";
+import axios from "axios";
+import { servicesData as localServicesData } from '../data/servicesData';
+import { Link, useNavigate } from "react-router-dom";
+import {
+  ChevronRight, ChevronLeft, Stethoscope, Heart,
+  Mic, Sparkles, ShieldPlus, Shield, Search, Mail, ArrowRight, Loader2
+} from "lucide-react";
+
 
 /* ─── THEME ─── */
 const t = {
@@ -13,71 +27,7 @@ const t = {
 };
 
 /* ─── DATA ─── */
-const cards = [
-  {
-    icon: <Activity size={22} color="#0b76ff" />,
-    title: "General Surgery",
-    desc: "Expert surgical care for common yet critical procedures performed by experienced general surgeons across hospitals and surgical centres.",
-    checks: [
-      "Hernia repair, Piles (haemorrhoidectomy), Gallbladder removal (laparoscopic cholecystectomy)",
-      "Appendectomy and abdominal emergency surgical cover",
-    ],
-    img: genSurgeon,
-    color: "#0b76ff",
-    lightBg: "#eaf4ff",
-  },
-  {
-    icon: <Bone size={22} color="#7c3aed" />,
-    title: "Orthopedic Surgery",
-    desc: "Skilled orthopaedic professionals for joint replacement, spinal interventions and trauma care aligned to patient mobility and recovery goals.",
-    checks: [
-      "Knee replacement, spine surgery and fracture management",
-      "Inpatient orthopaedic cover for high-volume surgical departments",
-    ],
-    img: orthoImg,
-    color: "#7c3aed",
-    lightBg: "#f5f3ff",
-  },
-  {
-    icon: <Baby size={22} color="#ec4899" />,
-    title: "Obstetric & Gynaecology Surgery",
-    desc: "Comprehensive women’s healthcare services covering pregnancy, childbirth and advanced laproscopic gynaecological procedures delivered by experienced specialists.",
-    checks: [
-      "Normal delivery, C-section (LSCS) and maternity care",
-      "Hysterectomy, fibroid removal and other gynaecological surgeries",
-      "IVF and advanced fertility treatments"
-    ],
-    img: gynaeImg, // <-- add your Indian relevant image here
-    color: "#ec4899",
-    lightBg: "#fff1f7",
-  },
-  {
-    icon: <Brain size={22} color="#059669" />,
-    title: "Advanced Specialties",
-    desc: "Specialists in complex surgical fields supporting tertiary care hospitals, super-specialty centres and advanced diagnostic facilities.",
-    checks: [
-      "Urology,Neurosurgery,Plastic Surgery, gastrosurgery,orthosurgery staffing for specialist departments",
-      "Reliable cover for planned procedures and emergency surgical needs",
-    ],
-    img: othersImg,
-    color: "#059669",
-    lightBg: "#f0fdf4",
-  }
 
-  // {
-  //   icon: "✨",
-  //   title: "Lifestyle Procedures",
-  //   desc: "Coming Soon — Expanding our network to include elective and wellness-focused surgical professionals for modern healthcare demands.",
-  //   checks: [
-  //     "Hair transplant and aesthetic procedure specialists",
-  //     "IVF and assisted reproductive technology (ART) support professionals",
-  //   ],
-  //   img: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=600&q=85",
-  //   color: "#d97706",
-  //   lightBg: "#fffbeb",
-  //   comingSoon: true,
-  // },
-];
 
 const whyItems = [
   {
@@ -338,24 +288,170 @@ export default function DoxEZServicesPage() {
       .svc-grid { grid-template-columns: repeat(2, 1fr) !important; }
       .why-grid { grid-template-columns: repeat(2, 1fr) !important; }
     }
-    @media (max-width: 768px) {
-      .svc-section { padding: 64px 0 !important; }
-      .svc-inner   { padding: 0 16px !important; }
-      .svc-grid    { grid-template-columns: 1fr !important; gap: 16px !important; }
-      .why-grid    { grid-template-columns: 1fr !important; gap: 16px !important; }
+    .svc-tiles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 24px;
+      max-width: 1200px;
+      margin: 0 auto;
     }
-    @media (max-width: 480px) {
-      .svc-section { padding: 32px 0 !important; }
-      .svc-inner   { padding: 0 12px !important; }
+    .svc-tile {
+      background: #fff;
+      border: 1.5px solid #f1f5f9;
+      border-radius: 20px;
+      padding: 32px 24px;
+      text-align: center;
+      transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+      cursor: pointer;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
     }
+    .svc-tile:hover {
+      transform: translateY(-10px);
+      border-color: #3b82f6 !important;
+      box-shadow: 0 30px 60px -12px rgba(30, 75, 143, 0.15) !important;
+    }
+    .tile-icon {
+      width: 64px;
+      height: 64px;
+      background: #f8fafc;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #1e293b;
+      margin-bottom: 20px;
+      transition: all 0.3s ease;
+      border: 1px solid #e2e8f0;
+    }
+    // .svc-tile:hover .tile-icon {
+    //   transform: scale(1.1);
+    //   background: #fff;
+    //   border-color: #3b82f6;
+    //   color: #3b82f6;
+    // }
+    .svc-tile h3 {
+      font-size: 18px;
+      font-weight: 800;
+      color: #0b1f3a;
+      margin-bottom: 8px;
+    }
+    .svc-tile p {
+      font-size: 14px;
+      color: #64748b;
+      font-weight: 500;
+      line-height: 1.5;
+    }
+
+    .reg-form-container {
+      margin-top: 80px;
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 24px;
+      padding: 40px;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(30,75,143,0.05);
+    }
+    .reg-input-group {
+      display: flex;
+      gap: 12px;
+      max-width: 500px;
+      margin: 24px auto 0;
+    }
+    .reg-input {
+      flex: 1;
+      padding: 14px 20px;
+      border-radius: 12px;
+      border: 1.5px solid #e2e8f0;
+      font-size: 15px;
+      outline: none;
+      transition: all 0.3s;
+    }
+    .reg-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 4px rgba(59,130,246,0.1); }
+    .reg-btn {
+      background: #3b82f6;
+      color: #fff;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.3s;
+      white-space: nowrap;
+    }
+    .reg-btn:hover { background: #2563eb; transform: translateY(-2px); }
   `;
+
+  const [email, setEmail] = useState("");
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:8000";
+        const response = await axios.get(`${baseUrl}/api/services/catalog`);
+        console.log("Backend Data for Services:::::::", response.data);
+
+        // Define our desired frontend data for icons/desc
+        const staticMap = {
+          "proctology": { desc: "Piles, Fistula & more", icon: proctologyIcon },
+          "urology": { desc: "Kidney, Prostate & more", icon: urology },
+          "general-surgery": { desc: "Hernia, Gallstone & more", icon: generalSurgeryIcon },
+          "gynecology": { desc: "IVF, Fibroid & more", icon: Gynecology },
+          "ent": { desc: "Sinus, Tonsil & more", icon: ENT },
+          "cosmetic-surgery": { desc: "Gynecomastia, Lipo & more", icon: cosmeticIcon },
+          "orthopedics": { desc: "Joint, Spine & more", icon: orthopedics },
+        };
+
+        if (response.data.success && response.data.data.length > 0) {
+          const mappedData = response.data.data.map(service => {
+            const lowerTitle = service.serviceName.toLowerCase().replace(/\s+/g, '-');
+            const local = staticMap[lowerTitle] || {};
+            return {
+              ...service,
+              id: service._id,
+              title: service.serviceName,
+              description: service.description || service.shortDesc || local.desc || "Specialized surgical care",
+              iconUrl: local.icon || (service.iconImage
+                ? (service.iconImage.startsWith('http') ? service.iconImage : `${baseUrl}${service.iconImage}`)
+                : proctologyIcon)
+            };
+          });
+          setServices(mappedData);
+        } else {
+          setServices(localServicesData.map(s => ({ ...s, description: s.shortDesc || s.description })));
+        }
+      } catch (error) {
+        console.error("Error fetching services:", error);
+        setServices(localServicesData.map(s => ({ ...s, description: s.shortDesc || s.description })));
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchServices();
+  }, []);
+
+  const handleRegister = (e) => {
+    e.preventDefault();
+    alert(`Registration link sent to ${email}`);
+    setEmail("");
+  };
 
   return (
     <div style={{ fontFamily: "Inter, sans-serif", background: t.bg, color: t.fg, overflowX: "hidden" }}>
       <style>{css}</style>
 
       {/* ══ SERVICES SECTION ══ */}
-      <section className="svc-section" style={{ background: t.bg }}>
+      <section className="svc-section" style={{ background: t.bg, padding: "180px 0 80px" }}>
         <div className="svc-inner">
 
           {/* Header */}
@@ -368,25 +464,43 @@ export default function DoxEZServicesPage() {
               letterSpacing: "0.05em", textTransform: "uppercase",
             }}>
               <span style={{ width: 7, height: 7, borderRadius: "50%", background: t.accent, display: "inline-block" }} />
-              What We Offer
+              Our Services
             </div>
             <h2 style={{
               fontSize: "clamp(1.8rem,4vw,2.8rem)", fontWeight: 800,
               color: t.fg, letterSpacing: "-0.03em", marginBottom: 16, lineHeight: 1.15,
             }}>
-              Surgical &amp; Specialty Services
+              Specialized Surgical Care
             </h2>
             <p style={{ fontSize: 17, lineHeight: 1.75, color: t.mutedFg, maxWidth: 560, margin: "0 auto" }}>
-              Every professional in the Doxez network is credential-verified, background-checked and assessed before being listed.
+              Doxez connects you with expert surgeons and right hospitals for a wide range of surgical procedures.
             </p>
           </Reveal>
 
-          {/* Cards */}
-          <div className="svc-grid">
-            {cards.map((card, i) => (
-              <ServiceCard key={card.title} card={card} delay={i * 0.1} />
-            ))}
-          </div>
+          {/* Tiles Grid */}
+          {loading ? (
+            <div style={{ display: "flex", justifyContent: "center", padding: "40px" }}>
+              <Loader2 className="animate-spin" style={{ color: "#3b82f6" }} size={40} />
+            </div>
+          ) : (
+            <div className="svc-tiles-grid">
+              {services.map((cat, i) => (
+                <Reveal key={cat.id} delay={i * 0.05}>
+                  <Link to={`/services/${cat.id}`} className="svc-tile">
+                    <div className="tile-icon">
+                      {cat.iconUrl ? (
+                        <img src={cat.iconUrl} alt={cat.title} style={{ width: 32, height: 32, objectFit: "contain" }} />
+                      ) : (
+                        <Stethoscope size={32} />
+                      )}
+                    </div>
+                    <h3>{cat.title}</h3>
+                    <p>{cat.description}</p>
+                  </Link>
+                </Reveal>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
