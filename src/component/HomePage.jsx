@@ -154,7 +154,7 @@ export default function HomePage() {
     validationSchema: Yup.object({
       name: Yup.string().required("Required"),
       email: Yup.string().email("Invalid email format"),
-      phone: Yup.string().matches(/^\d{10}$/, "Valid 10-digit number required").required("Required"),
+      phone: Yup.string().matches(/^[6-9]\d{9}$/, "Valid 10-digit number required").required("Required"),
       gender: Yup.string().required("Required"),
       disease: Yup.string().required("Required"),
       otherDisease: Yup.string().when("disease", {
