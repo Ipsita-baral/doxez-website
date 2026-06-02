@@ -403,7 +403,7 @@ export default function HomePage() {
         .search-btn:hover { background: #e67a00; }
 
         @media (max-width: 1024px) {
-          .hp-hero { padding: 140px 20px 60px; align-items: flex-start; }
+          .hp-hero { padding: 180px 20px 60px; align-items: flex-start; }
         }
         .hp-inner { max-width: 1280px; margin: 0 auto; width: 100%; }
         
@@ -739,7 +739,7 @@ export default function HomePage() {
 
         /* Hero responsive */
         @media (max-width: 1024px) {
-          .hp-hero { padding: 120px 20px 60px !important; }
+          .hp-hero { padding: 180px 20px 60px !important; }
           .hp-hero .hp-inner { flex-direction: column !important; align-items: center !important; text-align: center !important; }
           .hero-sub { margin: 0 auto 40px !important; }
           .stats-row { justify-content: center !important; }
@@ -748,7 +748,7 @@ export default function HomePage() {
         }
 
         @media (max-width: 640px) {
-          .hp-hero { padding: 130px 16px 30px !important; min-height: unset !important; }
+          .hp-hero { padding: 160px 16px 30px !important; min-height: unset !important; }
           .hero-title { font-size: 1.5rem !important; }
           .hero-sub { font-size: 14px !important; }
           .nurse-wrapper { width: 220px !important; height: 220px !important; }
