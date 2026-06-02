@@ -13,7 +13,7 @@ import orthopedics from "../assets/orthopedics.png";
 import appendectomy from '../assets/Appendectomy.jpeg';
 import IVF from '../assets/IVF.jpeg';
 import leaserCircumcision from '../assets/leasercircumsion.jpeg';
-import zsrcircumcision from '../assets/zsrcircumsion.jpeg';
+import zsrcircumcision from '../assets/ZSRcircumsion.jpeg';
 import varicocele from '../assets/vericocele.jpeg';
 import thyroidectomy from '../assets/thiroid.png';
 import lipoma from '../assets/lipoma.jpeg';
@@ -24,7 +24,7 @@ import cosmeticIcon from '../assets/cumaaticc.png';
 import generalSurgeryIcon from '../assets/generalsurgery.png';
 import slipDiscImg from '../assets/SlipDisc.jpeg';
 import cervicalSpineImg from '../assets/cirvicalspine.jpeg';
-import LumberSpine from '../assets/lmberspine.jpeg';
+import LumberSpine from '../assets/Lmberspine.jpeg';
 import Acltearimg from '../assets/ACLtear.jpeg';
 import meniscusImg from '../assets/menisous.jpeg';
 
