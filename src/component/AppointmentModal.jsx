@@ -27,7 +27,7 @@ export default function AppointmentModal({ onClose }) {
     name: Yup.string().required("Full name is required"),
     age: Yup.number().typeError("Age must be a number").required("Age is required").positive().integer(),
     gender: Yup.string().required("Required"),
-    phone: Yup.string().matches(/^\d{10}$/, "Valid 10-digit number required").required("Phone number is required"),
+    phone: Yup.string().matches(/^[6-9]\d{9}$/, "Valid 10-digit number required").required("Phone number is required"),
     city: Yup.string().required("Please select a city"),
     specialty: Yup.string().required("Please select a disease"),
     otherDisease: Yup.string().when("specialty", {
