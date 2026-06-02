@@ -743,7 +743,7 @@ export default function HomePage() {
           .hp-hero .hp-inner { flex-direction: column !important; align-items: center !important; text-align: center !important; }
           .hero-sub { margin: 0 auto 40px !important; }
           .stats-row { justify-content: center !important; }
-          .nurse-wrapper { width: 280px !important; height: 280px !important; margin: 32px auto !important; }
+          .nurse-wrapper { width: 280px !important; height: 280px !important; margin: 90px auto 40px !important; }
           .hero-form-card { width: 100% !important; max-width: 480px !important; margin: 0 auto !important; }
         }
 
@@ -751,7 +751,7 @@ export default function HomePage() {
           .hp-hero { padding: 160px 16px 30px !important; min-height: unset !important; }
           .hero-title { font-size: 1.5rem !important; }
           .hero-sub { font-size: 14px !important; }
-          .nurse-wrapper { width: 220px !important; height: 220px !important; }
+          .nurse-wrapper { width: 220px !important; height: 220px !important; margin: 70px auto 32px !important; }
           .section-title { font-size: 24px !important; margin-bottom: 12px !important; }
           .section-sub { font-size: 14px !important; margin-bottom: 24px !important; }
           .t-card { padding: 24px 20px !important; }
