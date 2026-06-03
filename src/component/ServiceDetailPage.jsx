@@ -11,7 +11,7 @@ import { servicesData } from '../data/servicesData';
 export default function ServiceDetailPage() {
   const { categoryId, treatmentId } = useParams();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: "", phone: "", city: "", hasAyushman: false });
+  const [form, setForm] = useState({ name: "", email: "", phone: "", city: "", hasAyushman: false });
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
@@ -143,6 +143,8 @@ export default function ServiceDetailPage() {
         // Use the professional Web-Lead API for better CRM routing
         await axios.post(`${CRM_API_URL}/api/leads/public/web-lead`, {
           patientName: form.name,
+          patientEmail: form.email,
+          email: form.email,
           patientPhone: form.phone,
           city: form.city,
           hasAyushmanCard: form.hasAyushman,
@@ -153,6 +155,8 @@ export default function ServiceDetailPage() {
         // Fallback for static data if needed
         await axios.post(`${CRM_API_URL}/api/leads/public/booking`, {
           patientName: form.name,
+          patientEmail: form.email,
+          email: form.email,
           patientPhone: form.phone,
           city: form.city,
           treatmentRequired: treatment?.name || category.title,
@@ -477,6 +481,16 @@ export default function ServiceDetailPage() {
                         />
                       </div>
                       <div style={{ marginBottom: "16px" }}>
+                        <label style={{ display: "block", fontSize: "13px", fontWeight: "700", marginBottom: "6px" }}>Email Address (Optional)</label>
+                        <input
+                          type="email"
+                          value={form.email}
+                          onChange={e => setForm({ ...form, email: e.target.value })}
+                          style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid #e2e8f0", outline: "none" }}
+                          placeholder="your.email@example.com"
+                        />
+                      </div>
+                      <div style={{ marginBottom: "16px" }}>
                         <label style={{ display: "block", fontSize: "13px", fontWeight: "700", marginBottom: "6px" }}>Phone Number</label>
                         <input
                           type="tel"
@@ -484,7 +498,7 @@ export default function ServiceDetailPage() {
                           value={form.phone}
                           onChange={e => setForm({ ...form, phone: e.target.value })}
                           style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid #e2e8f0", outline: "none" }}
-                          placeholder="10-digit mobile number"
+                          placeholder="10-digit mobile/whatsapp number"
                         />
                       </div>
                       <div style={{ marginBottom: "24px" }}>

@@ -426,7 +426,7 @@ export default function DoctorOnboarding() {
                 </div>
 
                 <div>
-                  <label className="form-label">Mobile Number</label>
+                  <label className="form-label">Mobile/whatsapp Number</label>
                   <input required type="tel" className="form-input" name="phone" placeholder="+91" value={formData.phone} onChange={handleChange} />
                 </div>
 
