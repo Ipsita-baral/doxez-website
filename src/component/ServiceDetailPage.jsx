@@ -491,7 +491,7 @@ export default function ServiceDetailPage() {
                         />
                       </div>
                       <div style={{ marginBottom: "16px" }}>
-                        <label style={{ display: "block", fontSize: "13px", fontWeight: "700", marginBottom: "6px" }}>Phone Number</label>
+                        <label style={{ display: "block", fontSize: "13px", fontWeight: "700", marginBottom: "6px" }}>mobile/whatsapp Number</label>
                         <input
                           type="tel"
                           required
