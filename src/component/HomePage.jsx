@@ -15,7 +15,7 @@ import DoxezWorkflow from "./DoxezWorkFlow";
 import img1 from "../assets/IITBBSR.png";
 import img2 from "../assets/StartupIndia.png";
 import img3 from "../assets/StartupOdisha.png";
-import nurse from "../assets/nurse34.png";
+import nurse from "../assets/nure_transparent34.png";
 import Priya from "../assets/Priya.jpg";
 import Arjun from "../assets/Arjun.jpg";
 // import sneha from "../assets/Snhea.jpg";
@@ -463,7 +463,7 @@ export default function HomePage() {
           font-size: 15px;
           line-height: 1.6;
           color: #4b5563;
-          max-width: 540px;
+          max-width: clamp(380px, 40vw, 480px);
           margin-bottom: 16px;
         }
 
@@ -516,19 +516,19 @@ export default function HomePage() {
         }
 
         .nurse-wrapper {
-          width: 350px;
-          height: 350px;
+          width: clamp(280px, 26vw, 320px);
+          height: clamp(280px, 26vw, 320px);
           position: relative;
-          margin: 0 auto;
+          margin: 0 40px 0 -30px;
           flex-shrink: 0;
         }
-        .nurse-bg-circle {
-          position: absolute;
-          inset: 0;
-          background: #d1e7ff;
-          border-radius: 50%;
-          box-shadow: 0 40px 100px -12px rgba(30,75,143,0.15);
-        }
+        // .nurse-bg-circle {
+        //   position: absolute;
+        //   inset: 0;
+        //   background: #d1e7ff;
+        //   border-radius: 50%;
+        //   box-shadow: 0 40px 100px -12px rgba(30,75,143,0.15);
+        // }
         .nurse-img {
           width: 100%;
           height: 100%;
@@ -539,8 +539,8 @@ export default function HomePage() {
           transform: scale(1.30);
           transform-origin: bottom center;
           z-index: 10;
-          -webkit-mask-image: linear-gradient(to bottom, black 65%, transparent 95%);
-          mask-image: linear-gradient(to bottom, black 65%, transparent 95%);
+          // -webkit-mask-image: linear-gradient(to bottom, black 65%, transparent 95%);
+          // mask-image: linear-gradient(to bottom, black 65%, transparent 95%);
         }
 
         .partner-section { padding: 24px 24px 60px; border-bottom: 1px solid #f3f4f6; text-align: center; overflow: hidden; }
@@ -738,6 +738,12 @@ export default function HomePage() {
         .trust-card:hover { transform: translateY(-8px); border-color: #dbeafe; box-shadow: 0 20px 40px -12px rgba(30,75,143,0.08); }
 
         /* Hero responsive */
+        @media (max-width: 1300px) and (min-width: 1025px) {
+          .nurse-wrapper { 
+            margin: 0 20px 0 10px !important; 
+          }
+        }
+
         @media (max-width: 1024px) {
           .hp-hero { padding: 180px 20px 60px !important; }
           .hp-hero .hp-inner { flex-direction: column !important; align-items: center !important; text-align: center !important; }
@@ -818,7 +824,7 @@ export default function HomePage() {
 
       {/* ── HERO ── */}
       <section className="hp-hero">
-        <div className="hp-inner" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 30, position: "relative" }}>
+        <div className="hp-inner" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, position: "relative" }}>
 
           {/* LEFT: Text Content */}
           <div style={{ flex: 1, maxWidth: 640, position: "relative", zIndex: 10 }}>
@@ -903,7 +909,7 @@ export default function HomePage() {
           <Reveal delay={0.35} style={{ flexShrink: 0, position: "relative", zIndex: 1 }}>
             <div className="nurse-wrapper">
               <div className="nurse-bg-circle">
-                <div style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "linear-gradient(to top, rgba(30,75,143,0.1), transparent 50%)" }} />
+                {/* <div style={{ position: "absolute", .nurse-wrapper {inset: 0, borderRadius: "50%", background: "linear-gradient(to top, rgba(30,75,143,0.1), transparent 50%)" }} /> */}
               </div>
               <img src={nurse} alt="Doxez Healthcare" className="nurse-img" />
             </div>
