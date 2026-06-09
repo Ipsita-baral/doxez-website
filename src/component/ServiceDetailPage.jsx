@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import { servicesData } from '../data/servicesData';
+import { toast } from 'react-toastify';
 
 export default function ServiceDetailPage() {
   const { categoryId, treatmentId } = useParams();
@@ -132,6 +133,12 @@ export default function ServiceDetailPage() {
 
   const handleBooking = async (e) => {
     e.preventDefault();
+
+    if (!/^[6-9]\d{9}$/.test(form.phone)) {
+      toast.error("Please enter a valid 10-digit mobile number.");
+      return;
+    }
+
     setLoading(true);
     try {
       const CRM_API_URL = import.meta.env.VITE_API_URL || "https://crm.doxez.in";
@@ -169,7 +176,7 @@ export default function ServiceDetailPage() {
     } catch (err) {
       console.error("Booking Error:", err);
       const errorMsg = err.response?.data?.message || "Something went wrong. Please try again.";
-      alert(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -496,7 +503,10 @@ export default function ServiceDetailPage() {
                           type="tel"
                           required
                           value={form.phone}
-                          onChange={e => setForm({ ...form, phone: e.target.value })}
+                          onChange={e => {
+                            const val = e.target.value.replace(/\D/g, "").slice(0, 10);
+                            setForm({ ...form, phone: val });
+                          }}
                           style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid #e2e8f0", outline: "none" }}
                           placeholder="10-digit mobile/whatsapp number"
                         />
