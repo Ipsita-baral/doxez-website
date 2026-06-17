@@ -251,9 +251,9 @@ export default function HomePage() {
 
               <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 32 }}>
                 {[
-                  { slot: "10AM - 12PM" },
-                  { slot: "12PM - 2PM" },
-                  { slot: "2PM - 5PM" },
+                  { slot: "8AM - 1PM" },
+                  { slot: "1PM - 5PM" },
+                  { slot: "5PM - 9PM" },
                 ].map(({ slot }) => {
                   const active = selectedSlot === slot;
                   return (
@@ -1000,9 +1000,9 @@ export default function HomePage() {
                     <div style={{ position: "relative" }}>
                       <select name="disease" disabled={loading} value={formik.values.disease} onChange={formik.handleChange} onBlur={formik.handleBlur} style={{ width: "100%", padding: "11px 14px", borderRadius: 10, border: `1.5px solid ${formik.touched.disease && formik.errors.disease ? "#ef4444" : "#e2e8f0"}`, fontSize: 13, outline: "none", color: "#475569", background: "#f8fafc", boxSizing: "border-box" }}>
                         <option value="">Select Disease / Treatment</option>
-                        <option value="Proctology">Piles, Fissure, Fistula</option>
-                        <option value="Laparoscopy">Hernia, Gallstone</option>
-                        <option value="Urology">Kidney Stones, Prostate</option>
+                        <option value="Piles, Fissure, Fistula">Piles, Fissure, Fistula</option>
+                        <option value="Hernia, Gallstone">Hernia, Gallstone</option>
+                        <option value="Kidney Stones, Prostate">Kidney Stones, Prostate</option>
                         <option value="Gynecology">Gynecology</option>
                         <option value="Orthopedics">Orthopedics</option>
                         <option value="Others">Others</option>

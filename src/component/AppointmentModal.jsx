@@ -12,9 +12,11 @@ import {
 // Specialty list...
 const CITIES = ["Bhubaneswar"];
 const SPECIALTIES = [
-  "General Physician", "Orthopedics", "Cardiology",
-  "Pediatrics", "Gynecology", "Dermatology",
-  "Neurology", "Gastroenterology"
+  "Piles, Fissure, Fistula",
+  "Hernia, Gallstone",
+  "Kidney Stones, Prostate",
+  "Gynecology",
+  "Orthopedics"
 ];
 
 export default function AppointmentModal({ onClose }) {
