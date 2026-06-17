@@ -15,7 +15,7 @@ import DoxezWorkflow from "./DoxezWorkFlow";
 import img1 from "../assets/IITBBSR.png";
 import img2 from "../assets/StartupIndia.png";
 import img3 from "../assets/StartupOdisha.png";
-import nurse from "../assets/nurse34.png";
+import nurse from "../assets/nure_transparent34.png";
 import Priya from "../assets/Priya.jpg";
 import Arjun from "../assets/Arjun.jpg";
 // import sneha from "../assets/Snhea.jpg";
@@ -146,6 +146,7 @@ export default function HomePage() {
       email: "",
       phone: "",
       location: "",
+      otherLocation: "",
       gender: "",
       disease: "",
       otherDisease: "",
@@ -154,12 +155,18 @@ export default function HomePage() {
     validationSchema: Yup.object({
       name: Yup.string().required("Required"),
       email: Yup.string().email("Invalid email format"),
-      phone: Yup.string().matches(/^\d{10}$/, "Valid 10-digit number required").required("Required"),
+      phone: Yup.string().matches(/^[6-9]\d{9}$/, "Valid 10-digit number required").required("Required"),
       gender: Yup.string().required("Required"),
       disease: Yup.string().required("Required"),
       otherDisease: Yup.string().when("disease", {
         is: "Others",
         then: () => Yup.string().required("Specify disease"),
+        otherwise: () => Yup.string().notRequired(),
+      }),
+      location: Yup.string().required("Required"),
+      otherLocation: Yup.string().when("location", {
+        is: "Other City",
+        then: () => Yup.string().required("Specify city"),
         otherwise: () => Yup.string().notRequired(),
       })
     }),
@@ -182,7 +189,7 @@ export default function HomePage() {
         patientGender: formik.values.gender,
         treatmentRequired: formik.values.disease === "Others" ? formik.values.otherDisease : formik.values.disease,
         hasAyushmanCard: formik.values.ayushman === "Yes",
-        city: formik.values.location,
+        city: formik.values.location === "Other City" ? formik.values.otherLocation : formik.values.location,
         patientAge: 0,
         preferredCallTime: selectedSlot,
         source: "Homepage Hero Form"
@@ -244,9 +251,9 @@ export default function HomePage() {
 
               <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 32 }}>
                 {[
-                  { slot: "10AM - 12PM" },
-                  { slot: "12PM - 2PM" },
-                  { slot: "2PM - 5PM" },
+                  { slot: "8AM - 1PM" },
+                  { slot: "1PM - 5PM" },
+                  { slot: "5PM - 9PM" },
                 ].map(({ slot }) => {
                   const active = selectedSlot === slot;
                   return (
@@ -463,7 +470,7 @@ export default function HomePage() {
           font-size: 15px;
           line-height: 1.6;
           color: #4b5563;
-          max-width: 540px;
+          max-width: clamp(380px, 40vw, 480px);
           margin-bottom: 16px;
         }
 
@@ -516,19 +523,19 @@ export default function HomePage() {
         }
 
         .nurse-wrapper {
-          width: 350px;
-          height: 350px;
+          width: clamp(280px, 26vw, 320px);
+          height: clamp(280px, 26vw, 320px);
           position: relative;
-          margin: 0 auto;
+          margin: 0 40px 0 -30px;
           flex-shrink: 0;
         }
-        .nurse-bg-circle {
-          position: absolute;
-          inset: 0;
-          background: #d1e7ff;
-          border-radius: 50%;
-          box-shadow: 0 40px 100px -12px rgba(30,75,143,0.15);
-        }
+        // .nurse-bg-circle {
+        //   position: absolute;
+        //   inset: 0;
+        //   background: #d1e7ff;
+        //   border-radius: 50%;
+        //   box-shadow: 0 40px 100px -12px rgba(30,75,143,0.15);
+        // }
         .nurse-img {
           width: 100%;
           height: 100%;
@@ -539,8 +546,8 @@ export default function HomePage() {
           transform: scale(1.30);
           transform-origin: bottom center;
           z-index: 10;
-          -webkit-mask-image: linear-gradient(to bottom, black 65%, transparent 95%);
-          mask-image: linear-gradient(to bottom, black 65%, transparent 95%);
+          // -webkit-mask-image: linear-gradient(to bottom, black 65%, transparent 95%);
+          // mask-image: linear-gradient(to bottom, black 65%, transparent 95%);
         }
 
         .partner-section { padding: 24px 24px 60px; border-bottom: 1px solid #f3f4f6; text-align: center; overflow: hidden; }
@@ -738,6 +745,12 @@ export default function HomePage() {
         .trust-card:hover { transform: translateY(-8px); border-color: #dbeafe; box-shadow: 0 20px 40px -12px rgba(30,75,143,0.08); }
 
         /* Hero responsive */
+        @media (max-width: 1300px) and (min-width: 1025px) {
+          .nurse-wrapper { 
+            margin: 0 20px 0 10px !important; 
+          }
+        }
+
         @media (max-width: 1024px) {
           .hp-hero { padding: 180px 20px 60px !important; }
           .hp-hero .hp-inner { flex-direction: column !important; align-items: center !important; text-align: center !important; }
@@ -818,7 +831,7 @@ export default function HomePage() {
 
       {/* ── HERO ── */}
       <section className="hp-hero">
-        <div className="hp-inner" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 30, position: "relative" }}>
+        <div className="hp-inner" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, position: "relative" }}>
 
           {/* LEFT: Text Content */}
           <div style={{ flex: 1, maxWidth: 640, position: "relative", zIndex: 10 }}>
@@ -903,7 +916,7 @@ export default function HomePage() {
           <Reveal delay={0.35} style={{ flexShrink: 0, position: "relative", zIndex: 1 }}>
             <div className="nurse-wrapper">
               <div className="nurse-bg-circle">
-                <div style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "linear-gradient(to top, rgba(30,75,143,0.1), transparent 50%)" }} />
+                {/* <div style={{ position: "absolute", .nurse-wrapper {inset: 0, borderRadius: "50%", background: "linear-gradient(to top, rgba(30,75,143,0.1), transparent 50%)" }} /> */}
               </div>
               <img src={nurse} alt="Doxez Healthcare" className="nurse-img" />
             </div>
@@ -937,6 +950,7 @@ export default function HomePage() {
                     <div style={{ position: "relative" }}>
                       <select
                         name="location"
+                        disabled={loading}
                         value={formik.values.location}
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
@@ -944,7 +958,7 @@ export default function HomePage() {
                           width: "100%",
                           padding: "11px 14px",
                           borderRadius: 10,
-                          border: "1.5px solid #e2e8f0",
+                          border: `1.5px solid ${formik.touched.location && formik.errors.location ? "#ef4444" : "#e2e8f0"}`,
                           fontSize: 13,
                           outline: "none",
                           background: "#f1f4f6ff",
@@ -955,8 +969,17 @@ export default function HomePage() {
                       >
                         <option value="">Select City</option>
                         <option value="Bhubaneswar">Bhubaneswar</option>
+                        <option value="Other City">Other City</option>
                       </select>
+                      {formik.touched.location && formik.errors.location && <p style={{ color: "#ef4444", fontSize: 10, marginTop: 4, fontWeight: 600 }}>{formik.errors.location}</p>}
                     </div>
+
+                    {formik.values.location === "Other City" && (
+                      <div style={{ position: "relative" }}>
+                        <input type="text" name="otherLocation" placeholder="Please specify your city" disabled={loading} value={formik.values.otherLocation} onChange={formik.handleChange} onBlur={formik.handleBlur} style={{ width: "100%", padding: "11px 14px", borderRadius: 10, border: `1.5px solid ${formik.touched.otherLocation && formik.errors.otherLocation ? "#ef4444" : "#e2e8f0"}`, fontSize: 13, outline: "none", background: "#f8fafc", boxSizing: "border-box" }} />
+                        {formik.touched.otherLocation && formik.errors.otherLocation && <p style={{ color: "#ef4444", fontSize: 10, marginTop: 4, fontWeight: 600 }}>{formik.errors.otherLocation}</p>}
+                      </div>
+                    )}
 
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
                       <div style={{ position: "relative" }}>
@@ -977,9 +1000,9 @@ export default function HomePage() {
                     <div style={{ position: "relative" }}>
                       <select name="disease" disabled={loading} value={formik.values.disease} onChange={formik.handleChange} onBlur={formik.handleBlur} style={{ width: "100%", padding: "11px 14px", borderRadius: 10, border: `1.5px solid ${formik.touched.disease && formik.errors.disease ? "#ef4444" : "#e2e8f0"}`, fontSize: 13, outline: "none", color: "#475569", background: "#f8fafc", boxSizing: "border-box" }}>
                         <option value="">Select Disease / Treatment</option>
-                        <option value="Proctology">Piles, Fissure, Fistula</option>
-                        <option value="Laparoscopy">Hernia, Gallstone</option>
-                        <option value="Urology">Kidney Stones, Prostate</option>
+                        <option value="Piles, Fissure, Fistula">Piles, Fissure, Fistula</option>
+                        <option value="Hernia, Gallstone">Hernia, Gallstone</option>
+                        <option value="Kidney Stones, Prostate">Kidney Stones, Prostate</option>
                         <option value="Gynecology">Gynecology</option>
                         <option value="Orthopedics">Orthopedics</option>
                         <option value="Others">Others</option>

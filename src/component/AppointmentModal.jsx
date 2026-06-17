@@ -6,15 +6,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   X, User, Phone, MapPin, Stethoscope,
   CheckCircle2, ShieldCheck, HeartPulse,
-  ChevronRight, CalendarCheck, PhoneCall, Info, Loader2
+  ChevronRight, CalendarCheck, PhoneCall, Info, Loader2, Mail
 } from "lucide-react";
 
 // Specialty list...
 const CITIES = ["Bhubaneswar"];
 const SPECIALTIES = [
-  "General Physician", "Orthopedics", "Cardiology",
-  "Pediatrics", "Gynecology", "Dermatology",
-  "Neurology", "Gastroenterology"
+  "Piles, Fissure, Fistula",
+  "Hernia, Gallstone",
+  "Kidney Stones, Prostate",
+  "Gynecology",
+  "Orthopedics"
 ];
 
 export default function AppointmentModal({ onClose }) {
@@ -25,10 +27,16 @@ export default function AppointmentModal({ onClose }) {
   // 📝 Formik Validation Schema
   const validationSchema = Yup.object().shape({
     name: Yup.string().required("Full name is required"),
+    email: Yup.string().email("Invalid email format"),
     age: Yup.number().typeError("Age must be a number").required("Age is required").positive().integer(),
     gender: Yup.string().required("Required"),
-    phone: Yup.string().matches(/^\d{10}$/, "Valid 10-digit number required").required("Phone number is required"),
+    phone: Yup.string().matches(/^[6-9]\d{9}$/, "Valid 10-digit number required").required("Phone number is required"),
     city: Yup.string().required("Please select a city"),
+    otherLocation: Yup.string().when("city", {
+      is: "Other City",
+      then: (schema) => schema.required("Please specify your city"),
+      otherwise: (schema) => schema.nullable(),
+    }),
     specialty: Yup.string().required("Please select a disease"),
     otherDisease: Yup.string().when("specialty", {
       is: "Others",
@@ -39,17 +47,20 @@ export default function AppointmentModal({ onClose }) {
   });
 
   const formik = useFormik({
-    initialValues: { name: "", age: "", gender: "", phone: "", city: "", specialty: "", ayushmanCard: "", otherDisease: "" },
+    initialValues: { name: "", email: "", age: "", gender: "", phone: "", city: "", otherLocation: "", specialty: "", ayushmanCard: "", otherDisease: "" },
+    enableReinitialize: true,
     validationSchema,
     onSubmit: async (values) => {
       setLoading(true);
       try {
         await axios.post(`${CRM_API_URL}/api/leads/public/booking`, {
           patientName: values.name,
+          patientEmail: values.email,
+          email: values.email,
           patientAge: Number(values.age),
           patientGender: values.gender,
           patientPhone: values.phone,
-          city: values.city,
+          city: values.city === "Other City" ? values.otherLocation : values.city,
           treatmentRequired: values.specialty === "Others" ? values.otherDisease : values.specialty,
           hasAyushmanCard: values.ayushmanCard === "Yes"
         });
@@ -206,6 +217,16 @@ export default function AppointmentModal({ onClose }) {
                   </div>
                 </div>
 
+                {/* Email Address */}
+                <div>
+                  <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", marginBottom: 6 }}>Email Address (Optional)</label>
+                  <div style={{ position: "relative" }}>
+                    <Mail size={14} style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} />
+                    <input type="email" placeholder="your.email@example.com" disabled={loading} {...formik.getFieldProps("email")} style={{ width: "100%", padding: "12px 12px 12px 40px", borderRadius: 12, border: `1.5px solid ${formik.touched.email && formik.errors.email ? "#ef4444" : "#e2e8f0"}`, fontSize: 13, outline: "none" }} />
+                  </div>
+                  {formik.touched.email && formik.errors.email && <p style={{ color: "#ef4444", fontSize: 10, marginTop: 4, fontWeight: 600 }}>{formik.errors.email}</p>}
+                </div>
+
                 {/* Mobile & City */}
                 <div className="form-grid-2">
                   <div>
@@ -221,10 +242,19 @@ export default function AppointmentModal({ onClose }) {
                     <select disabled={loading} {...formik.getFieldProps("city")} style={{ width: "100%", padding: "12px 14px", borderRadius: 12, border: `1.5px solid ${formik.touched.city && formik.errors.city ? "#ef4444" : "#e2e8f0"}`, fontSize: 13 }}>
                       <option value="">Select City</option>
                       {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+                      <option value="Other City">Other City</option>
                     </select>
                     {formik.touched.city && formik.errors.city && <p style={{ color: "#ef4444", fontSize: 10, marginTop: 4, fontWeight: 600 }}>{formik.errors.city}</p>}
                   </div>
                 </div>
+
+                {formik.values.city === "Other City" && (
+                  <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
+                    <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", marginBottom: 6 }}>Specify City</label>
+                    <input type="text" placeholder="Please specify your city" disabled={loading} {...formik.getFieldProps("otherLocation")} style={{ width: "100%", padding: "12px 14px", borderRadius: 12, border: `1.5px solid ${formik.touched.otherLocation && formik.errors.otherLocation ? "#ef4444" : "#e2e8f0"}`, fontSize: 13, outline: "none" }} />
+                    {formik.touched.otherLocation && formik.errors.otherLocation && <p style={{ color: "#ef4444", fontSize: 10, marginTop: 4, fontWeight: 600 }}>{formik.errors.otherLocation}</p>}
+                  </motion.div>
+                )}
 
                 {/* Selection Sequence: Disease -> Specify (if needed) -> Ayushman */}
                 <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -276,42 +306,23 @@ export default function AppointmentModal({ onClose }) {
             </>
           ) : (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-              <div style={{ textAlign: "center", padding: "40px 0" }}>
+              <div style={{ padding: "40px 32px 32px", textAlign: "center" }}>
                 <div style={{
-                  background: "#f0f9ff",
-                  padding: "24px",
-                  borderRadius: "20px",
-                  fontSize: "14px",
-                  color: "#0c4a6e",
-                  fontWeight: 700,
-                  display: "flex",
-                  gap: 16,
-                  alignItems: "flex-start",
-                  border: "2px solid #e0f2fe",
-                  lineHeight: 1.6,
-                  textAlign: "left",
-                  marginBottom: "32px",
-                  boxShadow: "0 10px 25px rgba(224, 242, 254, 0.5)"
+                  width: 64, height: 64, borderRadius: "50%", background: "#10b981",
+                  display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 24px",
+                  boxShadow: "0 8px 16px -4px rgba(16, 185, 129, 0.3)"
                 }}>
-                  <Info size={24} style={{ marginTop: 2, flexShrink: 0, color: "#1e4b8f" }} />
-                  <span>Your consultation is being prioritized. Our team of experts will contact you shortly to finalize your visit details.</span>
+                  <CheckCircle2 size={32} color="#ffffff" />
                 </div>
-
+                <h2 style={{ color: "#0f172a", fontWeight: 700, fontSize: 22, margin: "0 0 12px" }}>
+                  Request Submitted
+                </h2>
+                <p style={{ color: "#475569", fontSize: 15, margin: "0 0 32px", lineHeight: 1.6 }}>
+                  Thank you for choosing us. Our customer care will call you shortly.
+                </p>
                 <button
                   onClick={onClose}
                   style={{
-                    width: "100%",
-                    padding: "18px",
-                    background: "#143E78",
-                    color: "white",
-                    borderRadius: "16px",
-                    fontWeight: 900,
-                    fontSize: "14px",
-                    textTransform: "uppercase",
-                    letterSpacing: "1.5px",
-                    border: "none",
-                    cursor: "pointer",
-                    boxShadow: "0 12px 24px rgba(20, 62, 120, 0.25)",
                     transition: "all 0.3s ease",
                     outline: "none"
                   }}

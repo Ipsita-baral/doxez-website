@@ -30,7 +30,15 @@ export default function ContactUs() {
     let newErrors = {};
     if (!formData.name.trim()) newErrors.name = "Name is required";
     if (!formData.email.trim()) newErrors.email = "Email is required";
+    
+    if (!formData.phone.trim()) {
+      newErrors.phone = "Phone number is required";
+    } else if (!/^[6-9]\d{9}$/.test(formData.phone)) {
+      newErrors.phone = "Valid 10-digit number required";
+    }
+    
     if (!formData.message.trim()) newErrors.message = "Message is required";
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };

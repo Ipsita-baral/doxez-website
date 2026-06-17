@@ -17,6 +17,8 @@ import PartnerOnboarding from './component/PartnerOnboarding'
 import Careers from './component/Careers'
 import ServicesPage from './component/ServicesPage';
 import ServiceDetailPage from './component/ServiceDetailPage';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   const [splashDone, setSplashDone] = useState(() => {
@@ -50,6 +52,7 @@ function App() {
         </Routes>
         <Footer />
         <WhatsAppButton />
+        <ToastContainer />
       </BrowserRouter>
     </>
   )

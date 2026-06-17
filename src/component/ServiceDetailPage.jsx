@@ -7,11 +7,12 @@ import {
 } from 'lucide-react';
 import axios from 'axios';
 import { servicesData } from '../data/servicesData';
+import { toast } from 'react-toastify';
 
 export default function ServiceDetailPage() {
   const { categoryId, treatmentId } = useParams();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: "", phone: "", city: "", hasAyushman: false });
+  const [form, setForm] = useState({ name: "", email: "", phone: "", city: "", hasAyushman: false });
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
@@ -132,6 +133,12 @@ export default function ServiceDetailPage() {
 
   const handleBooking = async (e) => {
     e.preventDefault();
+
+    if (!/^[6-9]\d{9}$/.test(form.phone)) {
+      toast.error("Please enter a valid 10-digit mobile number.");
+      return;
+    }
+
     setLoading(true);
     try {
       const CRM_API_URL = import.meta.env.VITE_API_URL || "https://crm.doxez.in";
@@ -143,6 +150,8 @@ export default function ServiceDetailPage() {
         // Use the professional Web-Lead API for better CRM routing
         await axios.post(`${CRM_API_URL}/api/leads/public/web-lead`, {
           patientName: form.name,
+          patientEmail: form.email,
+          email: form.email,
           patientPhone: form.phone,
           city: form.city,
           hasAyushmanCard: form.hasAyushman,
@@ -153,6 +162,8 @@ export default function ServiceDetailPage() {
         // Fallback for static data if needed
         await axios.post(`${CRM_API_URL}/api/leads/public/booking`, {
           patientName: form.name,
+          patientEmail: form.email,
+          email: form.email,
           patientPhone: form.phone,
           city: form.city,
           treatmentRequired: treatment?.name || category.title,
@@ -165,7 +176,7 @@ export default function ServiceDetailPage() {
     } catch (err) {
       console.error("Booking Error:", err);
       const errorMsg = err.response?.data?.message || "Something went wrong. Please try again.";
-      alert(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -477,14 +488,27 @@ export default function ServiceDetailPage() {
                         />
                       </div>
                       <div style={{ marginBottom: "16px" }}>
-                        <label style={{ display: "block", fontSize: "13px", fontWeight: "700", marginBottom: "6px" }}>Phone Number</label>
+                        <label style={{ display: "block", fontSize: "13px", fontWeight: "700", marginBottom: "6px" }}>Email Address (Optional)</label>
+                        <input
+                          type="email"
+                          value={form.email}
+                          onChange={e => setForm({ ...form, email: e.target.value })}
+                          style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid #e2e8f0", outline: "none" }}
+                          placeholder="your.email@example.com"
+                        />
+                      </div>
+                      <div style={{ marginBottom: "16px" }}>
+                        <label style={{ display: "block", fontSize: "13px", fontWeight: "700", marginBottom: "6px" }}>mobile/whatsapp Number</label>
                         <input
                           type="tel"
                           required
                           value={form.phone}
-                          onChange={e => setForm({ ...form, phone: e.target.value })}
+                          onChange={e => {
+                            const val = e.target.value.replace(/\D/g, "").slice(0, 10);
+                            setForm({ ...form, phone: val });
+                          }}
                           style={{ width: "100%", padding: "12px", borderRadius: "10px", border: "1px solid #e2e8f0", outline: "none" }}
-                          placeholder="10-digit mobile number"
+                          placeholder="10-digit mobile/whatsapp number"
                         />
                       </div>
                       <div style={{ marginBottom: "24px" }}>
