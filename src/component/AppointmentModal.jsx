@@ -30,6 +30,11 @@ export default function AppointmentModal({ onClose }) {
     gender: Yup.string().required("Required"),
     phone: Yup.string().matches(/^[6-9]\d{9}$/, "Valid 10-digit number required").required("Phone number is required"),
     city: Yup.string().required("Please select a city"),
+    otherLocation: Yup.string().when("city", {
+      is: "Other City",
+      then: (schema) => schema.required("Please specify your city"),
+      otherwise: (schema) => schema.nullable(),
+    }),
     specialty: Yup.string().required("Please select a disease"),
     otherDisease: Yup.string().when("specialty", {
       is: "Others",
@@ -40,7 +45,7 @@ export default function AppointmentModal({ onClose }) {
   });
 
   const formik = useFormik({
-    initialValues: { name: "", email: "", age: "", gender: "", phone: "", city: "", specialty: "", ayushmanCard: "", otherDisease: "" },
+    initialValues: { name: "", email: "", age: "", gender: "", phone: "", city: "", otherLocation: "", specialty: "", ayushmanCard: "", otherDisease: "" },
     enableReinitialize: true,
     validationSchema,
     onSubmit: async (values) => {
@@ -53,7 +58,7 @@ export default function AppointmentModal({ onClose }) {
           patientAge: Number(values.age),
           patientGender: values.gender,
           patientPhone: values.phone,
-          city: values.city,
+          city: values.city === "Other City" ? values.otherLocation : values.city,
           treatmentRequired: values.specialty === "Others" ? values.otherDisease : values.specialty,
           hasAyushmanCard: values.ayushmanCard === "Yes"
         });
@@ -235,10 +240,19 @@ export default function AppointmentModal({ onClose }) {
                     <select disabled={loading} {...formik.getFieldProps("city")} style={{ width: "100%", padding: "12px 14px", borderRadius: 12, border: `1.5px solid ${formik.touched.city && formik.errors.city ? "#ef4444" : "#e2e8f0"}`, fontSize: 13 }}>
                       <option value="">Select City</option>
                       {CITIES.map(c => <option key={c} value={c}>{c}</option>)}
+                      <option value="Other City">Other City</option>
                     </select>
                     {formik.touched.city && formik.errors.city && <p style={{ color: "#ef4444", fontSize: 10, marginTop: 4, fontWeight: 600 }}>{formik.errors.city}</p>}
                   </div>
                 </div>
+
+                {formik.values.city === "Other City" && (
+                  <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
+                    <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", marginBottom: 6 }}>Specify City</label>
+                    <input type="text" placeholder="Please specify your city" disabled={loading} {...formik.getFieldProps("otherLocation")} style={{ width: "100%", padding: "12px 14px", borderRadius: 12, border: `1.5px solid ${formik.touched.otherLocation && formik.errors.otherLocation ? "#ef4444" : "#e2e8f0"}`, fontSize: 13, outline: "none" }} />
+                    {formik.touched.otherLocation && formik.errors.otherLocation && <p style={{ color: "#ef4444", fontSize: 10, marginTop: 4, fontWeight: 600 }}>{formik.errors.otherLocation}</p>}
+                  </motion.div>
+                )}
 
                 {/* Selection Sequence: Disease -> Specify (if needed) -> Ayushman */}
                 <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>

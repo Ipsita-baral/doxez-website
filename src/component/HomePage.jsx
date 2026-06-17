@@ -146,6 +146,7 @@ export default function HomePage() {
       email: "",
       phone: "",
       location: "",
+      otherLocation: "",
       gender: "",
       disease: "",
       otherDisease: "",
@@ -160,6 +161,12 @@ export default function HomePage() {
       otherDisease: Yup.string().when("disease", {
         is: "Others",
         then: () => Yup.string().required("Specify disease"),
+        otherwise: () => Yup.string().notRequired(),
+      }),
+      location: Yup.string().required("Required"),
+      otherLocation: Yup.string().when("location", {
+        is: "Other City",
+        then: () => Yup.string().required("Specify city"),
         otherwise: () => Yup.string().notRequired(),
       })
     }),
@@ -182,7 +189,7 @@ export default function HomePage() {
         patientGender: formik.values.gender,
         treatmentRequired: formik.values.disease === "Others" ? formik.values.otherDisease : formik.values.disease,
         hasAyushmanCard: formik.values.ayushman === "Yes",
-        city: formik.values.location,
+        city: formik.values.location === "Other City" ? formik.values.otherLocation : formik.values.location,
         patientAge: 0,
         preferredCallTime: selectedSlot,
         source: "Homepage Hero Form"
@@ -943,6 +950,7 @@ export default function HomePage() {
                     <div style={{ position: "relative" }}>
                       <select
                         name="location"
+                        disabled={loading}
                         value={formik.values.location}
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
@@ -950,7 +958,7 @@ export default function HomePage() {
                           width: "100%",
                           padding: "11px 14px",
                           borderRadius: 10,
-                          border: "1.5px solid #e2e8f0",
+                          border: `1.5px solid ${formik.touched.location && formik.errors.location ? "#ef4444" : "#e2e8f0"}`,
                           fontSize: 13,
                           outline: "none",
                           background: "#f1f4f6ff",
@@ -961,8 +969,17 @@ export default function HomePage() {
                       >
                         <option value="">Select City</option>
                         <option value="Bhubaneswar">Bhubaneswar</option>
+                        <option value="Other City">Other City</option>
                       </select>
+                      {formik.touched.location && formik.errors.location && <p style={{ color: "#ef4444", fontSize: 10, marginTop: 4, fontWeight: 600 }}>{formik.errors.location}</p>}
                     </div>
+
+                    {formik.values.location === "Other City" && (
+                      <div style={{ position: "relative" }}>
+                        <input type="text" name="otherLocation" placeholder="Please specify your city" disabled={loading} value={formik.values.otherLocation} onChange={formik.handleChange} onBlur={formik.handleBlur} style={{ width: "100%", padding: "11px 14px", borderRadius: 10, border: `1.5px solid ${formik.touched.otherLocation && formik.errors.otherLocation ? "#ef4444" : "#e2e8f0"}`, fontSize: 13, outline: "none", background: "#f8fafc", boxSizing: "border-box" }} />
+                        {formik.touched.otherLocation && formik.errors.otherLocation && <p style={{ color: "#ef4444", fontSize: 10, marginTop: 4, fontWeight: 600 }}>{formik.errors.otherLocation}</p>}
+                      </div>
+                    )}
 
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
                       <div style={{ position: "relative" }}>
