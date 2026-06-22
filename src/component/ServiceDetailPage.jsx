@@ -156,7 +156,8 @@ export default function ServiceDetailPage() {
           city: form.city,
           hasAyushmanCard: form.hasAyushman,
           subServiceId: treatmentId,
-          source: "DOXEZ_WEB_DETAIL"
+          source: "DOXEZ_WEB_DETAIL",
+          referralCode: localStorage.getItem('doxez_ref') || undefined
         });
       } else {
         // Fallback for static data if needed
@@ -168,10 +169,12 @@ export default function ServiceDetailPage() {
           city: form.city,
           treatmentRequired: treatment?.name || category.title,
           hasAyushman: form.hasAyushman,
-          source: "Service Detail Page (Static)"
+          source: "Service Detail Page (Static)",
+          referralCode: localStorage.getItem('doxez_ref') || undefined
         });
       }
 
+      localStorage.removeItem('doxez_ref');
       setSubmitted(true);
     } catch (err) {
       console.error("Booking Error:", err);

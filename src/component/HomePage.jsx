@@ -10,6 +10,7 @@ import {
   Stethoscope, Heart, Mic, Sparkles, Bone, Brain, ShieldPlus, Shield, Search
 } from "lucide-react";
 import DoxezWorkflow from "./DoxezWorkFlow";
+import SearchableDiseaseDropdown from "./SearchableDiseaseDropdown";
 
 // Local Assets
 import img1 from "../assets/IITBBSR.png";
@@ -192,9 +193,10 @@ export default function HomePage() {
         city: formik.values.location === "Other City" ? formik.values.otherLocation : formik.values.location,
         patientAge: 0,
         preferredCallTime: selectedSlot,
-        source: "Homepage Hero Form"
+        source: "Homepage Hero Form",
+        referralCode: localStorage.getItem('doxez_ref') || undefined
       });
-
+      localStorage.removeItem('doxez_ref');
       formik.resetForm();
       setShowThankYou(true);
     } catch (err) {
@@ -998,15 +1000,14 @@ export default function HomePage() {
                     </div>
 
                     <div style={{ position: "relative" }}>
-                      <select name="disease" disabled={loading} value={formik.values.disease} onChange={formik.handleChange} onBlur={formik.handleBlur} style={{ width: "100%", padding: "11px 14px", borderRadius: 10, border: `1.5px solid ${formik.touched.disease && formik.errors.disease ? "#ef4444" : "#e2e8f0"}`, fontSize: 13, outline: "none", color: "#475569", background: "#f8fafc", boxSizing: "border-box" }}>
-                        <option value="">Select Disease / Treatment</option>
-                        <option value="Piles, Fissure, Fistula">Piles, Fissure, Fistula</option>
-                        <option value="Hernia, Gallstone">Hernia, Gallstone</option>
-                        <option value="Kidney Stones, Prostate">Kidney Stones, Prostate</option>
-                        <option value="Gynecology">Gynecology</option>
-                        <option value="Orthopedics">Orthopedics</option>
-                        <option value="Others">Others</option>
-                      </select>
+                      <SearchableDiseaseDropdown 
+                        name="disease"
+                        value={formik.values.disease}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        disabled={loading}
+                        hasError={formik.touched.disease && !!formik.errors.disease}
+                      />
                       {formik.touched.disease && formik.errors.disease && <p style={{ color: "#ef4444", fontSize: 10, marginTop: 4, fontWeight: 600 }}>{formik.errors.disease}</p>}
                     </div>
 

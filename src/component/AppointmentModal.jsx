@@ -3,6 +3,7 @@ import axios from "axios";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { motion, AnimatePresence } from "framer-motion";
+import SearchableDiseaseDropdown from "./SearchableDiseaseDropdown";
 import {
   X, User, Phone, MapPin, Stethoscope,
   CheckCircle2, ShieldCheck, HeartPulse,
@@ -62,8 +63,10 @@ export default function AppointmentModal({ onClose }) {
           patientPhone: values.phone,
           city: values.city === "Other City" ? values.otherLocation : values.city,
           treatmentRequired: values.specialty === "Others" ? values.otherDisease : values.specialty,
-          hasAyushmanCard: values.ayushmanCard === "Yes"
+          hasAyushmanCard: values.ayushmanCard === "Yes",
+          referralCode: localStorage.getItem('doxez_ref') || undefined
         });
+        localStorage.removeItem('doxez_ref');
         setSubmitted(true);
       } catch (err) {
         console.error("Booking failed:", err);
@@ -260,11 +263,14 @@ export default function AppointmentModal({ onClose }) {
                 <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                   <div>
                     <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", marginBottom: 6 }}>Select Disease</label>
-                    <select disabled={loading} {...formik.getFieldProps("specialty")} style={{ width: "100%", padding: "12px 14px", borderRadius: 12, border: `1.5px solid ${formik.touched.specialty && formik.errors.specialty ? "#ef4444" : "#e2e8f0"}`, fontSize: 13, outline: "none" }}>
-                      <option value="">Select Disease</option>
-                      {SPECIALTIES.map(s => <option key={s} value={s}>{s}</option>)}
-                      <option value="Others">Others</option>
-                    </select>
+                    <SearchableDiseaseDropdown 
+                      name="specialty"
+                      value={formik.values.specialty}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      disabled={loading}
+                      hasError={formik.touched.specialty && !!formik.errors.specialty}
+                    />
                     {formik.touched.specialty && formik.errors.specialty && <p style={{ color: "#ef4444", fontSize: 10, marginTop: 4, fontWeight: 600 }}>{formik.errors.specialty}</p>}
                   </div>
 
