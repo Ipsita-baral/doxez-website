@@ -50,6 +50,34 @@
     gtag('config', 'G-JJW9NRZ1K2');
   </script>
   <!-- Google Analytics END -->
+
+  <!-- Referral Tracking Script -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // 1. URL se 'ref' code nikalo
+        const urlParams = new URLSearchParams(window.location.search);
+        let referralCode = urlParams.get('ref');
+        
+        // 2. Agar naya code mila, toh browser (localStorage) me save kar lo
+        if (referralCode) {
+            localStorage.setItem('dxz_ref_code', referralCode);
+        } else {
+            // Agar URL me nahi hai, toh purana saved code check karo
+            referralCode = localStorage.getItem('dxz_ref_code');
+        }
+
+        // 3. Handle dynamically rendered links in React by intercepting clicks
+        document.addEventListener("click", function(e) {
+            const link = e.target.closest("a");
+            if (link && link.href && link.href.includes("crm.doxez.in")) {
+                if (referralCode && !link.href.includes("ref=")) {
+                    const separator = link.href.includes("?") ? "&" : "?";
+                    link.href = link.href + separator + "ref=" + referralCode;
+                }
+            }
+        });
+    });
+  </script>
 </head>
 
 <body>
