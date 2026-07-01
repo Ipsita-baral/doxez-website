@@ -99,7 +99,11 @@ export default function HomePage() {
   useEffect(() => {
     const fetchServices = async () => {
       try {
+<<<<<<< HEAD
         const baseUrl = import.meta.env.VITE_API_URL;
+=======
+        const baseUrl = import.meta.env.VITE_API_URL ;
+>>>>>>> origin/sumeet-dev
         console.log("Fetching services from backend...", baseUrl);
         const response = await axios.get(`${baseUrl}/api/services/catalog`);
         console.log("API Response:", response.data);
