@@ -158,7 +158,7 @@ export default function ServiceDetailPage() {
   const confirmAndSubmit = async () => {
     setLoading(true);
     try {
-      const CRM_API_URL = import.meta.env.VITE_API_URL || "https://crm.doxez.in";
+      const CRM_API_URL = import.meta.env.VITE_API_URL;
 
       // Determine if we are using a dynamic sub-service ID
       const isMongoId = /^[0-9a-fA-F]{24}$/.test(treatmentId);
@@ -609,7 +609,7 @@ export default function ServiceDetailPage() {
               <p style={{ fontSize: '14px', color: '#64748b', marginBottom: '20px', textAlign: 'center' }}>
                 Please choose your preferred time window for our care coordinator to reach out.
               </p>
-              
+
               <div style={{ marginBottom: '20px' }}>
                 <button
                   onClick={() => setSelectedTime('Call within 30 minutes')}
@@ -666,7 +666,7 @@ export default function ServiceDetailPage() {
                   </button>
                 ))}
               </div>
-              
+
               <button
                 onClick={confirmAndSubmit}
                 disabled={!selectedTime || loading}

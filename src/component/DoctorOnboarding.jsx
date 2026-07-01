@@ -76,7 +76,7 @@ export default function DoctorOnboarding() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const CRM_API_URL = import.meta.env.VITE_API_URL || "https://crm.doxez.in";
+  const CRM_API_URL = import.meta.env.VITE_API_URL;
 
   const handleSubmit = async (e) => {
     e.preventDefault();

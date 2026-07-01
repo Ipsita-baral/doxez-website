@@ -17,7 +17,7 @@ export default function SearchableDiseaseDropdown({
   const [loading, setLoading] = useState(true);
   const dropdownRef = useRef(null);
 
-  const CRM_API_URL = import.meta.env.VITE_API_URL || "https://crm.doxez.in";
+  const CRM_API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchDiseases = async () => {
@@ -43,7 +43,7 @@ export default function SearchableDiseaseDropdown({
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsOpen(false);
-        if (onBlur) onBlur({ target: { name } }); 
+        if (onBlur) onBlur({ target: { name } });
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -59,11 +59,11 @@ export default function SearchableDiseaseDropdown({
   ];
 
   const displayList = diseases.length > 0 ? diseases : staticDefaults;
-  
+
   // We don't want to duplicate "Others", we always append it
   const allOptions = [...displayList.filter(d => d.name.toLowerCase() !== 'others'), { _id: 'others', name: 'Others' }];
 
-  const filteredOptions = allOptions.filter(d => 
+  const filteredOptions = allOptions.filter(d =>
     d.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -75,12 +75,12 @@ export default function SearchableDiseaseDropdown({
 
   return (
     <div className="searchable-dropdown" style={{ width: '100%' }}>
-      <div 
+      <div
         onClick={() => !disabled && setIsOpen(true)}
         style={{
-          width: "100%", padding: "11px 14px", borderRadius: 10, 
-          border: `1.5px solid ${hasError ? "#ef4444" : isOpen ? "#3b82f6" : "#e2e8f0"}`, 
-          fontSize: 13, color: value ? "#0f172a" : "#475569", background: "#f8fafc", 
+          width: "100%", padding: "11px 14px", borderRadius: 10,
+          border: `1.5px solid ${hasError ? "#ef4444" : isOpen ? "#3b82f6" : "#e2e8f0"}`,
+          fontSize: 13, color: value ? "#0f172a" : "#475569", background: "#f8fafc",
           display: "flex", justifyContent: "space-between", alignItems: "center",
           cursor: disabled ? "not-allowed" : "pointer", boxSizing: "border-box",
           minHeight: "44px"
@@ -111,14 +111,14 @@ export default function SearchableDiseaseDropdown({
                 to { opacity: 1; transform: scale(1) translateY(0); }
               }
             `}</style>
-            
+
             {/* Header / Search Area */}
             <div style={{ padding: "20px 20px 12px", borderBottom: "1px solid #f1f5f9", background: "#fff", display: "flex", alignItems: "center", gap: 10 }}>
               <div style={{ position: "relative", flex: 1 }}>
                 <Search size={16} color="#64748b" style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)" }} />
-                <input 
-                  type="text" 
-                  placeholder="Search Disease by Name..." 
+                <input
+                  type="text"
+                  placeholder="Search Disease by Name..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   autoFocus
@@ -131,9 +131,9 @@ export default function SearchableDiseaseDropdown({
                   onBlur={(e) => e.target.style.borderColor = "#e2e8f0"}
                 />
               </div>
-              <button 
+              <button
                 onClick={(e) => { e.stopPropagation(); setIsOpen(false); }}
-                style={{ 
+                style={{
                   background: "#f1f5f9", border: "none", width: 32, height: 32, borderRadius: "50%",
                   display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer",
                   color: "#64748b", transition: "background 0.2s", fontSize: 14, flexShrink: 0
@@ -144,7 +144,7 @@ export default function SearchableDiseaseDropdown({
                 ✕
               </button>
             </div>
-            
+
             {/* List Area */}
             <div style={{ overflowY: "auto", padding: "12px 0 20px" }}>
               {loading ? (
@@ -155,7 +155,7 @@ export default function SearchableDiseaseDropdown({
                     Available Treatments
                   </div>
                   {filteredOptions.map((opt) => (
-                    <div 
+                    <div
                       key={opt._id || opt.name}
                       onClick={(e) => { e.stopPropagation(); handleSelect(opt.name); }}
                       style={{
@@ -182,7 +182,7 @@ export default function SearchableDiseaseDropdown({
             </div>
           </div>
         </div>
-      , document.body)}
+        , document.body)}
     </div>
   );
 }

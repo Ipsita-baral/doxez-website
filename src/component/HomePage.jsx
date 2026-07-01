@@ -99,11 +99,7 @@ export default function HomePage() {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-<<<<<<< HEAD
         const baseUrl = import.meta.env.VITE_API_URL;
-=======
-        const baseUrl = import.meta.env.VITE_API_URL ;
->>>>>>> origin/sumeet-dev
         console.log("Fetching services from backend...", baseUrl);
         const response = await axios.get(`${baseUrl}/api/services/catalog`);
         console.log("API Response:", response.data);
@@ -155,7 +151,7 @@ export default function HomePage() {
   };
 
   // 🛡️ CRM API Configuration
-  const CRM_API_URL = import.meta.env.VITE_API_URL || "https://crm.doxez.in";
+  const CRM_API_URL = import.meta.env.VITE_API_URL;
 
   const formik = useFormik({
     initialValues: {
@@ -913,7 +909,7 @@ export default function HomePage() {
               {/* Quick Partner Login for Doctors/Hospitals */}
               {/* <div style={{ marginTop: 28, display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
                 <span style={{ fontSize: 13, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em" }}>Partner Portal:</span>
-                <a href="https://crm.doxez.in/" target="_blank" rel="noopener noreferrer"
+                <a href={import.meta.env.VITE_API_URL} target="_blank" rel="noopener noreferrer"
                   style={{
                     display: "inline-flex",
                     alignItems: "center",
@@ -1151,7 +1147,7 @@ export default function HomePage() {
                             typeof cat.iconUrl === 'string' && cat.iconUrl.startsWith('http')
                               ? cat.iconUrl
                               : (cat._id
-                                ? `${import.meta.env.VITE_API_URL || "https://crm.doxez.in"}${cat.iconUrl}`
+                                ? `${import.meta.env.VITE_API_URL}${cat.iconUrl}`
                                 : cat.iconUrl)
                           }
                           alt={cat.serviceName}

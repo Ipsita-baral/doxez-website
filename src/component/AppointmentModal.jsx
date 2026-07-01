@@ -23,7 +23,6 @@ const SPECIALTIES = [
 export default function AppointmentModal({ onClose }) {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
-<<<<<<< HEAD
 
   useEffect(() => {
     if (submitted) {
@@ -36,10 +35,8 @@ export default function AppointmentModal({ onClose }) {
       return () => clearTimeout(timer);
     }
   }, [submitted]);
-  const CRM_API_URL = import.meta.env.VITE_API_URL || "https://crm.doxez.in";
-=======
-const CRM_API_URL = import.meta.env.VITE_API_URL
->>>>>>> origin/sumeet-dev
+
+  const CRM_API_URL = import.meta.env.VITE_API_URL;
 
   // 📝 Formik Validation Schema
   const validationSchema = Yup.object().shape({
@@ -225,7 +222,7 @@ const CRM_API_URL = import.meta.env.VITE_API_URL
                 <p style={{ fontSize: '14px', color: '#64748b', marginBottom: '24px' }}>
                   Please choose your preferred time window for our care coordinator to reach out.
                 </p>
-                
+
                 <div style={{ marginBottom: '20px' }}>
                   <button
                     onClick={() => setSelectedTime('Call within 30 minutes')}
@@ -282,7 +279,7 @@ const CRM_API_URL = import.meta.env.VITE_API_URL
                     </button>
                   ))}
                 </div>
-                
+
                 <button
                   onClick={confirmAndSubmit}
                   disabled={!selectedTime || loading}
@@ -389,7 +386,7 @@ const CRM_API_URL = import.meta.env.VITE_API_URL
                 <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                   <div>
                     <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", marginBottom: 6 }}>Select Disease</label>
-                    <SearchableDiseaseDropdown 
+                    <SearchableDiseaseDropdown
                       name="specialty"
                       value={formik.values.specialty}
                       onChange={formik.handleChange}
