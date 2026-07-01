@@ -20,7 +20,7 @@ const SPECIALTIES = [
 export default function AppointmentModal({ onClose }) {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
-  const CRM_API_URL = import.meta.env.VITE_API_URL || "https://crm.doxez.in";
+const CRM_API_URL = import.meta.env.VITE_API_URL
 
   // 📝 Formik Validation Schema
   const validationSchema = Yup.object().shape({

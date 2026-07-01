@@ -86,7 +86,7 @@ export default function HomePage() {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:8000";
+        const baseUrl = import.meta.env.VITE_API_URL ;
         console.log("Fetching services from backend...", baseUrl);
         const response = await axios.get(`${baseUrl}/api/services/catalog`);
         console.log("API Response:", response.data);

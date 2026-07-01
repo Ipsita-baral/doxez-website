@@ -26,7 +26,7 @@ export default function ServicesPage() {
   React.useEffect(() => {
     const fetchServices = async () => {
       try {
-        const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:8000";
+        const baseUrl = import.meta.env.VITE_API_URL;
         const response = await axios.get(`${baseUrl}/api/services/catalog`);
         if (response.data.success) {
           // Map backend data to frontend structure if necessary
