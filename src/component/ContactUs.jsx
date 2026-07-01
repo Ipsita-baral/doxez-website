@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import axios from "axios";
 
 const useInView = (threshold = 0.1) => {
   const ref = useRef(null);
@@ -22,6 +23,7 @@ export default function ContactUs() {
   });
   const [focused, setFocused] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [heroRef, heroInView] = useInView(0.1);
   const [cardRef, cardInView] = useInView(0.1);
   const [infoRef, infoInView] = useInView(0.1);
@@ -46,31 +48,30 @@ export default function ContactUs() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
-    const data = {
-      access_key: "c8761307-fd22-426c-9f82-e188b287e8b4",
-      name: formData.name,
-      email: formData.email,
-      org: formData.org,
-      phone: formData.phone,
-      role: formData.role,
-      message: formData.message,
-      subject: "New Contact Form Message - Doxez"
-    };
+    
+    setLoading(true);
+    const CRM_API_URL = import.meta.env.VITE_API_URL;
+    
     try {
-      const res = await fetch("https://api.web3forms.com/submit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
+      const res = await axios.post(`${CRM_API_URL}/api/enquiry/demo`, {
+        name: formData.name,
+        email: formData.email,
+        org: formData.org,
+        phoneNumber: formData.phone,
+        role: formData.role,
+        message: formData.message,
       });
-      const result = await res.json();
-      if (result.success) {
+
+      if (res.data.success) {
         setSubmitted(true);
         setShowPopup(true);
         setFormData({ name: "", org: "", email: "", phone: "", role: "", message: "" });
         setTimeout(() => { setShowPopup(false); setSubmitted(false); }, 4000);
       }
     } catch (error) {
-      console.log(error);
+      console.error("Contact Form Submission Error:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -315,12 +316,41 @@ export default function ContactUs() {
           transition: left 0.5s ease;
         }
         .submit-btn:hover::before { left: 100%; }
-        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(19,127,236,0.5); }
-        .submit-btn:active { transform: translateY(0) scale(0.98); }
-        .submit-btn.success {
-          background: linear-gradient(135deg, #1db97a 0%, #0e8a5a 100%);
-          box-shadow: 0 4px 24px rgba(29,185,122,0.4);
+        .submit-btn:hover { background: #0056b3; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(13, 110, 253, 0.3); }
+        .submit-btn.success { background: #10b981; pointer-events: none; }
+        .submit-btn.loading { 
+          background: #0056b3; 
+          pointer-events: none; 
+          opacity: 0.8;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
         }
+        
+        .skeleton-bar {
+          width: 140px;
+          height: 12px;
+          border-radius: 6px;
+          background: rgba(255, 255, 255, 0.25);
+          position: relative;
+          overflow: hidden;
+        }
+
+        .skeleton-bar::after {
+          content: "";
+          position: absolute;
+          top: 0; left: 0; right: 0; bottom: 0;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+          transform: translateX(-100%);
+          animation: shimmer 1.5s infinite ease-in-out;
+        }
+
+        @keyframes shimmer {
+          100% { transform: translateX(100%); }
+        }
+
+        .success-msg { animation: fadeIn 0.4s ease; display: inline-block; }
 
         .privacy-note {
           text-align: center;
@@ -484,8 +514,10 @@ export default function ContactUs() {
                   {errors.message && <span style={{ color: "red", fontSize: "12px" }}>{errors.message}</span>}
                 </div>
 
-                <button type="submit" className={`submit-btn ${submitted ? "success" : ""}`}>
-                  {submitted ? (
+                <button type="submit" style={{ height: 52 }} className={`submit-btn ${submitted ? "success" : ""} ${loading ? "loading" : ""}`} disabled={loading || submitted}>
+                  {loading ? (
+                    <div className="skeleton-bar"></div>
+                  ) : submitted ? (
                     <span className="success-msg">✓ Message Sent Successfully!</span>
                   ) : (
                     "Send Message →"

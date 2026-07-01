@@ -397,7 +397,7 @@ export default function DoxEZServicesPage() {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:8000";
+        const baseUrl = import.meta.env.VITE_API_URL;
         const response = await axios.get(`${baseUrl}/api/services/catalog`);
         console.log("Backend Data for Services:::::::", response.data);
 
@@ -414,8 +414,16 @@ export default function DoxEZServicesPage() {
 
         if (response.data.success && response.data.data.length > 0) {
           const mappedData = response.data.data.map(service => {
-            const lowerTitle = service.serviceName.toLowerCase().replace(/\s+/g, '-');
-            const local = staticMap[lowerTitle] || {};
+            const lowerTitle = service.serviceName.toLowerCase();
+            let local = {};
+            if (lowerTitle.includes('proctology')) local = staticMap['proctology'];
+            else if (lowerTitle.includes('urology')) local = staticMap['urology'];
+            else if (lowerTitle.includes('general')) local = staticMap['general-surgery'];
+            else if (lowerTitle.includes('gynecology')) local = staticMap['gynecology'];
+            else if (lowerTitle.includes('ent')) local = staticMap['ent'];
+            else if (lowerTitle.includes('plastic') || lowerTitle.includes('cosmetic')) local = staticMap['cosmetic-surgery'];
+            else if (lowerTitle.includes('orthopedic')) local = staticMap['orthopedics'];
+
             return {
               ...service,
               id: service._id,
@@ -423,7 +431,7 @@ export default function DoxEZServicesPage() {
               description: service.description || service.shortDesc || local.desc || "Specialized surgical care",
               iconUrl: local.icon || (service.iconImage
                 ? (service.iconImage.startsWith('http') ? service.iconImage : `${baseUrl}${service.iconImage}`)
-                : proctologyIcon)
+                : null)
             };
           });
           setServices(mappedData);
@@ -490,6 +498,8 @@ export default function DoxEZServicesPage() {
                     <div className="tile-icon">
                       {cat.iconUrl ? (
                         <img src={cat.iconUrl} alt={cat.title} style={{ width: 32, height: 32, objectFit: "contain" }} />
+                      ) : cat.title.toLowerCase().includes('neuro') ? (
+                        <Brain size={32} />
                       ) : (
                         <Stethoscope size={32} />
                       )}

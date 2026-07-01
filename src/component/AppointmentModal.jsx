@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -7,7 +7,7 @@ import SearchableDiseaseDropdown from "./SearchableDiseaseDropdown";
 import {
   X, User, Phone, MapPin, Stethoscope,
   CheckCircle2, ShieldCheck, HeartPulse,
-  ChevronRight, CalendarCheck, PhoneCall, Info, Loader2, Mail
+  ChevronRight, CalendarCheck, PhoneCall, Info, Loader2, Mail, Clock, XCircle
 } from "lucide-react";
 
 // Specialty list...
@@ -23,6 +23,18 @@ const SPECIALTIES = [
 export default function AppointmentModal({ onClose }) {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (submitted) {
+      const timer = setTimeout(() => {
+        setSubmitted(false);
+        setFormValues(null);
+        setSelectedTime(null);
+        formik.resetForm();
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [submitted]);
   const CRM_API_URL = import.meta.env.VITE_API_URL || "https://crm.doxez.in";
 
   // 📝 Formik Validation Schema
@@ -47,33 +59,46 @@ export default function AppointmentModal({ onClose }) {
     ayushmanCard: Yup.string().required("Required"),
   });
 
+  const [showTimeModal, setShowTimeModal] = useState(false);
+  const [selectedTime, setSelectedTime] = useState(null);
+  const [formValues, setFormValues] = useState(null);
+
+  const confirmAndSubmit = async () => {
+    if (!formValues || !selectedTime) return;
+    setLoading(true);
+    try {
+      await axios.post(`${CRM_API_URL}/api/leads/public/booking`, {
+        patientName: formValues.name,
+        patientEmail: formValues.email,
+        email: formValues.email,
+        patientAge: Number(formValues.age),
+        patientGender: formValues.gender,
+        patientPhone: formValues.phone,
+        city: formValues.city === "Other City" ? formValues.otherLocation : formValues.city,
+        treatmentRequired: formValues.specialty === "Others" ? formValues.otherDisease : formValues.specialty,
+        hasAyushmanCard: formValues.ayushmanCard === "Yes",
+        preferredCallTime: selectedTime,
+        source: `Appointment Modal - ${selectedTime}`,
+        referralCode: localStorage.getItem('doxez_ref') || undefined
+      });
+      localStorage.removeItem('doxez_ref');
+      setShowTimeModal(false);
+      setSubmitted(true);
+    } catch (err) {
+      console.error("Booking failed:", err);
+      alert("Consultation request failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const formik = useFormik({
     initialValues: { name: "", email: "", age: "", gender: "", phone: "", city: "", otherLocation: "", specialty: "", ayushmanCard: "", otherDisease: "" },
     enableReinitialize: true,
     validationSchema,
     onSubmit: async (values) => {
-      setLoading(true);
-      try {
-        await axios.post(`${CRM_API_URL}/api/leads/public/booking`, {
-          patientName: values.name,
-          patientEmail: values.email,
-          email: values.email,
-          patientAge: Number(values.age),
-          patientGender: values.gender,
-          patientPhone: values.phone,
-          city: values.city === "Other City" ? values.otherLocation : values.city,
-          treatmentRequired: values.specialty === "Others" ? values.otherDisease : values.specialty,
-          hasAyushmanCard: values.ayushmanCard === "Yes",
-          referralCode: localStorage.getItem('doxez_ref') || undefined
-        });
-        localStorage.removeItem('doxez_ref');
-        setSubmitted(true);
-      } catch (err) {
-        console.error("Booking failed:", err);
-        alert("Consultation request failed. Please try again.");
-      } finally {
-        setLoading(false);
-      }
+      setFormValues(values);
+      setShowTimeModal(true);
     },
   });
 
@@ -182,7 +207,104 @@ export default function AppointmentModal({ onClose }) {
             <X size={16} />
           </button>
 
-          {!submitted ? (
+          {showTimeModal ? (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+              <div style={{ padding: "10px 0" }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                  <h4 style={{ margin: 0, fontSize: '18px', display: 'flex', alignItems: 'center', gap: '8px', color: '#0f172a', fontWeight: '800' }}>
+                    <Clock size={20} color="#3b82f6" /> Select Callback Time
+                  </h4>
+                  <button onClick={() => setShowTimeModal(false)} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', display: 'flex' }}>
+                    <ChevronRight size={20} style={{ transform: 'rotate(180deg)' }} /> Back
+                  </button>
+                </div>
+                <p style={{ fontSize: '14px', color: '#64748b', marginBottom: '24px' }}>
+                  Please choose your preferred time window for our care coordinator to reach out.
+                </p>
+                
+                <div style={{ marginBottom: '20px' }}>
+                  <button
+                    onClick={() => setSelectedTime('Call within 30 minutes')}
+                    type="button"
+                    style={{
+                      width: '100%',
+                      padding: '14px',
+                      borderRadius: '8px',
+                      border: `1.5px solid ${selectedTime === 'Call within 30 minutes' ? '#3b82f6' : '#10b981'}`,
+                      background: selectedTime === 'Call within 30 minutes' ? '#eff6ff' : '#ecfdf5',
+                      color: selectedTime === 'Call within 30 minutes' ? '#3b82f6' : '#047857',
+                      fontWeight: '700',
+                      cursor: 'pointer',
+                      textAlign: 'center',
+                      transition: 'all 0.2s',
+                      fontSize: '15px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '8px'
+                    }}
+                  >
+                    <PhoneCall size={18} />
+                    Call me within 30 minutes
+                  </button>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+                  <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }}></div>
+                  <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: '600', textTransform: 'uppercase' }}>Or schedule later</span>
+                  <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }}></div>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px' }}>
+                  {['8AM - 1PM', '1PM - 5PM', '5PM - 9PM'].map(time => (
+                    <button
+                      key={time}
+                      onClick={() => setSelectedTime(time)}
+                      type="button"
+                      style={{
+                        padding: '14px',
+                        borderRadius: '8px',
+                        border: `1px solid ${selectedTime === time ? '#3b82f6' : '#e2e8f0'}`,
+                        background: selectedTime === time ? '#eff6ff' : '#fff',
+                        color: selectedTime === time ? '#3b82f6' : '#1e293b',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        transition: 'all 0.2s',
+                        fontSize: '15px'
+                      }}
+                    >
+                      {time}
+                    </button>
+                  ))}
+                </div>
+                
+                <button
+                  onClick={confirmAndSubmit}
+                  disabled={!selectedTime || loading}
+                  type="button"
+                  style={{
+                    width: '100%',
+                    padding: '16px',
+                    background: !selectedTime || loading ? '#cbd5e1' : '#ff8800',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: '12px',
+                    fontWeight: '800',
+                    cursor: !selectedTime || loading ? 'not-allowed' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    fontSize: '15px',
+                    transition: 'all 0.3s'
+                  }}
+                >
+                  {loading ? <Loader2 className="animate-spin" size={18} /> : "Confirm Time"} <ChevronRight size={16} />
+                </button>
+              </div>
+            </motion.div>
+          ) : !submitted ? (
             <>
               <div style={{ marginBottom: 28, textAlign: "center" }}>
                 <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "#eff6ff", color: "#1e4b8f", padding: "6px 14px", borderRadius: 99, fontSize: 10, fontWeight: 800, textTransform: "uppercase", marginBottom: 12, border: "1px solid #dbeafe" }}>

@@ -249,7 +249,7 @@ export default function PartnerOnboarding() {
           </h2>
           <p className="success-desc">
             {partnerType === "doctor"
-              ? `Thank you for registering, Dr. ${formData.fullName ? formData.fullName.split(' ')[0] : 'Partner'}. Our onboarding team will call you within the next 24 hours to complete your profile verification.`
+              ? `Thank you for registering, Dr. ${formData.fullName ? formData.fullName.split(' ')[0] : 'Partner'}. Our onboarding team will reach out to you within the next 24 hours to guide you through the next steps.`
               : "Our Institutional Partnerships team has been notified. We will reach out to the Administrative Contact provided to schedule a platform walkthrough and verify your registration."}
           </p>
           <button onClick={() => setSubmitted(false)} className="success-btn">
@@ -267,6 +267,27 @@ export default function PartnerOnboarding() {
         
         .doc-btn-p { background: #1e4b8f; color: #fff; padding: 16px 36px; border-radius: 12px; font-weight: 700; transition: all 0.3s; display: inline-flex; align-items: center; gap: 10px; border: none; cursor: pointer; }
         .doc-btn-p:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(30,75,143,0.3); }
+        .doc-btn-p:disabled { opacity: 0.7; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .skeleton-bar {
+          width: 140px;
+          height: 12px;
+          border-radius: 6px;
+          background: rgba(255, 255, 255, 0.25);
+          position: relative;
+          overflow: hidden;
+        }
+        .skeleton-bar::after {
+          content: "";
+          position: absolute;
+          top: 0; left: 0; right: 0; bottom: 0;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+          transform: translateX(-100%);
+          animation: shimmer 1.5s infinite ease-in-out;
+        }
+        @keyframes shimmer {
+          100% { transform: translateX(100%); }
+        }
 
         .type-toggle {
           display: grid;
@@ -774,8 +795,12 @@ export default function PartnerOnboarding() {
                 )}
 
                 <div className="span-2" style={{ gridColumn: "span 2", marginTop: 12 }}>
-                  <button type="submit" disabled={isSubmitting} className="doc-btn-p" style={{ width: "100%", justifyContent: "center", fontSize: 16 }}>
-                    {isSubmitting ? "Submitting..." : "Begin Onboarding"} <ChevronRight size={20} />
+                  <button type="submit" disabled={isSubmitting} className="doc-btn-p" style={{ width: "100%", justifyContent: "center", fontSize: 16, height: 52 }}>
+                    {isSubmitting ? (
+                      <div className="skeleton-bar"></div>
+                    ) : (
+                      <>Begin Onboarding <ChevronRight size={20} /></>
+                    )}
                   </button>
                   <p style={{ fontSize: 11, color: "#94a3b8", textAlign: "center", marginTop: 16 }}>
                     By joining, you agree to our <span style={{ color: "#1e4b8f", fontWeight: 700 }}>Partner Policy</span>.

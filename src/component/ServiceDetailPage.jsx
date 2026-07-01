@@ -20,6 +20,19 @@ export default function ServiceDetailPage() {
   const [dynamicTreatment, setDynamicTreatment] = useState(null);
   const [dynamicCategory, setDynamicCategory] = useState(null);
   const [fetching, setFetching] = useState(true);
+  const [showTimeModal, setShowTimeModal] = useState(false);
+  const [selectedTime, setSelectedTime] = useState(null);
+
+  useEffect(() => {
+    if (submitted) {
+      const timer = setTimeout(() => {
+        setSubmitted(false);
+        setForm({ name: "", email: "", phone: "", city: "", hasAyushman: false });
+        setSelectedTime(null);
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [submitted]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -29,7 +42,7 @@ export default function ServiceDetailPage() {
         const isMongoId = /^[0-9a-fA-F]{24}$/.test(treatmentId);
 
         if (isMongoId) {
-          const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:8000";
+          const baseUrl = import.meta.env.VITE_API_URL;
           const response = await axios.get(`${baseUrl}/api/sub-services/${treatmentId}`);
           if (response.data.success) {
             const data = response.data.data;
@@ -131,7 +144,7 @@ export default function ServiceDetailPage() {
 
   if (!category) return <div style={{ padding: 100, textAlign: 'center' }}>Service not found</div>;
 
-  const handleBooking = async (e) => {
+  const handleBookingClick = (e) => {
     e.preventDefault();
 
     if (!/^[6-9]\d{9}$/.test(form.phone)) {
@@ -139,6 +152,10 @@ export default function ServiceDetailPage() {
       return;
     }
 
+    setShowTimeModal(true);
+  };
+
+  const confirmAndSubmit = async () => {
     setLoading(true);
     try {
       const CRM_API_URL = import.meta.env.VITE_API_URL || "https://crm.doxez.in";
@@ -146,35 +163,36 @@ export default function ServiceDetailPage() {
       // Determine if we are using a dynamic sub-service ID
       const isMongoId = /^[0-9a-fA-F]{24}$/.test(treatmentId);
 
+      const payload = {
+        patientName: form.name,
+        patientEmail: form.email,
+        email: form.email,
+        patientPhone: form.phone,
+        city: form.city,
+        hasAyushmanCard: form.hasAyushman,
+        hasAyushman: form.hasAyushman, // For static API compat
+        preferredCallTime: selectedTime,
+        referralCode: localStorage.getItem('doxez_ref') || undefined
+      };
+
       if (isMongoId) {
         // Use the professional Web-Lead API for better CRM routing
         await axios.post(`${CRM_API_URL}/api/leads/public/web-lead`, {
-          patientName: form.name,
-          patientEmail: form.email,
-          email: form.email,
-          patientPhone: form.phone,
-          city: form.city,
-          hasAyushmanCard: form.hasAyushman,
+          ...payload,
           subServiceId: treatmentId,
-          source: "DOXEZ_WEB_DETAIL",
-          referralCode: localStorage.getItem('doxez_ref') || undefined
+          source: `DOXEZ_WEB_DETAIL - ${selectedTime}`,
         });
       } else {
         // Fallback for static data if needed
         await axios.post(`${CRM_API_URL}/api/leads/public/booking`, {
-          patientName: form.name,
-          patientEmail: form.email,
-          email: form.email,
-          patientPhone: form.phone,
-          city: form.city,
+          ...payload,
           treatmentRequired: treatment?.name || category.title,
-          hasAyushman: form.hasAyushman,
-          source: "Service Detail Page (Static)",
-          referralCode: localStorage.getItem('doxez_ref') || undefined
+          source: `Service Detail Page (Static) - ${selectedTime}`,
         });
       }
 
       localStorage.removeItem('doxez_ref');
+      setShowTimeModal(false);
       setSubmitted(true);
     } catch (err) {
       console.error("Booking Error:", err);
@@ -478,7 +496,7 @@ export default function ServiceDetailPage() {
                     <h3 style={{ fontSize: "20px", fontWeight: "800", marginBottom: "8px" }}>Book FREE Consultation</h3>
                     <p style={{ fontSize: "14px", color: "#64748b", marginBottom: "24px" }}>Connect with our medical expert today.</p>
 
-                    <form onSubmit={handleBooking}>
+                    <form onSubmit={handleBookingClick}>
                       <div style={{ marginBottom: "16px" }}>
                         <label style={{ display: "block", fontSize: "13px", fontWeight: "700", marginBottom: "6px" }}>Full Name</label>
                         <input
@@ -575,6 +593,106 @@ export default function ServiceDetailPage() {
           </div>
         </div>
       </div>
+
+      {showTimeModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(15, 23, 42, 0.7)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
+          <div style={{ background: '#fff', borderRadius: '12px', width: '100%', maxWidth: '400px', overflow: 'hidden', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)' }}>
+            <div style={{ background: '#0f172a', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#fff' }}>
+              <h4 style={{ margin: 0, fontSize: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <Clock size={18} /> Select Callback Time
+              </h4>
+              <button onClick={() => setShowTimeModal(false)} style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer', display: 'flex' }}>
+                <XCircle size={20} />
+              </button>
+            </div>
+            <div style={{ padding: '24px' }}>
+              <p style={{ fontSize: '14px', color: '#64748b', marginBottom: '20px', textAlign: 'center' }}>
+                Please choose your preferred time window for our care coordinator to reach out.
+              </p>
+              
+              <div style={{ marginBottom: '20px' }}>
+                <button
+                  onClick={() => setSelectedTime('Call within 30 minutes')}
+                  type="button"
+                  style={{
+                    width: '100%',
+                    padding: '14px',
+                    borderRadius: '8px',
+                    border: `1.5px solid ${selectedTime === 'Call within 30 minutes' ? '#3b82f6' : '#10b981'}`,
+                    background: selectedTime === 'Call within 30 minutes' ? '#eff6ff' : '#ecfdf5',
+                    color: selectedTime === 'Call within 30 minutes' ? '#3b82f6' : '#047857',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    textAlign: 'center',
+                    transition: 'all 0.2s',
+                    fontSize: '15px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px'
+                  }}
+                >
+                  <Phone size={18} />
+                  Call me within 30 minutes
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+                <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }}></div>
+                <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: '600', textTransform: 'uppercase' }}>Or schedule later</span>
+                <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }}></div>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px' }}>
+                {['8AM - 1PM', '1PM - 5PM', '5PM - 9PM'].map(time => (
+                  <button
+                    key={time}
+                    onClick={() => setSelectedTime(time)}
+                    type="button"
+                    style={{
+                      padding: '14px',
+                      borderRadius: '8px',
+                      border: `1px solid ${selectedTime === time ? '#3b82f6' : '#e2e8f0'}`,
+                      background: selectedTime === time ? '#eff6ff' : '#fff',
+                      color: selectedTime === time ? '#3b82f6' : '#1e293b',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      transition: 'all 0.2s',
+                      fontSize: '15px'
+                    }}
+                  >
+                    {time}
+                  </button>
+                ))}
+              </div>
+              
+              <button
+                onClick={confirmAndSubmit}
+                disabled={!selectedTime || loading}
+                type="button"
+                style={{
+                  width: '100%',
+                  padding: '14px',
+                  background: (!selectedTime || loading) ? '#cbd5e1' : '#3b82f6',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontWeight: '700',
+                  cursor: !selectedTime || loading ? 'not-allowed' : 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px',
+                  fontSize: '15px'
+                }}
+              >
+                {loading ? <Loader2 className="animate-spin" size={18} /> : "Confirm Time"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

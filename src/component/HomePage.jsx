@@ -7,7 +7,7 @@ import {
   Star, MessageSquare, ArrowRight, ShieldCheck, Clock, CheckCircle2,
   Building2, UserPlus, Zap, Lock, FileText, CheckCircle, HeartPulse,
   Activity, Loader2, CheckCircle2 as CheckIcon, ChevronRight, ChevronLeft,
-  Stethoscope, Heart, Mic, Sparkles, Bone, Brain, ShieldPlus, Shield, Search
+  Stethoscope, Heart, Mic, Sparkles, Bone, Brain, ShieldPlus, Shield, Search, PhoneCall
 } from "lucide-react";
 import DoxezWorkflow from "./DoxezWorkFlow";
 import SearchableDiseaseDropdown from "./SearchableDiseaseDropdown";
@@ -85,9 +85,21 @@ export default function HomePage() {
   const scrollRef = useRef(null);
 
   useEffect(() => {
+    if (showThankYou) {
+      const timer = setTimeout(() => {
+        setShowThankYou(false);
+        setSubmitted(false);
+        setSelectedSlot("");
+        // formik.resetForm() is already called when setting showThankYou(true)
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [showThankYou]);
+
+  useEffect(() => {
     const fetchServices = async () => {
       try {
-        const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:8000";
+        const baseUrl = import.meta.env.VITE_API_URL;
         console.log("Fetching services from backend...", baseUrl);
         const response = await axios.get(`${baseUrl}/api/services/catalog`);
         console.log("API Response:", response.data);
@@ -250,6 +262,31 @@ export default function HomePage() {
               <p style={{ color: "#475569", fontSize: 15, margin: "0 0 24px", lineHeight: 1.5, textAlign: "center" }}>
                 Please choose your preferred time window for our care coordinator to reach out.
               </p>
+
+              <div style={{ marginBottom: "20px" }}>
+                <button
+                  onClick={() => setSelectedSlot("Call within 30 minutes")}
+                  style={{
+                    display: "flex", alignItems: "center", justifyContent: "center", gap: "10px",
+                    width: "100%", padding: "16px 20px", borderRadius: 8, cursor: "pointer",
+                    border: `1.5px solid ${selectedSlot === "Call within 30 minutes" ? "#e8631c" : "#10b981"}`,
+                    background: selectedSlot === "Call within 30 minutes" ? "#fffaf5" : "#ecfdf5",
+                    transition: "all 0.15s ease", outline: "none",
+                    boxShadow: selectedSlot === "Call within 30 minutes" ? "0 2px 8px rgba(232, 99, 28, 0.1)" : "none"
+                  }}
+                >
+                  <PhoneCall size={18} color={selectedSlot === "Call within 30 minutes" ? "#e8631c" : "#047857"} />
+                  <span style={{ fontSize: 15, fontWeight: 700, color: selectedSlot === "Call within 30 minutes" ? "#e8631c" : "#047857" }}>
+                    Call me within 30 minutes
+                  </span>
+                </button>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px' }}>
+                <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }}></div>
+                <span style={{ fontSize: '12px', color: '#94a3b8', fontWeight: '600', textTransform: 'uppercase' }}>Or schedule later</span>
+                <div style={{ flex: 1, height: '1px', background: '#e2e8f0' }}></div>
+              </div>
 
               <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 32 }}>
                 {[
@@ -1000,7 +1037,7 @@ export default function HomePage() {
                     </div>
 
                     <div style={{ position: "relative" }}>
-                      <SearchableDiseaseDropdown 
+                      <SearchableDiseaseDropdown
                         name="disease"
                         value={formik.values.disease}
                         onChange={formik.handleChange}
