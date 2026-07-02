@@ -19,14 +19,6 @@ RUN npm run build
 # Production stage
 FROM nginx:stable-alpine
 
-# Build-time argument to optionally install AWS CLI and jq (Option B)
-ARG INSTALL_AWS_CLI=false
-
-# Install AWS CLI and jq if requested, otherwise keep the image slim
-RUN if [ "$INSTALL_AWS_CLI" = "true" ]; then \
-        apk add --no-cache aws-cli jq; \
-    fi
-
 # Copy the custom nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 

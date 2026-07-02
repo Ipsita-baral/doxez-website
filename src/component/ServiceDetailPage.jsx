@@ -28,7 +28,7 @@ export default function ServiceDetailPage() {
         const isMongoId = /^[0-9a-fA-F]{24}$/.test(treatmentId);
 
         if (isMongoId) {
-          const baseUrl = import.meta.env.VITE_API_URL;
+          const baseUrl = "";
           const response = await axios.get(`${baseUrl}/api/sub-services/${treatmentId}`);
           if (response.data.success) {
             const data = response.data.data;
@@ -134,7 +134,7 @@ export default function ServiceDetailPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      const CRM_API_URL = import.meta.env.VITE_API_URL || "https://crm.doxez.in";
+      const CRM_API_URL = "";
 
       // Determine if we are using a dynamic sub-service ID
       const isMongoId = /^[0-9a-fA-F]{24}$/.test(treatmentId);

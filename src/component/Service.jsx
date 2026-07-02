@@ -397,7 +397,7 @@ export default function DoxEZServicesPage() {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const baseUrl = import.meta.env.VITE_API_URL;
+        const baseUrl = "";
         const response = await axios.get(`${baseUrl}/api/services/catalog`);
         console.log("Backend Data for Services:::::::", response.data);
 
