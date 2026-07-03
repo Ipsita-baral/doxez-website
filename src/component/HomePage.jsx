@@ -99,8 +99,8 @@ export default function HomePage() {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const baseUrl = import.meta.env.VITE_API_URL;
-        console.log("Fetching services from backend...", baseUrl);
+        const baseUrl = import.meta.env.VITE_API_URL || "";
+        console.log("Fetching services from backend...", baseUrl || "relative proxy");
         const response = await axios.get(`${baseUrl}/api/services/catalog`);
         console.log("API Response:", response.data);
         if (response.data.success && response.data.data.length > 0) {
@@ -151,7 +151,7 @@ export default function HomePage() {
   };
 
   // 🛡️ CRM API Configuration
-  const CRM_API_URL = import.meta.env.VITE_API_URL || "https://crm.doxez.in";
+  const CRM_API_URL = import.meta.env.VITE_API_URL || "";
 
   const formik = useFormik({
     initialValues: {
@@ -1147,7 +1147,7 @@ export default function HomePage() {
                             typeof cat.iconUrl === 'string' && cat.iconUrl.startsWith('http')
                               ? cat.iconUrl
                               : (cat._id
-                                ? `${import.meta.env.VITE_API_URL || "https://crm.doxez.in"}${cat.iconUrl}`
+                                ? `${import.meta.env.VITE_API_URL || ""}${cat.iconUrl}`
                                 : cat.iconUrl)
                           }
                           alt={cat.serviceName}
