@@ -3,10 +3,9 @@
 # Exit immediately if a command exits with a non-zero status
 set -e
 
-# Fallback default value if VITE_API_URL is still empty/not set
 if [ -z "$VITE_API_URL" ]; then
-  echo "VITE_API_URL is not set. Defaulting to production CRM url: https://crm.doxez.in"
-  export VITE_API_URL="https://crm.doxez.in"
+  echo "ERROR: VITE_API_URL is not set. Please provide it in your ECS environment variables."
+  exit 1
 fi
 
 echo "Injecting runtime environment variables..."

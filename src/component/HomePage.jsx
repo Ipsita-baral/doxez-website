@@ -99,8 +99,9 @@ export default function HomePage() {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const baseUrl = import.meta.env.VITE_API_URL || "";
-        console.log("Fetching services from backend...", baseUrl || "relative proxy");
+        const baseUrl = "";
+        const targetServer = import.meta.env.VITE_API_URL || "Dynamic Backend URL (ECS)";
+        console.log(`Fetching services from backend... The browser is calling '/api', which proxies to: ${targetServer}`);
         const response = await axios.get(`${baseUrl}/api/services/catalog`);
         console.log("API Response:", response.data);
         if (response.data.success && response.data.data.length > 0) {

@@ -4,7 +4,7 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
-  const apiUrl = env.VITE_API_URL || 'http://doxez-frontend-alb-1475539815.ap-south-1.elb.amazonaws.com';
+  const apiUrl = env.VITE_API_URL || 'http://localhost:5000';
   
   console.log("🚀 Local backend proxy is pointing to:", apiUrl);
 
