@@ -903,7 +903,7 @@ export default function HomePage() {
                 </div>
                 <div className="stat-card">
                   <h3>4.8</h3>
-                  <p>Google Rating</p>
+                  <p>Ratings</p>
                 </div>
               </div>
 
