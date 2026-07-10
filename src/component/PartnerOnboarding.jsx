@@ -93,6 +93,8 @@ export default function PartnerOnboarding() {
     phone: "",
     email: "",
     city: "",
+    state: "",
+    pincode: "",
     hospitalName: "",
     contactPerson: "",
     address: "",
@@ -101,8 +103,30 @@ export default function PartnerOnboarding() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
+  const fetchLocationByPincode = async (pincode) => {
+    if (pincode.length === 6) {
+      try {
+        const response = await axios.get(`https://api.postalpincode.in/pincode/${pincode}`);
+        if (response.data[0].Status === "Success") {
+          const { District, State } = response.data[0].PostOffice[0];
+          setFormData((prev) => ({
+            ...prev,
+            city: District,
+            state: State
+          }));
+        }
+      } catch (error) {
+        console.error("Error fetching location data", error);
+      }
+    }
+  };
+
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    if (name === "pincode") {
+      fetchLocationByPincode(value);
+    }
   };
 
   const CRM_API_URL = "";
@@ -131,7 +155,10 @@ export default function PartnerOnboarding() {
           contactPerson: formData.contactPerson,
           email: formData.email,
           phone: formData.phone,
-          address: formData.address
+          address: formData.address,
+          pincode: formData.pincode,
+          city: formData.city,
+          state: formData.state
         });
       }
       setSubmitted(true);
@@ -786,8 +813,48 @@ export default function PartnerOnboarding() {
                         required
                         className="form-input"
                         name="address"
-                        placeholder="Street, City, State"
+                        placeholder="Street / Area"
                         value={formData.address}
+                        onChange={handleChange}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="form-label">Pincode *</label>
+                      <input
+                        required
+                        type="text"
+                        maxLength="6"
+                        className="form-input"
+                        name="pincode"
+                        placeholder="e.g. 751024"
+                        value={formData.pincode}
+                        onChange={handleChange}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="form-label">City *</label>
+                      <input
+                        required
+                        type="text"
+                        className="form-input"
+                        name="city"
+                        placeholder="City"
+                        value={formData.city}
+                        onChange={handleChange}
+                      />
+                    </div>
+
+                    <div className="span-2" style={{ gridColumn: "span 2" }}>
+                      <label className="form-label">State *</label>
+                      <input
+                        required
+                        type="text"
+                        className="form-input"
+                        name="state"
+                        placeholder="State"
+                        value={formData.state}
                         onChange={handleChange}
                       />
                     </div>
