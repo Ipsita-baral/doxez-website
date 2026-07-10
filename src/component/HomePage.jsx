@@ -87,7 +87,7 @@ export default function HomePage() {
     const fetchServices = async () => {
       try {
         const baseUrl = "";
-        const targetServer = import.meta.env.VITE_API_URL || "http://doxez-frontend-alb-1475539815.ap-south-1.elb.amazonaws.com";
+        const targetServer = import.meta.env.VITE_API_URL || "Dynamic Backend URL (ECS)";
         console.log(`Fetching services from backend... The browser is calling '/api', which proxies to: ${targetServer}`);
         const response = await axios.get(`${baseUrl}/api/services/catalog`);
         console.log("API Response:", response.data);
