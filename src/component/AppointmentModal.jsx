@@ -31,7 +31,7 @@ export default function AppointmentModal({ onClose }) {
   const validationSchema = Yup.object().shape({
     name: Yup.string().required("Full name is required"),
     email: Yup.string().email("Invalid email format"),
-    age: Yup.number().typeError("Age must be a number").required("Age is required").positive().integer(),
+    age: Yup.number().typeError("Age must be a number").required("Age is required").positive("Age must be positive").integer().max(120, "Please enter a valid age"),
     gender: Yup.string().required("Required"),
     phone: Yup.string().matches(/^[6-9]\d{9}$/, "Valid 10-digit number required").required("Phone number is required"),
     city: Yup.string().required("Please select a city"),
@@ -300,8 +300,8 @@ export default function AppointmentModal({ onClose }) {
                 <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "#eff6ff", color: "#1e4b8f", padding: "6px 14px", borderRadius: 99, fontSize: 10, fontWeight: 800, textTransform: "uppercase", marginBottom: 12, border: "1px solid #dbeafe" }}>
                   <HeartPulse size={12} /> Doxez Healthcare
                 </div>
-                <h2 className="modal-title" style={{ fontSize: 24, fontWeight: 800, color: "#0b1f3a", marginBottom: 8 }}>Book Your Appointment</h2>
-                <p className="modal-desc" style={{ color: "#64748b", fontSize: 13, lineHeight: 1.4 }}>Request a callback from our medical experts. We'll contact you shortly to confirm your visit.</p>
+                <h2 className="modal-title" style={{ fontSize: 24, fontWeight: 800, color: "#0b1f3a", marginBottom: 8 }}>Get Expert Advice</h2>
+                <p className="modal-desc" style={{ color: "#64748b", fontSize: 13, lineHeight: 1.4 }}>Share your details. Our care expert will contact you, understand your needs, and connect you with the right specialist.</p>
               </div>
 
               <form onSubmit={formik.handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -317,7 +317,21 @@ export default function AppointmentModal({ onClose }) {
                   </div>
                   <div>
                     <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", marginBottom: 6 }}>Age</label>
-                    <input type="text" placeholder="Age" disabled={loading} {...formik.getFieldProps("age")} style={{ width: "100%", padding: "12px 14px", borderRadius: 12, border: `1.5px solid ${formik.touched.age && formik.errors.age ? "#ef4444" : "#e2e8f0"}`, fontSize: 13, outline: "none" }} />
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={3}
+                      placeholder="Age"
+                      disabled={loading}
+                      name="age"
+                      value={formik.values.age}
+                      onBlur={formik.handleBlur}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, "").slice(0, 3);
+                        formik.setFieldValue("age", val);
+                      }}
+                      style={{ width: "100%", padding: "12px 14px", borderRadius: 12, border: `1.5px solid ${formik.touched.age && formik.errors.age ? "#ef4444" : "#e2e8f0"}`, fontSize: 13, outline: "none" }}
+                    />
                     {formik.touched.age && formik.errors.age && <p style={{ color: "#ef4444", fontSize: 10, marginTop: 4, fontWeight: 600 }}>{formik.errors.age}</p>}
                   </div>
                   <div>
@@ -348,7 +362,21 @@ export default function AppointmentModal({ onClose }) {
                     <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", marginBottom: 6 }}>Mobile No.</label>
                     <div style={{ position: "relative" }}>
                       <Phone size={14} style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} />
-                      <input type="tel" placeholder="10-digit mobile" disabled={loading} {...formik.getFieldProps("phone")} style={{ width: "100%", padding: "12px 12px 12px 40px", borderRadius: 12, border: `1.5px solid ${formik.touched.phone && formik.errors.phone ? "#ef4444" : "#e2e8f0"}`, fontSize: 13, outline: "none" }} />
+                      <input
+                        type="tel"
+                        inputMode="numeric"
+                        maxLength={10}
+                        placeholder="10-digit mobile"
+                        disabled={loading}
+                        name="phone"
+                        value={formik.values.phone}
+                        onBlur={formik.handleBlur}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, "").slice(0, 10);
+                          formik.setFieldValue("phone", val);
+                        }}
+                        style={{ width: "100%", padding: "12px 12px 12px 40px", borderRadius: 12, border: `1.5px solid ${formik.touched.phone && formik.errors.phone ? "#ef4444" : "#e2e8f0"}`, fontSize: 13, outline: "none" }}
+                      />
                     </div>
                     {formik.touched.phone && formik.errors.phone && <p style={{ color: "#ef4444", fontSize: 10, marginTop: 4, fontWeight: 600 }}>{formik.errors.phone}</p>}
                   </div>

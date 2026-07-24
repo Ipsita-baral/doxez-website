@@ -471,23 +471,37 @@ export default function HomePage() {
 
         .hero-title {
           font-family: 'Plus Jakarta Sans', sans-serif;
-          font-size: clamp(1.6rem, 2.4vw, 2.1rem);
-          font-weight: 800;
-          line-height: 1.2;
-          color: #0b1f3a;
           margin-bottom: 0;
-          letter-spacing: -0.02em;
         }
 
-        .hero-title span {
+        .hero-title-l1 {
           display: block;
-          font-size: 0.52em;
-          font-weight: 600;
+          font-size: clamp(1.5rem, 2vw, 1.65rem);
+          font-weight: 700;
+          line-height: 1.15;
+          color: #0b1f3a;
+          letter-spacing: -0.01em;
+        }
+
+        .hero-title-l2 {
+          display: block;
+          font-size: clamp(1.95rem, 2.8vw, 2.45rem);
+          font-weight: 800;
+          line-height: 1.15;
+          color: #0b1f3a;
+          letter-spacing: -0.02em;
+          margin-top: 4px;
+        }
+
+        .hero-subtitle {
+          display: block;
+          font-size: clamp(0.95rem, 1.3vw, 1.1rem);
+          font-weight: 500;
           color: #1e4b8f;
-          margin-top: 6px;
+          margin-top: 12px;
           line-height: 1.4;
           letter-spacing: 0;
-          opacity: 0.9;
+          opacity: 0.95;
         }
 
         .ayushman-small {
@@ -510,7 +524,7 @@ export default function HomePage() {
           font-size: 15px;
           line-height: 1.6;
           color: #4b5563;
-          max-width: clamp(380px, 40vw, 480px);
+          max-width: clamp(320px, 40vw, 480px);
           margin-bottom: 16px;
         }
 
@@ -566,7 +580,7 @@ export default function HomePage() {
           width: clamp(280px, 26vw, 320px);
           height: clamp(280px, 26vw, 320px);
           position: relative;
-          margin: 0 40px 0 -30px;
+          margin: 0 70px 0 0;
           flex-shrink: 0;
         }
         // .nurse-bg-circle {
@@ -877,8 +891,9 @@ export default function HomePage() {
           <div style={{ flex: 1, maxWidth: 640, position: "relative", zIndex: 10 }}>
             <Reveal delay={0.1}>
               <h1 className="hero-title">
-                India's Comprehensive <br /> Digital Platform
-                <span>for end-to-end surgical care facilitation</span>
+                <span className="hero-title-l1">India's Comprehensive</span>
+                <span className="hero-title-l2">Digital Platform</span>
+                <span className="hero-subtitle">for end-to-end surgical care facilitation</span>
               </h1>
               <div className="ayushman-small">
                 <ShieldCheck size={14} /> Includes Ayushman, Insurance & Self Pay
@@ -972,7 +987,7 @@ export default function HomePage() {
               {!submitted ? (
                 <>
                   <div style={{ marginBottom: 16, textAlign: "center" }}>
-                    <h3 style={{ fontSize: 22, fontWeight: 800, color: "#0b1f3a", marginBottom: 6, }}>Book Appointment</h3>
+                    <h3 style={{ fontSize: 22, fontWeight: 800, color: "#0b1f3a", marginBottom: 6, }}>Get Expert Advice</h3>
                     <p style={{ fontSize: 11, color: "#64748b", lineHeight: 1.5 }}>Get expert advice for your surgical needs.</p>
                   </div>
 
@@ -1066,7 +1081,7 @@ export default function HomePage() {
                       onMouseOver={(e) => !loading && (e.currentTarget.style.transform = "translateY(-1px)")}
                       onMouseOut={(e) => !loading && (e.currentTarget.style.transform = "translateY(0)")}
                     >
-                      {loading ? <Loader2 className="animate-spin" size={18} /> : "Book Appointment"}
+                      {loading ? <Loader2 className="animate-spin" size={18} /> : "Get Expert Advice"}
                     </button>
                     <div style={{ textAlign: "center", fontSize: 11, color: "#94a3b8", fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginTop: 4 }}>
                       <ShieldCheck size={14} color="#059669" /> 100% Secure & Confidential
@@ -1489,4 +1504,5 @@ export default function HomePage() {
       </section>
     </div>
   );
+
 }
