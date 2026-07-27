@@ -93,6 +93,8 @@ export default function PartnerOnboarding() {
     phone: "",
     email: "",
     city: "",
+    state: "",
+    pincode: "",
     hospitalName: "",
     contactPerson: "",
     address: "",
@@ -101,8 +103,30 @@ export default function PartnerOnboarding() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
 
+  const fetchLocationByPincode = async (pincode) => {
+    if (pincode.length === 6) {
+      try {
+        const response = await axios.get(`https://api.postalpincode.in/pincode/${pincode}`);
+        if (response.data[0].Status === "Success") {
+          const { District, State } = response.data[0].PostOffice[0];
+          setFormData((prev) => ({
+            ...prev,
+            city: District,
+            state: State
+          }));
+        }
+      } catch (error) {
+        console.error("Error fetching location data", error);
+      }
+    }
+  };
+
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    if (name === "pincode") {
+      fetchLocationByPincode(value);
+    }
   };
 
   const CRM_API_URL = "";
@@ -131,7 +155,10 @@ export default function PartnerOnboarding() {
           contactPerson: formData.contactPerson,
           email: formData.email,
           phone: formData.phone,
-          address: formData.address
+          address: formData.address,
+          pincode: formData.pincode,
+          city: formData.city,
+          state: formData.state
         });
       }
       setSubmitted(true);
@@ -249,7 +276,7 @@ export default function PartnerOnboarding() {
           </h2>
           <p className="success-desc">
             {partnerType === "doctor"
-              ? `Thank you for registering, Dr. ${formData.fullName ? formData.fullName.split(' ')[0] : 'Partner'}. Our onboarding team will call you within the next 24 hours to complete your profile verification.`
+              ? `Thank you for registering, Dr. ${formData.fullName ? formData.fullName.split(' ')[0] : 'Partner'}. Our onboarding team will reach out to you within the next 24 hours to guide you through the next steps.`
               : "Our Institutional Partnerships team has been notified. We will reach out to the Administrative Contact provided to schedule a platform walkthrough and verify your registration."}
           </p>
           <button onClick={() => setSubmitted(false)} className="success-btn">
@@ -267,6 +294,27 @@ export default function PartnerOnboarding() {
         
         .doc-btn-p { background: #1e4b8f; color: #fff; padding: 16px 36px; border-radius: 12px; font-weight: 700; transition: all 0.3s; display: inline-flex; align-items: center; gap: 10px; border: none; cursor: pointer; }
         .doc-btn-p:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(30,75,143,0.3); }
+        .doc-btn-p:disabled { opacity: 0.7; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .skeleton-bar {
+          width: 140px;
+          height: 12px;
+          border-radius: 6px;
+          background: rgba(255, 255, 255, 0.25);
+          position: relative;
+          overflow: hidden;
+        }
+        .skeleton-bar::after {
+          content: "";
+          position: absolute;
+          top: 0; left: 0; right: 0; bottom: 0;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+          transform: translateX(-100%);
+          animation: shimmer 1.5s infinite ease-in-out;
+        }
+        @keyframes shimmer {
+          100% { transform: translateX(100%); }
+        }
 
         .type-toggle {
           display: grid;
@@ -693,7 +741,7 @@ export default function PartnerOnboarding() {
                     </div>
 
                     <div>
-                      <label className="form-label">Mobile Number</label>
+                      <label className="form-label">Mobile/whatsapp Number</label>
                       <input required type="tel" className="form-input" name="phone" placeholder="+91" value={formData.phone} onChange={handleChange} />
                     </div>
 
@@ -765,8 +813,48 @@ export default function PartnerOnboarding() {
                         required
                         className="form-input"
                         name="address"
-                        placeholder="Street, City, State"
+                        placeholder="Street / Area"
                         value={formData.address}
+                        onChange={handleChange}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="form-label">Pincode *</label>
+                      <input
+                        required
+                        type="text"
+                        maxLength="6"
+                        className="form-input"
+                        name="pincode"
+                        placeholder="e.g. 751024"
+                        value={formData.pincode}
+                        onChange={handleChange}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="form-label">City *</label>
+                      <input
+                        required
+                        type="text"
+                        className="form-input"
+                        name="city"
+                        placeholder="City"
+                        value={formData.city}
+                        onChange={handleChange}
+                      />
+                    </div>
+
+                    <div className="span-2" style={{ gridColumn: "span 2" }}>
+                      <label className="form-label">State *</label>
+                      <input
+                        required
+                        type="text"
+                        className="form-input"
+                        name="state"
+                        placeholder="State"
+                        value={formData.state}
                         onChange={handleChange}
                       />
                     </div>
@@ -774,8 +862,12 @@ export default function PartnerOnboarding() {
                 )}
 
                 <div className="span-2" style={{ gridColumn: "span 2", marginTop: 12 }}>
-                  <button type="submit" disabled={isSubmitting} className="doc-btn-p" style={{ width: "100%", justifyContent: "center", fontSize: 16 }}>
-                    {isSubmitting ? "Submitting..." : "Begin Onboarding"} <ChevronRight size={20} />
+                  <button type="submit" disabled={isSubmitting} className="doc-btn-p" style={{ width: "100%", justifyContent: "center", fontSize: 16, height: 52 }}>
+                    {isSubmitting ? (
+                      <div className="skeleton-bar"></div>
+                    ) : (
+                      <>Begin Onboarding <ChevronRight size={20} /></>
+                    )}
                   </button>
                   <p style={{ fontSize: 11, color: "#94a3b8", textAlign: "center", marginTop: 16 }}>
                     By joining, you agree to our <span style={{ color: "#1e4b8f", fontWeight: 700 }}>Partner Policy</span>.

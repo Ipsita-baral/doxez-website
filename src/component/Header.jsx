@@ -488,11 +488,11 @@ export default function Header() {
 
         {/* Right CTA */}
         <div className="nx-right">
-          <a href="https://crm.doxez.in/" target="_blank" rel="noopener noreferrer" className="nx-partner-btn">
+          <a href={import.meta.env.VITE_API_URL} target="_blank" rel="noopener noreferrer" className="nx-partner-btn">
             <Building2 size={18} /> Partner Login
           </a>
           <button className="nx-cta" onClick={() => setShowModal(true)}>
-            <Calendar size={18} /> Book Appointment
+            <Calendar size={18} /> Get Expert Advice
           </button>
           <button className="nx-ham" onClick={() => setMenuOpen(true)}>
             <Menu size={22} />
@@ -511,7 +511,7 @@ export default function Header() {
         </div>
         <div className="nx-mob-body">
           {/* Partner Login Card */}
-          <a href="https://crm.doxez.in/" target="_blank" rel="noopener noreferrer" className="nx-partner-card">
+          <a href={import.meta.env.VITE_API_URL} target="_blank" rel="noopener noreferrer" className="nx-partner-card">
             <div className="nx-pcard-icon">
               <Building2 size={20} />
             </div>
@@ -544,7 +544,7 @@ export default function Header() {
         </div>
         <div className="nx-mob-foot">
           <button className="nx-mob-cta" onClick={() => { setShowModal(true); setMenuOpen(false); }}>
-            <Calendar size={20} /> Book Appointment
+            <Calendar size={20} /> Get Expert Advice
           </button>
         </div>
       </div>

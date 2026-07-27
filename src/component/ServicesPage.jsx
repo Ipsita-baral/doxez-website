@@ -22,6 +22,7 @@ export default function ServicesPage() {
   const [search, setSearch] = useState(initialSearch);
   const [servicesData, setServicesData] = useState([]);
   const [loading, setLoading] = useState(true);
+  console.log("servicePage")
 
   React.useEffect(() => {
     const fetchServices = async () => {
@@ -83,7 +84,7 @@ export default function ServicesPage() {
         </div>
         {/* Cards skeleton */}
         <div style={{ maxWidth: 1200, margin: "48px auto", padding: "0 24px", display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 24 }}>
-          {[1,2,3,4,5,6].map(i => (
+          {[1, 2, 3, 4, 5, 6].map(i => (
             <div key={i} style={{ background: "#fff", borderRadius: 24, overflow: "hidden", border: "1.5px solid #f1f5f9" }}>
               <div className="skel" style={{ height: 165, borderRadius: 0 }} />
               <div style={{ padding: "20px" }}>
@@ -392,14 +393,14 @@ export default function ServicesPage() {
               @keyframes shimmer { 0%{background-position:-800px 0} 100%{background-position:800px 0} }
               .skel { background: linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%); background-size: 800px 100%; animation: shimmer 1.4s infinite; border-radius: 8px; }
             `}</style>
-            {[1,2,3,4,5,6].map(i => (
+            {[1, 2, 3, 4, 5, 6].map(i => (
               <div key={i} style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 32, padding: 32, display: "flex", flexDirection: "column", gap: 12 }}>
                 <div className="skel" style={{ height: 160, borderRadius: 16, marginBottom: 8 }} />
                 <div className="skel" style={{ width: "60%", height: 20 }} />
                 <div className="skel" style={{ width: "90%", height: 14 }} />
                 <div className="skel" style={{ width: "75%", height: 14 }} />
                 <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 8 }}>
-                  {[1,2,3].map(j => <div key={j} className="skel" style={{ height: 40, borderRadius: 12 }} />)}
+                  {[1, 2, 3].map(j => <div key={j} className="skel" style={{ height: 40, borderRadius: 12 }} />)}
                 </div>
                 <div className="skel" style={{ height: 48, borderRadius: 14, marginTop: 16 }} />
               </div>

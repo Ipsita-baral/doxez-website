@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
@@ -17,11 +17,21 @@ import PartnerOnboarding from './component/PartnerOnboarding'
 import Careers from './component/Careers'
 import ServicesPage from './component/ServicesPage';
 import ServiceDetailPage from './component/ServiceDetailPage';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   const [splashDone, setSplashDone] = useState(() => {
     return sessionStorage.getItem('doxez_splash_done') === 'true';
   });
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get('ref');
+    if (ref) {
+      localStorage.setItem('doxez_ref', ref);
+    }
+  }, []);
 
   if (!splashDone) {
     return <SplashScreen onDone={() => {
@@ -50,6 +60,7 @@ function App() {
         </Routes>
         <Footer />
         <WhatsAppButton />
+        <ToastContainer />
       </BrowserRouter>
     </>
   )
