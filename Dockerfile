@@ -1,5 +1,5 @@
 # Build stage
-FROM node:20-alpine AS build
+FROM --platform=linux/amd64 node:20-alpine AS build
 
 WORKDIR /app
 
@@ -17,7 +17,7 @@ ENV VITE_API_URL=PLACEHOLDER_VITE_API_URL
 RUN npm run build
 
 # Production stage
-FROM nginx:stable-alpine
+FROM --platform=linux/amd64 nginx:stable-alpine
 
 # Copy the custom nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
@@ -25,9 +25,11 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 # Copy build files from build stage to nginx html directory
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# Copy and configure the entrypoint script
+# Copy and configure the entrypoint script (copying to both locations to cover custom and Nginx default entrypoint paths)
 COPY docker-entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh
+COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+RUN sed -i 's/\r$//' /docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh && \
+    chmod +x /docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 
 # Expose port 80
 EXPOSE 80
