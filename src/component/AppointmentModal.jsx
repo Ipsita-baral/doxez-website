@@ -300,7 +300,7 @@ export default function AppointmentModal({ onClose }) {
                 <div style={{ display: "inline-flex", alignItems: "center", gap: 8, background: "#eff6ff", color: "#1e4b8f", padding: "6px 14px", borderRadius: 99, fontSize: 10, fontWeight: 800, textTransform: "uppercase", marginBottom: 12, border: "1px solid #dbeafe" }}>
                   <HeartPulse size={12} /> Doxez Healthcare
                 </div>
-                <h2 className="modal-title" style={{ fontSize: 24, fontWeight: 800, color: "#0b1f3a", marginBottom: 8 }}>Get Expert Advice</h2>
+                <h2 className="modal-title" style={{ fontSize: 24, fontWeight: 800, color: "#0b1f3a", marginBottom: 8 }}>Get Free Expert Advice</h2>
                 <p className="modal-desc" style={{ color: "#64748b", fontSize: 13, lineHeight: 1.4 }}>Share your details. Our care expert will contact you, understand your needs, and connect you with the right specialist.</p>
               </div>
 

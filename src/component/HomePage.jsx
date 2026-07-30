@@ -471,37 +471,12 @@ export default function HomePage() {
 
         .hero-title {
           font-family: 'Plus Jakarta Sans', sans-serif;
-          margin-bottom: 0;
-        }
-
-        .hero-title-l1 {
-          display: block;
-          font-size: clamp(1.5rem, 2vw, 1.65rem);
-          font-weight: 700;
-          line-height: 1.15;
+          font-size: clamp(1.35rem, 2vw, 1.8rem);
+          font-weight: 800;
+          line-height: 1.3;
           color: #0b1f3a;
           letter-spacing: -0.01em;
-        }
-
-        .hero-title-l2 {
-          display: block;
-          font-size: clamp(1.95rem, 2.8vw, 2.45rem);
-          font-weight: 800;
-          line-height: 1.15;
-          color: #0b1f3a;
-          letter-spacing: -0.02em;
-          margin-top: 4px;
-        }
-
-        .hero-subtitle {
-          display: block;
-          font-size: clamp(0.95rem, 1.3vw, 1.1rem);
-          font-weight: 500;
-          color: #1e4b8f;
-          margin-top: 12px;
-          line-height: 1.4;
-          letter-spacing: 0;
-          opacity: 0.95;
+          margin-bottom: 0;
         }
 
         .ayushman-small {
@@ -881,6 +856,21 @@ export default function HomePage() {
         @media (max-width: 768px) {
           .workflow-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 24px !important; }
         }
+
+        /* Animated Color Changing FREE Highlight */
+        @keyframes freeColorShift {
+          0% { color: #2563eb; }
+          25% { color: #e11d48; }
+          50% { color: #16a34a; }
+          75% { color: #7c3aed; }
+          100% { color: #2563eb; }
+        }
+        .free-highlight {
+          animation: freeColorShift 2.5s ease-in-out infinite;
+          font-weight: 900;
+          padding: 0 4px;
+          display: inline-block;
+        }
       `}</style>
 
       {/* ── HERO ── */}
@@ -888,22 +878,40 @@ export default function HomePage() {
         <div className="hp-inner" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16, position: "relative" }}>
 
           {/* LEFT: Text Content */}
-          <div style={{ flex: 1, maxWidth: 640, position: "relative", zIndex: 10 }}>
+          <div style={{ flex: 1, maxWidth: 456, position: "relative", zIndex: 10, paddingTop: 28 }}>
             <Reveal delay={0.1}>
               <h1 className="hero-title">
-                <span className="hero-title-l1">India's Comprehensive</span>
-                <span className="hero-title-l2">Digital Platform</span>
-                <span className="hero-subtitle">for end-to-end surgical care facilitation</span>
+                India’s Trusted Digital Platform for <span style={{ color: "#2563eb" }}>Surgical Care Facilitation</span>
               </h1>
-              <div className="ayushman-small">
-                <ShieldCheck size={14} /> Includes Ayushman, Insurance & Self Pay
-              </div>
             </Reveal>
 
             <Reveal delay={0.2}>
-              <p className="hero-sub">
-                Find the right hospital, check bed availability, and get complete support from consultation to recovery — all in one place.
-              </p>
+              <ul className="hero-sub" style={{ listStyle: "none", padding: 0, margin: "18px 0", display: "flex", flexDirection: "column", gap: "8px", fontSize: "13.5px", color: "#334155", fontWeight: 500 }}>
+                <li style={{ display: "flex", alignItems: "flex-start", gap: "9px" }}>
+                  <CheckCircle2 size={16} color="#2563eb" style={{ flexShrink: 0, marginTop: "2px" }} />
+                  <span>Find the right hospital & treatment options</span>
+                </li>
+                <li style={{ display: "flex", alignItems: "flex-start", gap: "9px" }}>
+                  <CheckCircle2 size={16} color="#2563eb" style={{ flexShrink: 0, marginTop: "2px" }} />
+                  <span>Check bed availability</span>
+                </li>
+                <li style={{ display: "flex", alignItems: "flex-start", gap: "9px" }}>
+                  <CheckCircle2 size={16} color="#2563eb" style={{ flexShrink: 0, marginTop: "2px" }} />
+                  <span>Get Surgical Estimate</span>
+                </li>
+                <li style={{ display: "flex", alignItems: "flex-start", gap: "9px" }}>
+                  <CheckCircle2 size={16} color="#2563eb" style={{ flexShrink: 0, marginTop: "2px" }} />
+                  <span>Includes Ayushman Bharat, Insurance & Self Pay</span>
+                </li>
+                <li style={{ display: "flex", alignItems: "flex-start", gap: "9px" }}>
+                  <CheckCircle2 size={16} color="#2563eb" style={{ flexShrink: 0, marginTop: "2px" }} />
+                  <span>Hassle Free Admission and Discharge</span>
+                </li>
+                <li style={{ display: "flex", alignItems: "flex-start", gap: "9px" }}>
+                  <CheckCircle2 size={16} color="#2563eb" style={{ flexShrink: 0, marginTop: "2px" }} />
+                  <span>24*7 Customer Care Support throughout your Surgical Journey</span>
+                </li>
+              </ul>
             </Reveal>
 
             <Reveal delay={0.3}>
@@ -987,7 +995,7 @@ export default function HomePage() {
               {!submitted ? (
                 <>
                   <div style={{ marginBottom: 16, textAlign: "center" }}>
-                    <h3 style={{ fontSize: 22, fontWeight: 800, color: "#0b1f3a", marginBottom: 6, }}>Get Expert Advice</h3>
+                    <h3 style={{ fontSize: 16.5, fontWeight: 800, color: "#0b1f3a", marginBottom: 6, whiteSpace: "nowrap" }}>Talk to a <span className="free-highlight">FREE</span> Surgical Care Expert</h3>
                     <p style={{ fontSize: 11, color: "#64748b", lineHeight: 1.5 }}>Get expert advice for your surgical needs.</p>
                   </div>
 
@@ -1038,7 +1046,7 @@ export default function HomePage() {
 
                     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
                       <div style={{ position: "relative" }}>
-                        <input type="tel" name="phone" placeholder="WhatsApp No." disabled={loading} value={formik.values.phone} onChange={(e) => { e.target.value = e.target.value.replace(/\D/g, "").slice(0, 10); formik.handleChange(e); }} onBlur={formik.handleBlur} style={{ width: "100%", padding: "11px 14px", borderRadius: 10, border: `1.5px solid ${formik.touched.phone && formik.errors.phone ? "#ef4444" : "#e2e8f0"}`, fontSize: 13, outline: "none", background: "#f8fafc", boxSizing: "border-box" }} />
+                        <input type="tel" name="phone" placeholder="WhatsApp No." disabled={loading} value={formik.values.phone} onChange={(e) => { let val = e.target.value.replace(/\D/g, ""); if (val.length > 10 && val.startsWith("91")) val = val.slice(2); val = val.replace(/^0+/, "").slice(0, 10); e.target.value = val; formik.handleChange(e); }} onBlur={formik.handleBlur} style={{ width: "100%", padding: "11px 14px", borderRadius: 10, border: `1.5px solid ${formik.touched.phone && formik.errors.phone ? "#ef4444" : "#e2e8f0"}`, fontSize: 13, outline: "none", background: "#f8fafc", boxSizing: "border-box" }} />
                         {formik.touched.phone && formik.errors.phone && <p style={{ color: "#ef4444", fontSize: 10, marginTop: 4, fontWeight: 600 }}>{formik.errors.phone}</p>}
                       </div>
                       <div style={{ position: "relative" }}>

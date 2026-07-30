@@ -493,7 +493,7 @@ export default function ServiceDetailPage() {
               <div className="booking-card">
                 {!submitted ? (
                   <>
-                    <h3 style={{ fontSize: "20px", fontWeight: "800", marginBottom: "8px" }}>Get Expert Advice</h3>
+                    <h3 style={{ fontSize: "20px", fontWeight: "800", marginBottom: "8px" }}>Get Free Expert Advice</h3>
                     <p style={{ fontSize: "14px", color: "#64748b", marginBottom: "24px" }}>Connect with our medical expert today.</p>
 
                     <form onSubmit={handleBookingClick}>
@@ -576,7 +576,7 @@ export default function ServiceDetailPage() {
                           gap: "10px"
                         }}
                       >
-                        {loading ? <Loader2 className="animate-spin" size={20} /> : "Get Expert Advice"}
+                        {loading ? <Loader2 className="animate-spin" size={20} /> : "Get Free Expert Advice"}
                       </button>
                     </form>
                   </>

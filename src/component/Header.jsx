@@ -492,7 +492,7 @@ export default function Header() {
             <Building2 size={18} /> Partner Login
           </a>
           <button className="nx-cta" onClick={() => setShowModal(true)}>
-            <Calendar size={18} /> Get Expert Advice
+            <Calendar size={18} /> Get Free Expert Advice
           </button>
           <button className="nx-ham" onClick={() => setMenuOpen(true)}>
             <Menu size={22} />
