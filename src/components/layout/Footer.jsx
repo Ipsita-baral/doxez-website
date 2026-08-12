@@ -128,8 +128,8 @@ export default function Footer() {
             India’s First Digital Healthcare Platform connecting facilities with verified professionals.
           </p>
           <div className="dx-ft-social">
-            <a href="https://www.facebook.com/profile.php?id=61589252032961" target="_blank" rel="noopener noreferrer"><Facebook size={17} /></a>
-            <a href="https://www.instagram.com/doxezhealthcare/" target="_blank" rel="noopener noreferrer"><Instagram size={17} /></a>
+            <a href="https://www.facebook.com/share/1Coh7YJe1n/" target="_blank" rel="noopener noreferrer"><Facebook size={17} /></a>
+            <a href="https://www.instagram.com/doxezhealthcare?igsh=MW9ydDk1YW5jcHA0cw==" target="_blank" rel="noopener noreferrer"><Instagram size={17} /></a>
             <a href="#"><Twitter size={17} /></a>
           </div>
         </div>

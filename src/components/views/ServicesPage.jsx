@@ -7,7 +7,7 @@ import {
   Stethoscope, Activity, Shield, Heart, Mic, Sparkles, ShieldCheck, Bone,
   ChevronRight, ArrowRight, Star, Loader2, Brain, Search, X, ChevronLeft
 } from 'lucide-react';
-import { servicesData as localServicesData } from '@/data/servicesData';
+// import { servicesData as localServicesData } from '@/data/servicesData';
 import axios from 'axios';
 
 
@@ -47,11 +47,11 @@ export default function ServicesPage() {
           }));
           setServicesData(mappedData);
         } else {
-          setServicesData(localServicesData);
+          setServicesData([]);
         }
       } catch (error) {
         console.error("Error fetching services:", error);
-        setServicesData(localServicesData);
+        setServicesData([]);
       } finally {
         setLoading(false);
       }
@@ -60,8 +60,8 @@ export default function ServicesPage() {
   }, []);
 
 
-  // If a categoryId is present, find the category in either local or fetched data
-  const activeCategory = categoryId ? (servicesData.find(c => c.id === categoryId) || localServicesData.find(c => c.id === categoryId)) : null;
+  // If a categoryId is present, find the category in fetched data
+  const activeCategory = categoryId ? servicesData.find(c => c.id === categoryId) : null;
 
   // ── CATEGORY DETAIL VIEW ──
   // If we have a categoryId, we ONLY show the Category Detail View (or the loader)
@@ -268,9 +268,9 @@ export default function ServicesPage() {
     );
   }
 
-  const filteredCategories = (servicesData.length > 0 ? servicesData : localServicesData).filter(cat =>
+  const filteredCategories = servicesData.filter(cat =>
     cat.title.toLowerCase().includes(search.toLowerCase()) ||
-    cat.treatments.some(t => t.name.toLowerCase().includes(search.toLowerCase()))
+    (cat.treatments && cat.treatments.some(t => t.name.toLowerCase().includes(search.toLowerCase())))
   );
 
   return (

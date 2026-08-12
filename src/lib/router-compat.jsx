@@ -4,23 +4,23 @@ import React from 'react';
 import NextLink from 'next/link';
 import { useRouter as useNextRouter, usePathname as useNextPathname, useParams as useNextParams } from 'next/navigation';
 
-export function Link({ to, href, children, ...props }) {
+export function Link({ to, href, children, prefetch = true, ...props }) {
   const target = to || href || '#';
   return (
-    <NextLink href={target} {...props}>
+    <NextLink href={target} prefetch={prefetch} {...props}>
       {children}
     </NextLink>
   );
 }
 
-export function NavLink({ to, href, className, children, ...props }) {
+export function NavLink({ to, href, className, children, prefetch = true, ...props }) {
   const pathname = useNextPathname();
   const target = to || href || '#';
   const isActive = pathname === target;
   const computedClassName = typeof className === 'function' ? className({ isActive }) : className;
 
   return (
-    <NextLink href={target} className={computedClassName} {...props}>
+    <NextLink href={target} prefetch={prefetch} className={computedClassName} {...props}>
       {children}
     </NextLink>
   );

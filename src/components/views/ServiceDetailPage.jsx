@@ -9,7 +9,7 @@ import {
   Zap, HeartPulse, ShieldPlus, ArrowRight, MessageSquare, Calendar
 } from 'lucide-react';
 import axios from 'axios';
-import { servicesData } from '@/data/servicesData';
+// import { servicesData } from '@/data/servicesData';
 import { toast } from 'react-toastify';
 
 export default function ServiceDetailPage() {
@@ -119,12 +119,8 @@ export default function ServiceDetailPage() {
     fetchData();
   }, [treatmentId]);
 
-  // Fallback to static data
-  const staticCategory = servicesData.find(c => c.id === categoryId);
-  const staticTreatment = staticCategory?.treatments.find(t => t.id === treatmentId) || staticCategory?.treatments[0];
-
-  const category = dynamicCategory || staticCategory;
-  const treatment = dynamicTreatment || staticTreatment;
+  const category = dynamicCategory;
+  const treatment = dynamicTreatment;
 
   if (fetching) return (
     <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", background: "#fff", minHeight: "100vh" }}>

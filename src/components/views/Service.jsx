@@ -13,7 +13,7 @@ import orthopedicsRaw from "@/assets/orthopedics.png";
 import cosmeticIconRaw from "@/assets/cumaaticc.png";
 import generalSurgeryIconRaw from "@/assets/generalsurgery.png";
 import axios from "axios";
-import { servicesData as localServicesData } from "@/data/servicesData";
+// import { servicesData as localServicesData } from "@/data/servicesData";
 import { Link, useNavigate } from "@/lib/router-compat";
 import {
   ChevronRight, ChevronLeft, Stethoscope, Heart,
@@ -450,11 +450,11 @@ export default function DoxEZServicesPage() {
           });
           setServices(mappedData);
         } else {
-          setServices(localServicesData.map(s => ({ ...s, description: s.shortDesc || s.description })));
+          setServices([]);
         }
       } catch (error) {
         console.error("Error fetching services:", error);
-        setServices(localServicesData.map(s => ({ ...s, description: s.shortDesc || s.description })));
+        setServices([]);
       } finally {
         setLoading(false);
       }
