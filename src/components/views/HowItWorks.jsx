@@ -1,8 +1,12 @@
 'use client';
 import { useState, useEffect, useRef } from "react";
-import AyushmanImg from "@/assets/ayushman.jpeg";
-import OldAgeImg from "@/assets/oldage.jpeg";
+import AyushmanImgRaw from "@/assets/ayushman.jpeg";
+import OldAgeImgRaw from "@/assets/oldage.jpeg";
 import DoxezWorkflow from "@/components/sections/DoxezWorkFlow";
+
+const getImg = (asset) => (typeof asset === 'object' && asset !== null && asset.src) ? asset.src : asset;
+const AyushmanImg = getImg(AyushmanImgRaw);
+const OldAgeImg = getImg(OldAgeImgRaw);
 
 /* ═══════════════════════════════════════
    SMOOTH REVEAL HOOK
