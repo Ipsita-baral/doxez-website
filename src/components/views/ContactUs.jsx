@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
+import { trackLeadSubmission, trackButtonClick } from "@/lib/gtag";
 
 const useInView = (threshold = 0.1) => {
   const ref = useRef(null);
@@ -50,6 +51,8 @@ export default function ContactUs() {
     e.preventDefault();
     if (!validateForm()) return;
 
+    trackButtonClick("Contact Form - Send Message", { role: formData.role });
+
     setLoading(true);
     const CRM_API_URL = (process.env.NEXT_PUBLIC_API_URL || process.env.VITE_API_URL || "http://localhost:8000");
 
@@ -64,6 +67,10 @@ export default function ContactUs() {
       });
 
       if (res.data.success) {
+        trackLeadSubmission("Contact Us Form", {
+          role: formData.role,
+          hospital: formData.org,
+        });
         setSubmitted(true);
         setShowPopup(true);
         setFormData({ name: "", org: "", email: "", phone: "", role: "", message: "" });

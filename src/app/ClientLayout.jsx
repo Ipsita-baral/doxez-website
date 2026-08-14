@@ -7,6 +7,7 @@ import SplashScreen from "@/components/layout/SplashScreen";
 import ScrollToTop from "@/components/layout/ScrollToTop";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { trackButtonClick, setUserProperties } from "@/lib/gtag";
 
 export default function ClientLayout({ children }) {
   const [splashDone, setSplashDone] = useState(false);
@@ -14,6 +15,11 @@ export default function ClientLayout({ children }) {
 
   useEffect(() => {
     setMounted(true);
+    // Set user properties in Google Analytics
+    setUserProperties({
+      user_type: 'patient_visitor',
+      platform: 'doxez_web'
+    });
     const done = sessionStorage.getItem('doxez_splash_done') === 'true';
     if (done) {
       setSplashDone(true);
@@ -56,6 +62,7 @@ function WhatsAppButton() {
       href="https://wa.me/919692949500"
       target="_blank"
       rel="noopener noreferrer"
+      onClick={() => trackButtonClick("WhatsApp Floating Button", { channel: "WhatsApp" })}
       style={{
         position: "fixed",
         bottom: "32px",

@@ -10,6 +10,7 @@ import {
   CheckCircle2, ShieldCheck, HeartPulse,
   ChevronRight, CalendarCheck, PhoneCall, Info, Loader2, Mail, Clock, XCircle, Calendar
 } from "lucide-react";
+import { trackLeadSubmission, trackButtonClick } from "@/lib/gtag";
 
 // Specialty list...
 const CITIES = ["Bhubaneswar"];
@@ -25,8 +26,7 @@ export default function AppointmentModal({ onClose }) {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const CRM_API_URL = "";
-
+  const CRM_API_URL = (process.env.NEXT_PUBLIC_API_URL || process.env.VITE_API_URL || "http://localhost:8000") || "";
 
   // 📝 Formik Validation Schema
   const validationSchema = Yup.object().shape({
@@ -108,6 +108,15 @@ export default function AppointmentModal({ onClose }) {
         source: `Appointment Modal - ${selectedTime}`,
         referralCode: localStorage.getItem('doxez_ref') || undefined
       });
+
+      // GA4 Event - Lead Submission
+      trackLeadSubmission("Appointment Modal", {
+        specialty: formValues.specialty === "Others" ? formValues.otherDisease : formValues.specialty,
+        city: formValues.city === "Other City" ? formValues.otherLocation : formValues.city,
+        hasAyushman: formValues.ayushmanCard === "Yes",
+        preferredTime: selectedTime,
+      });
+
       localStorage.removeItem('doxez_ref');
       setShowTimeModal(false);
       setSubmitted(true);
@@ -129,6 +138,12 @@ export default function AppointmentModal({ onClose }) {
     enableReinitialize: true,
     validationSchema,
     onSubmit: async (values) => {
+      // GA4 Event - Button Click
+      trackButtonClick("Appointment Modal - Request Callback Now", {
+        specialty: values.specialty === "Others" ? values.otherDisease : values.specialty,
+        city: values.city === "Other City" ? values.otherLocation : values.city,
+      });
+
       setFormValues(values);
       setSelectedDate("Today");
       setCustomDate("");
@@ -614,6 +629,14 @@ export default function AppointmentModal({ onClose }) {
                 <button
                   onClick={onClose}
                   style={{
+                    padding: "12px 28px",
+                    background: "#0f172a",
+                    color: "#ffffff",
+                    border: "none",
+                    borderRadius: "10px",
+                    fontSize: "14px",
+                    fontWeight: "600",
+                    cursor: "pointer",
                     transition: "all 0.3s ease",
                     outline: "none"
                   }}
@@ -628,5 +651,3 @@ export default function AppointmentModal({ onClose }) {
     </AnimatePresence>
   );
 }
-
-// test

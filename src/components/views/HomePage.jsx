@@ -15,6 +15,7 @@ import {
 
 import DoxezWorkflow from "@/components/sections/DoxezWorkFlow";
 import SearchableDiseaseDropdown from "@/components/common/SearchableDiseaseDropdown";
+import { trackLeadSubmission, trackButtonClick } from "@/lib/gtag";
 
 // Local Assets
 import img1Raw from "@/assets/IITBBSR.png";
@@ -236,6 +237,11 @@ export default function HomePage() {
       })
     }),
     onSubmit: (values) => {
+      // Trigger Google Analytics Button Click Event
+      trackButtonClick("Hero Form - Get Expert Advice", {
+        disease: values.disease === "Others" ? values.otherDisease : values.disease,
+        city: values.location === "Other City" ? values.otherLocation : values.location,
+      });
       // Show time slot modal first, resetting selection
       setSelectedSlot("");
       setSelectedTime("");
@@ -264,6 +270,13 @@ export default function HomePage() {
         preferredCallTime: finalSlot,
         source: "Homepage Hero Form",
         referralCode: localStorage.getItem('doxez_ref') || undefined
+      });
+      // Trigger Google Analytics Lead Submission Event
+      trackLeadSubmission("Homepage Hero Form", {
+        disease: formik.values.disease === "Others" ? formik.values.otherDisease : formik.values.disease,
+        city: formik.values.location === "Other City" ? formik.values.otherLocation : formik.values.location,
+        hasAyushman: formik.values.ayushman === "Yes",
+        preferredTime: finalSlot,
       });
       localStorage.removeItem('doxez_ref');
       formik.resetForm();
@@ -457,8 +470,8 @@ export default function HomePage() {
                     type="button"
                     onClick={() => {
                       setSelectedSlot(time);
-                      const dateLabel = selectedDate === 'Custom' 
-                        ? (formatCustomDate(customDate) || 'Custom Date') 
+                      const dateLabel = selectedDate === 'Custom'
+                        ? (formatCustomDate(customDate) || 'Custom Date')
                         : selectedDate;
                       setSelectedTime(`${dateLabel}, ${time}`);
                     }}

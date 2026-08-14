@@ -7,6 +7,7 @@ import DoxeZRaw from "@/assets/relogo.png";
 const DoxeZ = typeof DoxeZRaw === 'object' && DoxeZRaw !== null && DoxeZRaw.src ? DoxeZRaw.src : DoxeZRaw;
 
 import AppointmentModal from "@/components/modals/AppointmentModal";
+import { trackButtonClick } from "@/lib/gtag";
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -500,7 +501,10 @@ export default function Header() {
           >
             <Building2 size={18} /> Partner Login
           </a>
-          <button className="nx-cta" onClick={() => setShowModal(true)}>
+          <button className="nx-cta" onClick={() => {
+            trackButtonClick("Header - Get Free Expert Advice");
+            setShowModal(true);
+          }}>
             <Calendar size={18} /> Get Free Expert Advice
           </button>
           <button className="nx-ham" onClick={() => setMenuOpen(true)}>
@@ -552,7 +556,11 @@ export default function Header() {
           </NavLink>
         </div>
         <div className="nx-mob-foot">
-          <button className="nx-mob-cta" onClick={() => { setShowModal(true); setMenuOpen(false); }}>
+          <button className="nx-mob-cta" onClick={() => { 
+            trackButtonClick("Mobile Header - Get Expert Advice");
+            setShowModal(true); 
+            setMenuOpen(false); 
+          }}>
             <Calendar size={20} /> Get Expert Advice
           </button>
         </div>

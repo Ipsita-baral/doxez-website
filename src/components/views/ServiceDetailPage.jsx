@@ -11,6 +11,7 @@ import {
 import axios from 'axios';
 // import { servicesData } from '@/data/servicesData';
 import { toast } from 'react-toastify';
+import { trackLeadSubmission, trackButtonClick } from '@/lib/gtag';
 
 export default function ServiceDetailPage() {
   const { categoryId, treatmentId } = useParams();
@@ -190,6 +191,12 @@ export default function ServiceDetailPage() {
       return;
     }
 
+    // Trigger Google Analytics Button Click Event
+    trackButtonClick("Service Detail - Get Free Expert Advice", {
+      treatment: dynamicTreatment?.name || treatment?.name || dynamicCategory?.title || category?.title,
+      city: form.city,
+    });
+
     setSelectedDate("Today");
     setCustomDate("");
     setSelectedSlot(null);
@@ -234,6 +241,14 @@ export default function ServiceDetailPage() {
           source: `Service Detail Page (Static) - ${selectedTime}`,
         });
       }
+
+      // Trigger Google Analytics Lead Submission Event
+      trackLeadSubmission("Service Detail Page Form", {
+        treatment: dynamicTreatment?.name || treatment?.name || dynamicCategory?.title || category?.title,
+        city: form.city,
+        hasAyushman: form.hasAyushman,
+        preferredTime: selectedTime,
+      });
 
       localStorage.removeItem('doxez_ref');
       setShowTimeModal(false);
