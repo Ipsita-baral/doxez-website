@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import SplashScreen from "@/components/layout/SplashScreen";
@@ -10,6 +11,8 @@ import 'react-toastify/dist/ReactToastify.css';
 import { trackButtonClick, setUserProperties } from "@/lib/gtag";
 
 export default function ClientLayout({ children }) {
+  const pathname = usePathname();
+  const isLegalPage = ['/terms', '/privacy', '/disclaimer', '/cookies'].includes(pathname);
   const [splashDone, setSplashDone] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -45,7 +48,7 @@ export default function ClientLayout({ children }) {
   return (
     <>
       <ScrollToTop />
-      <Header />
+      {!isLegalPage && <Header />}
       <main className="min-h-screen">
         {children}
       </main>

@@ -2,8 +2,8 @@
 
 import { Link } from "@/lib/router-compat";
 import { Facebook, Instagram, Twitter, Mail, MapPin, Phone } from "lucide-react";
-import FoterRaw from "@/assets/Doxez.png";
-const Foter = typeof FoterRaw === 'object' && FoterRaw !== null && FoterRaw.src ? FoterRaw.src : FoterRaw;
+import DoxeZRaw from "@/assets/relogo.png";
+const DoxeZ = typeof DoxeZRaw === 'object' && DoxeZRaw !== null && DoxeZRaw.src ? DoxeZRaw.src : DoxeZRaw;
 
 
 export default function Footer() {
@@ -123,7 +123,7 @@ export default function Footer() {
       <div className="dx-ft-grid">
         {/* Brand */}
         <div className="dx-ft-col">
-          <img src={Foter} alt="Doxez" style={{ height: 50, marginBottom: 20, filter: "brightness(0) invert(1)" }} />
+          <img src={DoxeZ} alt="Doxez" style={{ height: 72, width: "auto", objectFit: "contain", marginBottom: 18, filter: "brightness(0) invert(1)" }} />
           <p style={{ fontSize: 14, color: "rgba(255,255,255,0.5)", lineHeight: 1.7, maxWidth: 300 }}>
             India’s First Digital Healthcare Platform connecting facilities with verified professionals.
           </p>
@@ -185,9 +185,11 @@ export default function Footer() {
           <span style={{ fontSize: 13, color: "rgba(255,255,255,0.35)" }}>
             © 2025 Hedena Healthcare Pvt. Ltd. All rights reserved. | Doxez®
           </span>
-          <div style={{ display: "flex", gap: 20 }}>
-            <Link to="/privacy" style={{ fontSize: 13, color: "rgba(255,255,255,0.35)", textDecoration: "none" }}>Privacy Policy</Link>
-            <Link to="/terms" style={{ fontSize: 13, color: "rgba(255,255,255,0.35)", textDecoration: "none" }}>Terms & Conditions</Link>
+          <div style={{ display: "flex", gap: 16, flexWrap: "wrap", justifyContent: "center" }}>
+            <Link to="/privacy" style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", textDecoration: "none", transition: "color 0.2s" }} onMouseEnter={(e) => e.target.style.color = "#00afef"} onMouseLeave={(e) => e.target.style.color = "rgba(255,255,255,0.45)"}>Privacy Policy</Link>
+            <Link to="/terms" style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", textDecoration: "none", transition: "color 0.2s" }} onMouseEnter={(e) => e.target.style.color = "#00afef"} onMouseLeave={(e) => e.target.style.color = "rgba(255,255,255,0.45)"}>Terms & Conditions</Link>
+            <Link to="/disclaimer" style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", textDecoration: "none", transition: "color 0.2s" }} onMouseEnter={(e) => e.target.style.color = "#00afef"} onMouseLeave={(e) => e.target.style.color = "rgba(255,255,255,0.45)"}>Disclaimer</Link>
+            <Link to="/cookies" style={{ fontSize: 13, color: "rgba(255,255,255,0.45)", textDecoration: "none", transition: "color 0.2s" }} onMouseEnter={(e) => e.target.style.color = "#00afef"} onMouseLeave={(e) => e.target.style.color = "rgba(255,255,255,0.45)"}>Cookies Policy</Link>
           </div>
         </div>
       </div>

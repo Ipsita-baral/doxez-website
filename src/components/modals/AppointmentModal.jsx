@@ -603,7 +603,13 @@ export default function AppointmentModal({ onClose }) {
                   >
                     {loading ? <Loader2 className="animate-spin" size={20} /> : "Request Callback Now"} <ChevronRight size={16} />
                   </button>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginTop: 20, padding: "10px", background: "#f8fafc", borderRadius: 10 }}>
+                  <p style={{ textAlign: "center", fontSize: 11, color: "#94a3b8", marginTop: 10, lineHeight: 1.4 }}>
+                    By requesting a callback, you agree to our{" "}
+                    <a href="/terms" target="_blank" rel="noopener noreferrer" style={{ color: "#3b82f6", textDecoration: "underline" }}>Terms &amp; Conditions</a>{" "}
+                    and{" "}
+                    <a href="/privacy" target="_blank" rel="noopener noreferrer" style={{ color: "#3b82f6", textDecoration: "underline" }}>Privacy Policy</a>.
+                  </p>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 10, marginTop: 14, padding: "10px", background: "#f8fafc", borderRadius: 10 }}>
                     <ShieldCheck size={14} color="#059669" />
                     <span style={{ fontSize: 10, fontWeight: 700, color: "#64748b" }}>Verified Medical Support</span>
                   </div>
