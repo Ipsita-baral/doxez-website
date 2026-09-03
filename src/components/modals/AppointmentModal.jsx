@@ -26,7 +26,7 @@ export default function AppointmentModal({ onClose }) {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const CRM_API_URL = (process.env.NEXT_PUBLIC_API_URL || process.env.VITE_API_URL || "http://localhost:8000") || "";
+  const CRM_API_URL = "";
 
   // 📝 Formik Validation Schema
   const validationSchema = Yup.object().shape({

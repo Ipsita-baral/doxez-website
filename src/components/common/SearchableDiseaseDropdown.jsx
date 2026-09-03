@@ -18,7 +18,8 @@ export default function SearchableDiseaseDropdown({
   const [loading, setLoading] = useState(true);
   const dropdownRef = useRef(null);
 
-  const CRM_API_URL = (process.env.NEXT_PUBLIC_API_URL || process.env.VITE_API_URL || "http://localhost:8000");
+  // Use Next.js rewrite proxy by default for same-origin requests
+  const CRM_API_URL = "";
 
   useEffect(() => {
     const fetchDiseases = async () => {
@@ -38,7 +39,7 @@ export default function SearchableDiseaseDropdown({
       }
     };
     fetchDiseases();
-  }, [CRM_API_URL]);
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event) => {

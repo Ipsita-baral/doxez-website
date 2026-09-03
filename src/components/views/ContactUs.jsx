@@ -54,7 +54,7 @@ export default function ContactUs() {
     trackButtonClick("Contact Form - Send Message", { role: formData.role });
 
     setLoading(true);
-    const CRM_API_URL = (process.env.NEXT_PUBLIC_API_URL || process.env.VITE_API_URL || "http://localhost:8000");
+    const CRM_API_URL = "";
 
     try {
       const res = await axios.post(`${CRM_API_URL}/api/enquiry/demo`, {

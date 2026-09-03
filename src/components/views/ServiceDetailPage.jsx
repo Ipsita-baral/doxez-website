@@ -361,13 +361,27 @@ export default function ServiceDetailPage() {
       try {
         setFetching(true);
         const isMongoId = /^[0-9a-fA-F]{24}$/.test(treatmentId);
+
         if (isMongoId) {
-          const baseUrl = "";
-          const response = await axios.get(`${baseUrl}/api/sub-services/${treatmentId}`);
-          if (response.data.success) {
+          const response = await axios.get(`/api/sub-services/${treatmentId}`);
+          if (response.data && (response.data.success || response.data.data)) {
             const data = response.data.data;
             setDynamicTreatmentRaw(data);
             setDynamicCategoryRaw(data.service);
+          }
+        } else if (treatmentId) {
+          // If treatmentId is a slug, find matching sub-service from backend
+          const response = await axios.get('/api/sub-services');
+          if (response.data && Array.isArray(response.data.data)) {
+            const targetSlug = treatmentId.toLowerCase().replace(/[^a-z0-9]/g, '-');
+            const match = response.data.data.find(item => {
+              const nameSlug = (item.name || "").toLowerCase().replace(/[^a-z0-9]/g, '-');
+              return nameSlug === targetSlug || nameSlug.includes(targetSlug) || targetSlug.includes(nameSlug);
+            });
+            if (match) {
+              setDynamicTreatmentRaw(match);
+              setDynamicCategoryRaw(match.service);
+            }
           }
         }
       } catch (err) {
@@ -410,8 +424,9 @@ export default function ServiceDetailPage() {
   const confirmAndSubmit = async () => {
     setLoading(true);
     try {
-      const CRM_API_URL = (process.env.NEXT_PUBLIC_API_URL || process.env.VITE_API_URL || "http://localhost:8000") || "";
+      const CRM_API_URL = "";
       const isMongoId = /^[0-9a-fA-F]{24}$/.test(treatmentId);
+      const effectiveSubServiceId = dynamicTreatmentRaw?._id || (isMongoId ? treatmentId : null);
 
       const payload = {
         patientName: form.name,
@@ -425,10 +440,10 @@ export default function ServiceDetailPage() {
         referralCode: localStorage.getItem('doxez_ref') || undefined
       };
 
-      if (isMongoId) {
+      if (effectiveSubServiceId) {
         await axios.post(`${CRM_API_URL}/api/leads/public/web-lead`, {
           ...payload,
-          subServiceId: treatmentId,
+          subServiceId: effectiveSubServiceId,
           source: `DOXEZ_WEB_LEAD - ${selectedTime}`,
         });
       } else {

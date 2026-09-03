@@ -1,0 +1,24 @@
+services:
+  doxez-website:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: doxez-website:latest
+    container_name: doxez-website
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=production
+      - BACKEND_API_URL=${BACKEND_API_URL:-https://doxez.in}
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1/healthy"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"

@@ -151,10 +151,7 @@ export default function HomePage() {
   useEffect(() => {
     const fetchServices = async () => {
       try {
-        const baseUrl = "";
-        const targetServer = (process.env.NEXT_PUBLIC_API_URL || process.env.VITE_API_URL || "http://localhost:8000") || "Dynamic Backend URL (ECS)";
-        console.log(`Fetching services from backend... The browser is calling '/api', which proxies to: ${targetServer}`);
-        const response = await axios.get(`${baseUrl}/api/services/catalog`);
+        const response = await axios.get('/api/services/catalog');
         console.log("API Response:", response.data);
         if (response.data.success && response.data.data.length > 0) {
           setServices(response.data.data);
@@ -203,8 +200,8 @@ export default function HomePage() {
     }
   };
 
-  // 🛡️ CRM API Configuration
-  const CRM_API_URL = (process.env.NEXT_PUBLIC_API_URL || process.env.VITE_API_URL || "http://localhost:8000") || "";
+  // 🛡️ CRM API Configuration (routed through Next.js proxy)
+  const CRM_API_URL = "";
 
   const formik = useFormik({
     initialValues: {
@@ -1263,7 +1260,7 @@ export default function HomePage() {
               {/* Quick Partner Login for Doctors/Hospitals */}
               {/* <div style={{ marginTop: 28, display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
                 <span style={{ fontSize: 13, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em" }}>Partner Portal:</span>
-                <a href={(process.env.NEXT_PUBLIC_API_URL || process.env.VITE_API_URL || "http://localhost:8000")} target="_blank" rel="noopener noreferrer"
+                <a href="https://crm.doxez.in" target="_blank" rel="noopener noreferrer"
                   style={{
                     display: "inline-flex",
                     alignItems: "center",
@@ -1500,9 +1497,7 @@ export default function HomePage() {
                           src={
                             typeof cat.iconUrl === 'string' && cat.iconUrl.startsWith('http')
                               ? cat.iconUrl
-                              : (cat._id
-                                ? `${(process.env.NEXT_PUBLIC_API_URL || process.env.VITE_API_URL || "http://localhost:8000") || ""}${cat.iconUrl}`
-                                : cat.iconUrl)
+                              : cat.iconUrl
                           }
                           alt={cat.serviceName}
                           style={{ width: 32, height: 32, objectFit: "contain" }}

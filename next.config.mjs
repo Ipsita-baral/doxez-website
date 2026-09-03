@@ -1,19 +1,29 @@
-/** @type {import('next').NextConfig} */
+const backendApiUrl = (
+  process.env.BACKEND_API_URL ||
+  "https://doxez.in"
+).replace(/\/+$/, "").replace(/\/api$/, "");
+
 const nextConfig = {
+  output: "standalone",
+
   reactStrictMode: true,
+
   images: {
     unoptimized: true,
   },
+
   async rewrites() {
-    const target = process.env.NEXT_PUBLIC_API_URL || process.env.VITE_API_URL || 'http://doxez-frontend-alb-1475539815.ap-south-1.elb.amazonaws.com';
     return [
       {
-        source: '/api/:path*',
-        destination: `${target}/api/:path*`,
+        source: "/api/:path*",
+        destination: `${backendApiUrl}/api/:path*`,
+      },
+      {
+        source: "/uploads/:path*",
+        destination: `${backendApiUrl}/uploads/:path*`,
       },
     ];
   },
 };
 
 export default nextConfig;
-const target = process.env.NEXT_PUBLIC_API_URL || process.env.VITE_API_URL || 'http://doxez-frontend-alb-1475539815.ap-south-1.elb.amazonaws.com';

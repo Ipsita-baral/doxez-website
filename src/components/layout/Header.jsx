@@ -524,7 +524,7 @@ export default function Header() {
         </div>
         <div className="nx-mob-body">
           {/* Partner Login Card */}
-          <a href={(process.env.NEXT_PUBLIC_API_URL || process.env.VITE_API_URL || "http://localhost:8000")} target="_blank" rel="noopener noreferrer" className="nx-partner-card">
+          <a href="https://crm.doxez.in" target="_blank" rel="noopener noreferrer" className="nx-partner-card">
             <div className="nx-pcard-icon">
               <Building2 size={20} />
             </div>
