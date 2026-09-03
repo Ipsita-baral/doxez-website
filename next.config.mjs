@@ -20,6 +20,22 @@ const nextConfig = {
       },
     ];
   },
+
+  async redirects() {
+    return [
+      {
+        source: "/hospital-partner",
+        destination: "/partner-onboard",
+        permanent: true,
+      },
+      {
+        source: "/doctor-onboard",
+        destination: "/partner-onboard",
+        permanent: true,
+      },
+    ];
+  },
 };
+
 
 export default nextConfig;

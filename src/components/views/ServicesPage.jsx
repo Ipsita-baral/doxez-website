@@ -7,7 +7,7 @@ import {
   Stethoscope, Activity, Shield, Heart, Mic, Sparkles, ShieldCheck, Bone,
   ChevronRight, ArrowRight, Star, Loader2, Brain, Search, X, ChevronLeft
 } from 'lucide-react';
-// import { servicesData as localServicesData } from '@/data/servicesData';
+import { servicesData as localServicesData } from '@/data/servicesData';
 import axios from 'axios';
 
 
@@ -23,22 +23,22 @@ export default function ServicesPage() {
   const initialSearch = searchParams.get('search') || "";
 
   const [search, setSearch] = useState(initialSearch);
-  const [servicesData, setServicesData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  console.log("servicePage")
+  const [servicesData, setServicesData] = useState(localServicesData || []);
+  const [loading, setLoading] = useState(false);
 
   React.useEffect(() => {
+    let isMounted = true;
     const fetchServices = async () => {
       try {
         const baseUrl = "";
         const response = await axios.get(`${baseUrl}/api/services/catalog`);
-        if (response.data.success) {
+        if (response.data.success && isMounted) {
           // Map backend data to frontend structure if necessary
           const mappedData = response.data.data.map(service => ({
             ...service,
             id: service._id,
             title: service.serviceName,
-            treatments: service.subServices.map(sub => ({
+            treatments: (service.subServices || []).map(sub => ({
               ...sub,
               id: sub._id,
               name: sub.name,
@@ -46,22 +46,35 @@ export default function ServicesPage() {
             }))
           }));
           setServicesData(mappedData);
-        } else {
-          setServicesData([]);
         }
       } catch (error) {
         console.error("Error fetching services:", error);
-        setServicesData([]);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
     fetchServices();
+    return () => { isMounted = false; };
   }, []);
 
 
-  // If a categoryId is present, find the category in fetched data
-  const activeCategory = categoryId ? servicesData.find(c => c.id === categoryId) : null;
+  // Helper to match category by Mongo ID, local slug or title
+  const matchCategory = (list, id) => {
+    if (!id || !list || !list.length) return null;
+    const target = id.toLowerCase().replace(/[^a-z0-9]/g, '');
+    return list.find(c => {
+      if (c.id === id || c._id === id) return true;
+      const cTitle = (c.title || c.serviceName || "").toLowerCase().replace(/[^a-z0-9]/g, '');
+      const cId = (c.id || "").toLowerCase().replace(/[^a-z0-9]/g, '');
+      return cTitle === target || cId === target || cTitle.includes(target) || target.includes(cTitle);
+    });
+  };
+
+  // If a categoryId is present, find the category in fetched data or fallback to local
+  const activeCategory = categoryId
+    ? (matchCategory(servicesData, categoryId) || matchCategory(localServicesData, categoryId))
+    : null;
+
 
   // ── CATEGORY DETAIL VIEW ──
   // If we have a categoryId, we ONLY show the Category Detail View (or the loader)

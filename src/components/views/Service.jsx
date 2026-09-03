@@ -68,24 +68,8 @@ function useReveal() {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-
-    const rect = el.getBoundingClientRect();
-    if (rect.top < window.innerHeight) {
-      el.style.animationPlayState = "running";
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          el.style.animationPlayState = "running";
-          observer.unobserve(el);
-        }
-      },
-      { threshold: 0.12, rootMargin: "-40px 0px" }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
+    el.style.opacity = "1";
+    el.style.transform = "translateY(0)";
   }, []);
 
   return ref;
@@ -98,12 +82,13 @@ function Reveal({ children, delay = 0, style = {}, className = "" }) {
     <div
       ref={ref}
       className={`srv-reveal ${className}`}
-      style={{ "--delay": `${delay}s`, ...style }}
+      style={{ opacity: 1, ...style }}
     >
       {children}
     </div>
   );
 }
+
 
 /* ─── SERVICE CARD ─── */
 function ServiceCard({ card, delay = 0 }) {
@@ -230,14 +215,11 @@ export default function DoxEZServicesPage() {
     }
 
     .srv-reveal {
-      opacity: 0;
-      animation-name: srvFadeUp;
-      animation-duration: 0.72s;
-      animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-      animation-fill-mode: forwards;
-      animation-play-state: paused;
-      animation-delay: var(--delay, 0s);
+      opacity: 1;
+      transform: translateY(0);
+      transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1), transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
     }
+
 
     .srv-card { height: 100%; }
 
@@ -403,12 +385,24 @@ export default function DoxEZServicesPage() {
     .reg-btn:hover { background: #2563eb; transform: translateY(-2px); }
   `;
 
+  const defaultServices = [
+    { id: "proctology", title: "Proctology", description: "Piles, Fistula & more", iconUrl: proctologyIcon },
+    { id: "urology", title: "Urology", description: "Kidney, Prostate & more", iconUrl: urology },
+    { id: "general-surgery", title: "General Surgery", description: "Hernia, Gallstone & more", iconUrl: generalSurgeryIcon },
+    { id: "gynecology", title: "Gynecology", description: "IVF, Fibroid & more", iconUrl: Gynecology },
+    { id: "ent", title: "ENT", description: "Sinus, Tonsil & more", iconUrl: ENT },
+    { id: "cosmetic-surgery", title: "Cosmetic Surgery", description: "Gynecomastia, Lipo & more", iconUrl: cosmeticIcon },
+    { id: "orthopedics", title: "Orthopedics", description: "Joint, Spine & more", iconUrl: orthopedics },
+    { id: "neurosurgery", title: "Neurosurgery & Spine Surgery", description: "Slip Disc, Sciatica & more", iconUrl: null },
+  ];
+
   const [email, setEmail] = useState("");
-  const [services, setServices] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [services, setServices] = useState(defaultServices);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
+    let isMounted = true;
     const fetchServices = async () => {
       try {
         const baseUrl = "";
@@ -426,7 +420,8 @@ export default function DoxEZServicesPage() {
           "orthopedics": { desc: "Joint, Spine & more", icon: orthopedics },
         };
 
-        if (response.data.success && response.data.data.length > 0) {
+        if (response.data.success && response.data.data.length > 0 && isMounted) {
+
           const mappedData = response.data.data.map(service => {
             const lowerTitle = service.serviceName.toLowerCase();
             let local = {};
@@ -454,13 +449,14 @@ export default function DoxEZServicesPage() {
         }
       } catch (error) {
         console.error("Error fetching services:", error);
-        setServices([]);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
     fetchServices();
+    return () => { isMounted = false; };
   }, []);
+
 
   const handleRegister = (e) => {
     e.preventDefault();
