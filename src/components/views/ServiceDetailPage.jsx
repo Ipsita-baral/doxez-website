@@ -476,10 +476,111 @@ export default function ServiceDetailPage() {
 
   if (fetching) {
     return (
-      <div style={{ background: "#fff", minHeight: "100vh", padding: "160px 24px" }}>
-        <div style={{ maxWidth: 1200, margin: "0 auto", textAlign: "center" }}>
-          <Loader2 className="animate-spin" size={40} style={{ color: "#3b82f6", margin: "0 auto 20px" }} />
-          <h3 style={{ color: "#0b1f3a", fontWeight: 700 }}>Loading Treatment Details...</h3>
+      <div style={{ fontFamily: "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif", background: "#fff", minHeight: "100vh", color: "#0b1f3a" }}>
+        {/* Skeleton Hero Banner */}
+        <div style={{ background: "#f8fafc", padding: "150px 20px 36px", borderBottom: "1px solid #e2e8f0" }}>
+          <div style={{ maxWidth: 1200, margin: "0 auto" }}>
+            {/* Breadcrumb skeleton */}
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20 }}>
+              <div className="dx-skeleton" style={{ width: 60, height: 14 }} />
+              <div style={{ color: "#cbd5e1" }}>/</div>
+              <div className="dx-skeleton" style={{ width: 80, height: 14 }} />
+              <div style={{ color: "#cbd5e1" }}>/</div>
+              <div className="dx-skeleton" style={{ width: 120, height: 14 }} />
+            </div>
+
+            {/* Badge skeleton */}
+            <div className="dx-skeleton" style={{ width: 140, height: 26, borderRadius: 20, marginBottom: 16 }} />
+
+            {/* Title & Subtitle skeleton */}
+            <div className="dx-skeleton" style={{ width: "min(520px, 85%)", height: 38, marginBottom: 14, borderRadius: 8 }} />
+            <div className="dx-skeleton" style={{ width: "min(700px, 95%)", height: 18, marginBottom: 8, borderRadius: 6 }} />
+            <div className="dx-skeleton" style={{ width: "min(500px, 70%)", height: 18, marginBottom: 28, borderRadius: 6 }} />
+
+            {/* 4 Benefit points skeleton */}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14, maxWidth: 900 }}>
+              {[1, 2, 3, 4].map(n => (
+                <div key={n} style={{ display: "flex", alignItems: "center", gap: 10, background: "#fff", padding: "10px 14px", borderRadius: 12, border: "1px solid #e2e8f0" }}>
+                  <div className="dx-skeleton" style={{ width: 28, height: 28, borderRadius: "50%", flexShrink: 0 }} />
+                  <div className="dx-skeleton" style={{ width: "80%", height: 14 }} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Skeleton Body Layout */}
+        <div style={{ maxWidth: 1200, margin: "0 auto", padding: "48px 20px 80px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 48, alignItems: "start" }}>
+            {/* Left Content Column */}
+            <div style={{ flex: 1 }}>
+              {/* Overview block */}
+              <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 20, padding: 28, marginBottom: 28 }}>
+                <div className="dx-skeleton" style={{ width: 200, height: 24, marginBottom: 18, borderRadius: 6 }} />
+                <div className="dx-skeleton" style={{ width: "100%", height: 14, marginBottom: 10 }} />
+                <div className="dx-skeleton" style={{ width: "95%", height: 14, marginBottom: 10 }} />
+                <div className="dx-skeleton" style={{ width: "90%", height: 14, marginBottom: 10 }} />
+                <div className="dx-skeleton" style={{ width: "75%", height: 14, marginBottom: 20 }} />
+                
+                {/* Bullets */}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                  <div className="dx-skeleton" style={{ height: 36, borderRadius: 10 }} />
+                  <div className="dx-skeleton" style={{ height: 36, borderRadius: 10 }} />
+                </div>
+              </div>
+
+              {/* Symptoms cards block */}
+              <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 20, padding: 28, marginBottom: 28 }}>
+                <div className="dx-skeleton" style={{ width: 180, height: 22, marginBottom: 16, borderRadius: 6 }} />
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14 }}>
+                  {[1, 2, 3, 4].map(s => (
+                    <div key={s} style={{ background: "#f8fafc", padding: 16, borderRadius: 14, border: "1px solid #edf2f7" }}>
+                      <div className="dx-skeleton" style={{ width: 36, height: 36, borderRadius: 10, marginBottom: 12 }} />
+                      <div className="dx-skeleton" style={{ width: "80%", height: 16, marginBottom: 6 }} />
+                      <div className="dx-skeleton" style={{ width: "60%", height: 12 }} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* FAQ skeleton */}
+              <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 20, padding: 28 }}>
+                <div className="dx-skeleton" style={{ width: 220, height: 22, marginBottom: 16, borderRadius: 6 }} />
+                {[1, 2, 3].map(q => (
+                  <div key={q} style={{ borderBottom: "1px solid #f1f5f9", padding: "16px 0" }}>
+                    <div className="dx-skeleton" style={{ width: "70%", height: 16, marginBottom: 8 }} />
+                    <div className="dx-skeleton" style={{ width: "90%", height: 12 }} />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Right Sticky Card Column */}
+            <div style={{ maxWidth: 440, width: "100%", margin: "0 auto" }}>
+              <div style={{
+                background: "#fff",
+                border: "1.5px solid #e2e8f0",
+                borderRadius: 24,
+                padding: "32px 26px",
+                boxShadow: "0 10px 30px -10px rgba(0,0,0,0.06)"
+              }}>
+                <div className="dx-skeleton" style={{ width: 140, height: 24, borderRadius: 999, marginBottom: 16 }} />
+                <div className="dx-skeleton" style={{ width: "85%", height: 24, marginBottom: 8, borderRadius: 6 }} />
+                <div className="dx-skeleton" style={{ width: "60%", height: 14, marginBottom: 24 }} />
+
+                {/* Form fields skeleton */}
+                <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 20 }}>
+                  <div className="dx-skeleton" style={{ height: 46, borderRadius: 12 }} />
+                  <div className="dx-skeleton" style={{ height: 46, borderRadius: 12 }} />
+                  <div className="dx-skeleton" style={{ height: 46, borderRadius: 12 }} />
+                  <div className="dx-skeleton" style={{ height: 46, borderRadius: 12 }} />
+                </div>
+
+                <div className="dx-skeleton" style={{ height: 50, borderRadius: 14, marginBottom: 18 }} />
+                <div className="dx-skeleton" style={{ width: "70%", height: 12, margin: "0 auto" }} />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );

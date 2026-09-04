@@ -24,12 +24,13 @@ export default function ServicesPage() {
 
   const [search, setSearch] = useState(initialSearch);
   const [servicesData, setServicesData] = useState(localServicesData || []);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   React.useEffect(() => {
     let isMounted = true;
     const fetchServices = async () => {
       try {
+        setLoading(true);
         const baseUrl = "";
         const response = await axios.get(`${baseUrl}/api/services/catalog`);
         if (response.data.success && isMounted) {

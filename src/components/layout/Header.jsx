@@ -556,10 +556,10 @@ export default function Header() {
           </NavLink>
         </div>
         <div className="nx-mob-foot">
-          <button className="nx-mob-cta" onClick={() => { 
+          <button className="nx-mob-cta" onClick={() => {
             trackButtonClick("Mobile Header - Get Expert Advice");
-            setShowModal(true); 
-            setMenuOpen(false); 
+            setShowModal(true);
+            setMenuOpen(false);
           }}>
             <Calendar size={20} /> Get Expert Advice
           </button>

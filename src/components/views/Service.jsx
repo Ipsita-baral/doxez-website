@@ -398,13 +398,14 @@ export default function DoxEZServicesPage() {
 
   const [email, setEmail] = useState("");
   const [services, setServices] = useState(defaultServices);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     let isMounted = true;
     const fetchServices = async () => {
       try {
+        setLoading(true);
         const baseUrl = "";
         const response = await axios.get(`${baseUrl}/api/services/catalog`);
         console.log("Backend Data for Services:::::::", response.data);
@@ -445,7 +446,7 @@ export default function DoxEZServicesPage() {
           });
           setServices(mappedData);
         } else {
-          setServices([]);
+          setServices(defaultServices);
         }
       } catch (error) {
         console.error("Error fetching services:", error);
@@ -497,8 +498,14 @@ export default function DoxEZServicesPage() {
 
           {/* Tiles Grid */}
           {loading ? (
-            <div style={{ display: "flex", justifyContent: "center", padding: "40px" }}>
-              <Loader2 className="animate-spin" style={{ color: "#3b82f6" }} size={40} />
+            <div className="svc-tiles-grid">
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
+                <div key={n} className="svc-tile" style={{ pointerEvents: "none", cursor: "default" }}>
+                  <div className="dx-skeleton" style={{ width: 64, height: 64, borderRadius: 18, marginBottom: 16 }} />
+                  <div className="dx-skeleton" style={{ width: "70%", height: 20, marginBottom: 10, borderRadius: 6 }} />
+                  <div className="dx-skeleton" style={{ width: "90%", height: 14, borderRadius: 4 }} />
+                </div>
+              ))}
             </div>
           ) : (
             <div className="svc-tiles-grid">
