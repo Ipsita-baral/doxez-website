@@ -9,7 +9,7 @@ import {
   ChevronDown, ChevronUp, AlertCircle, FileText, Check, HelpCircle
 } from 'lucide-react';
 import axios from 'axios';
-import { servicesData as localServicesData } from '@/data/servicesData';
+import { servicesData as localServicesData, CATEGORY_ID_MAP } from '@/data/servicesData';
 import { toast } from 'react-toastify';
 import { trackLeadSubmission, trackButtonClick } from '@/lib/gtag';
 
@@ -393,7 +393,15 @@ export default function ServiceDetailPage() {
     fetchData();
   }, [treatmentId]);
 
-  const localCat = localServicesData.find(c => c.id === categoryId) || localServicesData.find(c => c.title.toLowerCase().includes(categoryId?.toLowerCase() || ""));
+  const mappedCatId = (CATEGORY_ID_MAP && categoryId && CATEGORY_ID_MAP[categoryId]) ? CATEGORY_ID_MAP[categoryId] : categoryId;
+  const localCat = localServicesData.find(c => 
+    c.id === categoryId || 
+    c._id === categoryId || 
+    c.id === mappedCatId || 
+    c._id === mappedCatId ||
+    (c.title && categoryId && c.title.toLowerCase().includes(categoryId.toLowerCase())) ||
+    (mappedCatId && c.title && c.title.toLowerCase().includes(mappedCatId.toLowerCase()))
+  );
   const localTreatment = localCat?.treatments?.find(t => t.id === treatmentId || t.name.toLowerCase().includes(treatmentId?.toLowerCase() || "")) || localCat?.treatments?.[0];
 
   const category = dynamicCategoryRaw ? {

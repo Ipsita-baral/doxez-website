@@ -63,7 +63,7 @@ async function handleProxy(req, context) {
     const headers = {};
     for (const [key, value] of req.headers.entries()) {
       const lowerKey = key.toLowerCase();
-      if (!["host", "origin", "referer", "content-length"].includes(lowerKey)) {
+      if (!["host", "origin", "referer", "content-length", "if-none-match", "if-modified-since"].includes(lowerKey)) {
         headers[lowerKey] = value;
       }
     }
@@ -94,6 +94,14 @@ async function handleProxy(req, context) {
           }
         }
       }
+    }
+
+    // Status codes 204, 205, and 304 MUST NOT have a response body in fetch API
+    if ([204, 205, 304].includes(res.statusCode)) {
+      return new NextResponse(null, {
+        status: res.statusCode,
+        headers: resHeaders,
+      });
     }
 
     return new NextResponse(res.data, {

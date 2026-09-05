@@ -65,8 +65,33 @@ const meniscusImg = getImg(meniscusImgRaw);
 
 
 
+export const CATEGORY_ID_MAP = {
+  // MongoDB ID -> slug
+  "6a06e884f3e06d1cb442ff59": "proctology",
+  "6a070052f3e06d1cb4431365": "urology",
+  "6a0841969a4fe233cf763f43": "general-surgery",
+  "6a0844499a4fe233cf764022": "gynecology",
+  "6a084de59a4fe233cf76412c": "ent",
+  "6a084edc9a4fe233cf76413b": "cosmetic",
+  "6a0850859a4fe233cf764149": "orthopedics",
+  "6a08ba79cd86985875061eec": "neurosurgery",
+
+  // slug -> MongoDB ID
+  "proctology": "6a06e884f3e06d1cb442ff59",
+  "urology": "6a070052f3e06d1cb4431365",
+  "general-surgery": "6a0841969a4fe233cf763f43",
+  "gynecology": "6a0844499a4fe233cf764022",
+  "ent": "6a084de59a4fe233cf76412c",
+  "cosmetic": "6a084edc9a4fe233cf76413b",
+  "cosmetic-surgery": "6a084edc9a4fe233cf76413b",
+  "plastic-surgery": "6a084edc9a4fe233cf76413b",
+  "orthopedics": "6a0850859a4fe233cf764149",
+  "neurosurgery": "6a08ba79cd86985875061eec",
+};
+
 export const servicesData = [
   {
+    _id: "6a06e884f3e06d1cb442ff59",
     id: "proctology",
     title: "Proctology & Colorectal Surgery",
     icon: "Activity",
@@ -81,6 +106,7 @@ export const servicesData = [
     ]
   },
   {
+    _id: "6a070052f3e06d1cb4431365",
     id: "urology",
     title: "Urology & Andrology",
     icon: "Shield",
@@ -99,6 +125,7 @@ export const servicesData = [
     ]
   },
   {
+    _id: "6a0841969a4fe233cf763f43",
     id: "general-surgery",
     title: "General & Laparoscopic Surgery",
     icon: "Stethoscope",
@@ -117,6 +144,7 @@ export const servicesData = [
     ]
   },
   {
+    _id: "6a0844499a4fe233cf764022",
     id: "gynecology",
     title: "Gynecology & Women's Health",
     icon: "Heart",
@@ -138,6 +166,7 @@ export const servicesData = [
     ]
   },
   {
+    _id: "6a084de59a4fe233cf76412c",
     id: "ent",
     title: "ENT (Ear, Nose & Throat)",
     icon: "Mic",
@@ -155,6 +184,7 @@ export const servicesData = [
     ]
   },
   {
+    _id: "6a084edc9a4fe233cf76413b",
     id: "cosmetic",
     title: "Cosmetic & Plastic Surgery",
     icon: "Sparkles",
@@ -170,6 +200,7 @@ export const servicesData = [
     ]
   },
   {
+    _id: "breast-surgery",
     id: "breast-surgery",
     title: "Breast Surgery",
     icon: "ShieldPlus",
@@ -180,6 +211,7 @@ export const servicesData = [
     ]
   },
   {
+    _id: "6a0850859a4fe233cf764149",
     id: "orthopedics",
     title: "Orthopedics & Joint Surgery",
     icon: "Bone",
@@ -189,7 +221,6 @@ export const servicesData = [
     treatments: [
       { id: "acl-tear", name: "ACL Tear", image: Acltearimg, desc: "Injury to the anterior cruciate ligament, one of the major ligaments in your knee.", symptoms: ["Knee pain", "Swelling", "Instability", "Popping sound at injury"], options: ["Physiotherapy", "ACL reconstruction surgery"], insurance: { accepted: true, ayushman: true, cashless: true } },
       { id: "meniscus-tear", name: "Meniscus Tear", image: meniscusImg, desc: "A common knee injury involving the C-shaped discs that provide cushioning between your femur and tibia.", options: ["Physiotherapy", "Arthroscopic meniscus repair"], insurance: { accepted: true, ayushman: true, cashless: true } },
-
       { id: "spine-surgery-ortho", name: "Spine Surgery", image: "/services/spine.jpg", desc: "Procedures to treat various back and neck conditions.", options: ["Discectomy", "Spinal fusion", "Laminectomy"], insurance: { accepted: true, ayushman: true, cashless: true } },
       { id: "knee-replacement", name: "Knee Replacement", image: "/services/knee-replacement.jpg", desc: "Surgical procedure to replace the weight-bearing surfaces of the knee joint.", options: ["Total knee replacement", "Partial knee replacement"], insurance: { accepted: true, ayushman: true, cashless: true } },
       { id: "hip-replacement", name: "Hip Replacement", image: "/services/hip-replacement.jpg", desc: "Surgical procedure in which the hip joint is replaced by a prosthetic implant.", options: ["Total hip replacement", "Hemi hip replacement"], insurance: { accepted: true, ayushman: true, cashless: true } },
@@ -199,6 +230,7 @@ export const servicesData = [
     ]
   },
   {
+    _id: "6a08ba79cd86985875061eec",
     id: "neurosurgery",
     title: "Neurosurgery & Spine Surgery",
     icon: "Brain",
@@ -206,9 +238,7 @@ export const servicesData = [
     shortDesc: "Advanced neurological care for slip disc, sciatica and spine decompression.",
     treatments: [
       { id: "slip-disc", name: "Slip Disc Surgery", image: slipDiscImg, desc: "Procedure to treat a herniated disc in the spine.", symptoms: ["Severe back pain", "Leg pain/numbness", "Weakness in legs", "Loss of bladder control"], options: ["Microdiscectomy", "Endoscopic discectomy", "Spinal fusion"], insurance: { accepted: true, ayushman: true, cashless: true } },
-
       { id: "spine-decompression", name: "Spine Decompression Surgery", image: cervicalSpineImg, desc: "Procedure to relieve pressure on the spinal cord or nerves.", options: ["Laminectomy", "Foraminotomy", "Discectomy"], insurance: { accepted: true, ayushman: true, cashless: true } },
-      // { id: "cervical-spine", name: "Cervical Spine Surgery", image: cervicalSpineImg, desc: "Surgery performed on the neck portion of the spine.", options: ["ACDF", "Cervical laminoplasty"], insurance: { accepted: true, ayushman: true, cashless: true } },
       { id: "lumbar-spine", name: "Lumbar Spine Surgery", image: LumberSpine, desc: "Surgery performed on the lower back portion of the spine.", options: ["Lumbar fusion", "TLIF/PLIF", "Microdiscectomy"], insurance: { accepted: true, ayushman: true, cashless: true } },
       { id: "sciatica", name: "Sciatica Surgery", image: "/services/sciatica.jpg", desc: "Procedure to relieve nerve pain caused by compression or irritation of the sciatic nerve.", options: ["Microdiscectomy", "Laminectomy"], insurance: { accepted: true, ayushman: true, cashless: true } },
       { id: "minimally-invasive-spine", name: "Minimally Invasive Spine Surgery", image: "/services/mis-spine.jpg", desc: "Modern techniques to treat spine conditions with smaller incisions.", options: ["MIS-TLIF", "Percutaneous pedicle screw fixation", "Endoscopic spine surgery"], insurance: { accepted: true, ayushman: true, cashless: true } }
