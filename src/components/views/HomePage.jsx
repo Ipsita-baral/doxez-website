@@ -16,6 +16,7 @@ import {
 import DoxezWorkflow from "@/components/sections/DoxezWorkFlow";
 import SearchableDiseaseDropdown from "@/components/common/SearchableDiseaseDropdown";
 import { trackLeadSubmission, trackButtonClick } from "@/lib/gtag";
+import { getServiceSlug } from "@/lib/serviceSlug";
 
 // Local Assets
 import img1Raw from "@/assets/IITBBSR.png";
@@ -1464,7 +1465,7 @@ export default function HomePage() {
             ]).map((cat, i) => (
               <Reveal key={cat._id || cat.id} delay={i * 0.04}>
                 <Link
-                  to={`/services/${cat._id || cat.id}`}
+                  to={`/services/${getServiceSlug(cat)}`}
                   style={{ textDecoration: "none" }}
                 >
                   <div style={{

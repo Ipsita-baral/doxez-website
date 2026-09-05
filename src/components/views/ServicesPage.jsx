@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 // import { servicesData as localServicesData } from '@/data/servicesData';
 import axios from 'axios';
+import { getServiceSlug, getTreatmentSlug, isServiceMatch } from '@/lib/serviceSlug';
 
 
 const iconMap = {
@@ -33,18 +34,23 @@ export default function ServicesPage() {
         const baseUrl = "";
         const response = await axios.get(`${baseUrl}/api/services/catalog`);
         if (response.data.success) {
-          // Map backend data to frontend structure if necessary
-          const mappedData = response.data.data.map(service => ({
-            ...service,
-            id: service._id,
-            title: service.serviceName,
-            treatments: service.subServices.map(sub => ({
-              ...sub,
-              id: sub._id,
-              name: sub.name,
-              image: sub.image ? (sub.image.startsWith('http') ? sub.image : `${baseUrl}${sub.image}`) : ""
-            }))
-          }));
+          // Map backend data to frontend structure with SEO-friendly slugs
+          const mappedData = response.data.data.map(service => {
+            const catSlug = getServiceSlug(service);
+            return {
+              ...service,
+              id: service._id,
+              slug: catSlug,
+              title: service.serviceName,
+              treatments: (service.subServices || []).map(sub => ({
+                ...sub,
+                id: sub._id,
+                slug: getTreatmentSlug(sub),
+                name: sub.name,
+                image: sub.image ? (sub.image.startsWith('http') ? sub.image : `${baseUrl}${sub.image}`) : ""
+              }))
+            };
+          });
           setServicesData(mappedData);
         } else {
           setServicesData([]);
@@ -59,9 +65,18 @@ export default function ServicesPage() {
     fetchServices();
   }, []);
 
+  // If a categoryId is present, find the category in fetched data by slug, id, or name
+  const activeCategory = categoryId ? servicesData.find(c => isServiceMatch(c, categoryId)) : null;
 
-  // If a categoryId is present, find the category in fetched data
-  const activeCategory = categoryId ? servicesData.find(c => c.id === categoryId) : null;
+  // If categoryId in URL was a raw MongoDB ID, replace URL with clean readable slug
+  React.useEffect(() => {
+    if (activeCategory && /^[0-9a-fA-F]{24}$/.test(categoryId)) {
+      const canonicalSlug = getServiceSlug(activeCategory);
+      if (canonicalSlug && canonicalSlug !== categoryId) {
+        navigate(`/services/${canonicalSlug}`, { replace: true });
+      }
+    }
+  }, [activeCategory, categoryId, navigate]);
 
   // ── CATEGORY DETAIL VIEW ──
   // If we have a categoryId, we ONLY show the Category Detail View (or the loader)
@@ -239,7 +254,7 @@ export default function ServicesPage() {
                 <div
                   key={t.id}
                   className="treat-card"
-                  onClick={() => navigate(`/services/${activeCategory.id}/${t.id}`)}
+                  onClick={() => navigate(`/services/${getServiceSlug(activeCategory)}/${getTreatmentSlug(t)}`)}
                 >
                   <div className="treat-card-img">
                     {t.image
@@ -451,11 +466,11 @@ export default function ServicesPage() {
                   {cat.treatments.map((t) => (
                     <a
                       key={t.id}
-                      href={`/services/${cat.id}/${t.id}`}
+                      href={`/services/${getServiceSlug(cat)}/${getTreatmentSlug(t)}`}
                       className="treatment-link-clinical"
                       onClick={(e) => {
                         e.preventDefault();
-                        navigate(`/services/${cat.id}/${t.id}`);
+                        navigate(`/services/${getServiceSlug(cat)}/${getTreatmentSlug(t)}`);
                       }}
                     >
                       {t.name} <ChevronRight size={16} />
@@ -464,7 +479,7 @@ export default function ServicesPage() {
                 </div>
 
                 <button
-                  onClick={() => navigate(`/services/${cat.id}`)}
+                  onClick={() => navigate(`/services/${getServiceSlug(cat)}`)}
                   style={{
                     width: "100%",
                     padding: "16px",

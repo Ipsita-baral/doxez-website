@@ -12,6 +12,7 @@ import axios from 'axios';
 import { servicesData as localServicesData } from '@/data/servicesData';
 import { toast } from 'react-toastify';
 import { trackLeadSubmission, trackButtonClick } from '@/lib/gtag';
+import { getServiceSlug, getTreatmentSlug, isServiceMatch, isTreatmentMatch } from '@/lib/serviceSlug';
 
 // ── RAW TEXT / MARKDOWN CLEANER ──
 function cleanMarkdownText(text) {
@@ -357,17 +358,71 @@ export default function ServiceDetailPage() {
 
   // Fetch API data
   useEffect(() => {
+    let isMounted = true;
     const fetchData = async () => {
       try {
         setFetching(true);
+        const baseUrl = "";
         const isMongoId = /^[0-9a-fA-F]{24}$/.test(treatmentId);
 
-        if (isMongoId) {
-          const response = await axios.get(`/api/sub-services/${treatmentId}`);
-          if (response.data && (response.data.success || response.data.data)) {
-            const data = response.data.data;
-            setDynamicTreatmentRaw(data);
-            setDynamicCategoryRaw(data.service);
+        // Fetch public catalog to resolve category and sub-service by slug or id
+        const catRes = await axios.get(`${baseUrl}/api/services/catalog`);
+        let foundService = null;
+        let foundSubService = null;
+
+        if (catRes.data?.success && Array.isArray(catRes.data.data)) {
+          const catalog = catRes.data.data;
+
+          // 1. Match category
+          if (categoryId) {
+            foundService = catalog.find(c => isServiceMatch(c, categoryId)) || null;
+          }
+
+          // 2. Match sub-service within found category
+          if (foundService?.subServices && treatmentId) {
+            foundSubService = foundService.subServices.find(sub => isTreatmentMatch(sub, treatmentId)) || null;
+          }
+
+          // 3. If not found in category, search across entire catalog
+          if (!foundSubService && treatmentId) {
+            for (const c of catalog) {
+              const match = (c.subServices || []).find(sub => isTreatmentMatch(sub, treatmentId));
+              if (match) {
+                foundSubService = match;
+                if (!foundService) foundService = c;
+                break;
+              }
+            }
+          }
+        }
+
+        // 4. If treatmentId is raw Mongo ID and wasn't found in catalog, fetch directly
+        if (!foundSubService && isMongoId) {
+          try {
+            const subRes = await axios.get(`${baseUrl}/api/sub-services/${treatmentId}`);
+            if (subRes.data?.success) {
+              foundSubService = subRes.data.data;
+              if (!foundService) foundService = subRes.data.data.service;
+            }
+          } catch (e) {
+            console.warn("Direct sub-service fetch error:", e);
+          }
+        }
+
+        if (isMounted) {
+          if (foundSubService) setDynamicTreatmentRaw(foundSubService);
+          if (foundService) setDynamicCategoryRaw(foundService);
+
+          // Canonical slug URL replacement:
+          // If the user visited with raw MongoDB IDs, replace with SEO-friendly slugs in the address bar
+          const isCatId = /^[0-9a-fA-F]{24}$/.test(categoryId);
+          const isTreatId = /^[0-9a-fA-F]{24}$/.test(treatmentId);
+          if (isCatId || isTreatId) {
+            const cSlug = getServiceSlug(foundService || categoryId);
+            const tSlug = getTreatmentSlug(foundSubService || treatmentId);
+            if (cSlug && tSlug && (cSlug !== categoryId || tSlug !== treatmentId)) {
+              navigate(`/services/${cSlug}/${tSlug}`, { replace: true });
+            }
           }
         } else if (treatmentId) {
           // If treatmentId is a slug, find matching sub-service from backend
@@ -387,14 +442,15 @@ export default function ServiceDetailPage() {
       } catch (err) {
         console.error("Error fetching treatment details:", err);
       } finally {
-        setFetching(false);
+        if (isMounted) setFetching(false);
       }
     };
     fetchData();
-  }, [treatmentId]);
+    return () => { isMounted = false; };
+  }, [categoryId, treatmentId, navigate]);
 
-  const localCat = localServicesData.find(c => c.id === categoryId) || localServicesData.find(c => c.title.toLowerCase().includes(categoryId?.toLowerCase() || ""));
-  const localTreatment = localCat?.treatments?.find(t => t.id === treatmentId || t.name.toLowerCase().includes(treatmentId?.toLowerCase() || "")) || localCat?.treatments?.[0];
+  const localCat = localServicesData.find(c => isServiceMatch(c, categoryId)) || localServicesData.find(c => c.id === categoryId) || localServicesData[0];
+  const localTreatment = localCat?.treatments?.find(t => isTreatmentMatch(t, treatmentId)) || localCat?.treatments?.find(t => t.id === treatmentId) || localCat?.treatments?.[0];
 
   const category = dynamicCategoryRaw ? {
     id: dynamicCategoryRaw._id,
@@ -426,7 +482,7 @@ export default function ServiceDetailPage() {
     try {
       const CRM_API_URL = "";
       const isMongoId = /^[0-9a-fA-F]{24}$/.test(treatmentId);
-      const effectiveSubServiceId = dynamicTreatmentRaw?._id || (isMongoId ? treatmentId : null);
+      const actualSubServiceId = dynamicTreatmentRaw?._id || (isMongoId ? treatmentId : null);
 
       const payload = {
         patientName: form.name,
@@ -440,10 +496,10 @@ export default function ServiceDetailPage() {
         referralCode: localStorage.getItem('doxez_ref') || undefined
       };
 
-      if (effectiveSubServiceId) {
+      if (actualSubServiceId) {
         await axios.post(`${CRM_API_URL}/api/leads/public/web-lead`, {
           ...payload,
-          subServiceId: effectiveSubServiceId,
+          subServiceId: actualSubServiceId,
           source: `DOXEZ_WEB_LEAD - ${selectedTime}`,
         });
       } else {
@@ -738,7 +794,11 @@ export default function ServiceDetailPage() {
       <div className="hero-banner">
         <div className="container">
           <button
-            onClick={() => navigate('/service')}
+            onClick={() => {
+              const catSlug = getServiceSlug(category);
+              if (catSlug) navigate(`/services/${catSlug}`);
+              else navigate('/service');
+            }}
             style={{
               background: "none",
               border: "none",
