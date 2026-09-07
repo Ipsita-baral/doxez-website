@@ -149,8 +149,8 @@ export default function Footer() {
             <div>
               <h4>Partners & Support</h4>
               <div className="dx-ft-links">
-                <Link to="/hospital-partner">Partner With Us</Link>
-                <Link to="/doctor-onboard">Doctor Onboarding</Link>
+                <Link to="/partner-onboard">Partner With Us</Link>
+                <Link to="/partner-onboard">Doctor Onboarding</Link>
                 <Link to="/ContactUs">Contact Us</Link>
                 <Link to="/faqs">FAQs</Link>
               </div>

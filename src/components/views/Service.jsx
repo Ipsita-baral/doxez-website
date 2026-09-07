@@ -69,24 +69,8 @@ function useReveal() {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-
-    const rect = el.getBoundingClientRect();
-    if (rect.top < window.innerHeight) {
-      el.style.animationPlayState = "running";
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          el.style.animationPlayState = "running";
-          observer.unobserve(el);
-        }
-      },
-      { threshold: 0.12, rootMargin: "-40px 0px" }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
+    el.style.opacity = "1";
+    el.style.transform = "translateY(0)";
   }, []);
 
   return ref;
@@ -99,12 +83,13 @@ function Reveal({ children, delay = 0, style = {}, className = "" }) {
     <div
       ref={ref}
       className={`srv-reveal ${className}`}
-      style={{ "--delay": `${delay}s`, ...style }}
+      style={{ opacity: 1, ...style }}
     >
       {children}
     </div>
   );
 }
+
 
 /* ─── SERVICE CARD ─── */
 function ServiceCard({ card, delay = 0 }) {
@@ -231,14 +216,11 @@ export default function DoxEZServicesPage() {
     }
 
     .srv-reveal {
-      opacity: 0;
-      animation-name: srvFadeUp;
-      animation-duration: 0.72s;
-      animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-      animation-fill-mode: forwards;
-      animation-play-state: paused;
-      animation-delay: var(--delay, 0s);
+      opacity: 1;
+      transform: translateY(0);
+      transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1), transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
     }
+
 
     .srv-card { height: 100%; }
 
@@ -404,14 +386,27 @@ export default function DoxEZServicesPage() {
     .reg-btn:hover { background: #2563eb; transform: translateY(-2px); }
   `;
 
+  const defaultServices = [
+    { id: "proctology", title: "Proctology", description: "Piles, Fistula & more", iconUrl: proctologyIcon },
+    { id: "urology", title: "Urology", description: "Kidney, Prostate & more", iconUrl: urology },
+    { id: "general-surgery", title: "General Surgery", description: "Hernia, Gallstone & more", iconUrl: generalSurgeryIcon },
+    { id: "gynecology", title: "Gynecology", description: "IVF, Fibroid & more", iconUrl: Gynecology },
+    { id: "ent", title: "ENT", description: "Sinus, Tonsil & more", iconUrl: ENT },
+    { id: "cosmetic-surgery", title: "Cosmetic Surgery", description: "Gynecomastia, Lipo & more", iconUrl: cosmeticIcon },
+    { id: "orthopedics", title: "Orthopedics", description: "Joint, Spine & more", iconUrl: orthopedics },
+    { id: "neurosurgery", title: "Neurosurgery & Spine Surgery", description: "Slip Disc, Sciatica & more", iconUrl: null },
+  ];
+
   const [email, setEmail] = useState("");
-  const [services, setServices] = useState([]);
+  const [services, setServices] = useState(defaultServices);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
+    let isMounted = true;
     const fetchServices = async () => {
       try {
+        setLoading(true);
         const baseUrl = "";
         const response = await axios.get(`${baseUrl}/api/services/catalog`);
         console.log("Backend Data for Services:::::::", response.data);
@@ -427,7 +422,8 @@ export default function DoxEZServicesPage() {
           "orthopedics": { desc: "Joint, Spine & more", icon: orthopedics },
         };
 
-        if (response.data.success && response.data.data.length > 0) {
+        if (response.data.success && response.data.data.length > 0 && isMounted) {
+
           const mappedData = response.data.data.map(service => {
             const lowerTitle = service.serviceName.toLowerCase();
             let local = {};
@@ -451,17 +447,18 @@ export default function DoxEZServicesPage() {
           });
           setServices(mappedData);
         } else {
-          setServices([]);
+          setServices(defaultServices);
         }
       } catch (error) {
         console.error("Error fetching services:", error);
-        setServices([]);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
     fetchServices();
+    return () => { isMounted = false; };
   }, []);
+
 
   const handleRegister = (e) => {
     e.preventDefault();
@@ -502,8 +499,14 @@ export default function DoxEZServicesPage() {
 
           {/* Tiles Grid */}
           {loading ? (
-            <div style={{ display: "flex", justifyContent: "center", padding: "40px" }}>
-              <Loader2 className="animate-spin" style={{ color: "#3b82f6" }} size={40} />
+            <div className="svc-tiles-grid">
+              {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
+                <div key={n} className="svc-tile" style={{ pointerEvents: "none", cursor: "default" }}>
+                  <div className="dx-skeleton" style={{ width: 64, height: 64, borderRadius: 18, marginBottom: 16 }} />
+                  <div className="dx-skeleton" style={{ width: "70%", height: 20, marginBottom: 10, borderRadius: 6 }} />
+                  <div className="dx-skeleton" style={{ width: "90%", height: 14, borderRadius: 4 }} />
+                </div>
+              ))}
             </div>
           ) : (
             <div className="svc-tiles-grid">

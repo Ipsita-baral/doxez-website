@@ -61,3 +61,27 @@ button {
   padding: 0 4px;
   display: inline-block;
 }
+
+/* Universal Skeleton Loader & Shimmer */
+@keyframes dxShimmer {
+  0% {
+    background-position: -800px 0;
+  }
+  100% {
+    background-position: 800px 0;
+  }
+}
+
+.dx-skeleton {
+  background: linear-gradient(
+    90deg,
+    #f1f5f9 0%,
+    #e2e8f0 35%,
+    #f8fafc 50%,
+    #e2e8f0 65%,
+    #f1f5f9 100%
+  );
+  background-size: 800px 100%;
+  animation: dxShimmer 1.6s infinite linear;
+  border-radius: 8px;
+}

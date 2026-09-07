@@ -7,10 +7,11 @@ import {
   Stethoscope, Activity, Shield, Heart, Mic, Sparkles, ShieldCheck, Bone,
   ChevronRight, ArrowRight, Star, Loader2, Brain, Search, X, ChevronLeft
 } from 'lucide-react';
-// import { servicesData as localServicesData } from '@/data/servicesData';
+import { CATEGORY_ID_MAP } from '@/data/servicesData';
 import axios from 'axios';
 import { getServiceSlug, getTreatmentSlug, isServiceMatch } from '@/lib/serviceSlug';
 
+let cachedCatalog = null;
 
 const iconMap = {
   Stethoscope, Activity, Shield, Heart, Mic, Sparkles, ShieldCheck, Bone, Brain
@@ -23,50 +24,89 @@ export default function ServicesPage() {
   const searchParams = new URLSearchParams(location.search);
   const initialSearch = searchParams.get('search') || "";
 
-  const [search, setSearch] = useState(initialSearch);
-  const [servicesData, setServicesData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  console.log("servicePage")
+  // Helper to match category by Mongo ID, local slug or title
+  const matchCategory = (list, id) => {
+    if (!id || !list || !list.length) return null;
+    const found = list.find(c => isServiceMatch(c, id));
+    if (found) return found;
 
-  React.useEffect(() => {
-    const fetchServices = async () => {
-      try {
-        const baseUrl = "";
-        const response = await axios.get(`${baseUrl}/api/services/catalog`);
-        if (response.data.success) {
-          // Map backend data to frontend structure with SEO-friendly slugs
-          const mappedData = response.data.data.map(service => {
-            const catSlug = getServiceSlug(service);
-            return {
-              ...service,
-              id: service._id,
-              slug: catSlug,
-              title: service.serviceName,
-              treatments: (service.subServices || []).map(sub => ({
-                ...sub,
-                id: sub._id,
-                slug: getTreatmentSlug(sub),
-                name: sub.name,
-                image: sub.image ? (sub.image.startsWith('http') ? sub.image : `${baseUrl}${sub.image}`) : ""
-              }))
-            };
-          });
-          setServicesData(mappedData);
-        } else {
-          setServicesData([]);
-        }
-      } catch (error) {
-        console.error("Error fetching services:", error);
-        setServicesData([]);
-      } finally {
-        setLoading(false);
+    const idStr = String(id).trim();
+    const mappedId = (CATEGORY_ID_MAP && CATEGORY_ID_MAP[idStr]) ? CATEGORY_ID_MAP[idStr] : idStr;
+    const target = idStr.toLowerCase().replace(/[^a-z0-9]/g, '');
+    const mappedTarget = mappedId.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+    return list.find(c => {
+      if (c.id === idStr || c._id === idStr || c.id === mappedId || c._id === mappedId) return true;
+      const cTitle = (c.title || c.serviceName || "").toLowerCase().replace(/[^a-z0-9]/g, '');
+      const cId = (c.id || "").toLowerCase().replace(/[^a-z0-9]/g, '');
+      const c_id = (c._id || "").toLowerCase().replace(/[^a-z0-9]/g, '');
+      return (
+        cTitle === target ||
+        cId === target ||
+        c_id === target ||
+        cTitle === mappedTarget ||
+        cId === mappedTarget ||
+        cTitle.includes(target) ||
+        target.includes(cTitle) ||
+        cTitle.includes(mappedTarget) ||
+        mappedTarget.includes(cTitle)
+      );
+    });
+  };
+
+  const initialList = cachedCatalog || [];
+  const initialActive = categoryId ? matchCategory(initialList, categoryId) : null;
+
+  const [search, setSearch] = useState(initialSearch);
+  const [servicesData, setServicesData] = useState(initialList);
+  const [loading, setLoading] = useState(Boolean(!cachedCatalog));
+  const [fetchError, setFetchError] = useState(false);
+
+  const fetchServices = React.useCallback(async (retryCount = 0) => {
+    try {
+      setFetchError(false);
+      const baseUrl = "";
+      const response = await axios.get(`${baseUrl}/api/services/catalog`, { timeout: 8000 });
+      if (response.data && response.data.success && Array.isArray(response.data.data)) {
+        // Map backend data to frontend structure with SEO-friendly slugs
+        const mappedData = response.data.data.map(service => {
+          const catSlug = getServiceSlug(service);
+          return {
+            ...service,
+            id: service._id,
+            slug: catSlug,
+            title: service.serviceName,
+            treatments: (service.subServices || []).map(sub => ({
+              ...sub,
+              id: sub._id,
+              slug: getTreatmentSlug(sub),
+              name: sub.name,
+              image: sub.image ? (sub.image.startsWith('http') ? sub.image : `${baseUrl}${sub.image}`) : ""
+            }))
+          };
+        });
+        cachedCatalog = mappedData;
+        setServicesData(mappedData);
       }
-    };
-    fetchServices();
+    } catch (error) {
+      console.error("Error fetching services:", error);
+      // Auto-retry once on failure
+      if (retryCount < 1) {
+        setTimeout(() => fetchServices(retryCount + 1), 600);
+      } else {
+        setFetchError(true);
+      }
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
-  // If a categoryId is present, find the category in fetched data by slug, id, or name
-  const activeCategory = categoryId ? servicesData.find(c => isServiceMatch(c, categoryId)) : null;
+  React.useEffect(() => {
+    fetchServices();
+  }, [fetchServices]);
+
+  // If a categoryId is present, find the category in fetched dynamic data
+  const activeCategory = categoryId ? matchCategory(servicesData, categoryId) : null;
 
   // If categoryId in URL was a raw MongoDB ID, replace URL with clean readable slug
   React.useEffect(() => {
@@ -81,46 +121,73 @@ export default function ServicesPage() {
   // ── CATEGORY DETAIL VIEW ──
   // If we have a categoryId, we ONLY show the Category Detail View (or the loader)
   if (categoryId) {
-    if (loading) return (
-      <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", background: "#f8fafc", minHeight: "100vh" }}>
-        <style>{`
-          @keyframes shimmer { 0%{background-position:-800px 0} 100%{background-position:800px 0} }
-          .skel { background: linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%); background-size: 800px 100%; animation: shimmer 1.4s infinite; border-radius: 8px; }
-        `}</style>
-        {/* Hero skeleton */}
-        <div style={{ background: "#fff", padding: "150px 24px 24px", borderBottom: "1px solid #e2e8f0" }}>
-          <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 16px" }}>
-            <div className="skel" style={{ width: 100, height: 14, marginBottom: 20 }} />
-            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-              <div className="skel" style={{ width: 48, height: 48, borderRadius: "50%", flexShrink: 0 }} />
-              <div style={{ flex: 1 }}>
-                <div className="skel" style={{ width: "40%", height: 22, marginBottom: 8 }} />
-                <div className="skel" style={{ width: "70%", height: 14 }} />
+    // Show skeleton if actively loading OR if dynamic data hasn't arrived yet (and no fetch error)
+    if ((loading || servicesData.length === 0) && !fetchError) {
+      return (
+        <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", background: "#f8fafc", minHeight: "100vh" }}>
+          <style>{`
+            @keyframes shimmer { 0%{background-position:-800px 0} 100%{background-position:800px 0} }
+            .skel { background: linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%); background-size: 800px 100%; animation: shimmer 1.4s infinite; border-radius: 8px; }
+          `}</style>
+          {/* Hero skeleton */}
+          <div style={{ background: "#fff", padding: "150px 24px 24px", borderBottom: "1px solid #e2e8f0" }}>
+            <div style={{ maxWidth: 1200, margin: "0 auto", padding: "0 16px" }}>
+              <div className="skel" style={{ width: 100, height: 14, marginBottom: 20 }} />
+              <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                <div className="skel" style={{ width: 48, height: 48, borderRadius: "50%", flexShrink: 0 }} />
+                <div style={{ flex: 1 }}>
+                  <div className="skel" style={{ width: "40%", height: 22, marginBottom: 8 }} />
+                  <div className="skel" style={{ width: "70%", height: 14 }} />
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        {/* Cards skeleton */}
-        <div style={{ maxWidth: 1200, margin: "48px auto", padding: "0 24px", display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 24 }}>
-          {[1, 2, 3, 4, 5, 6].map(i => (
-            <div key={i} style={{ background: "#fff", borderRadius: 24, overflow: "hidden", border: "1.5px solid #f1f5f9" }}>
-              <div className="skel" style={{ height: 165, borderRadius: 0 }} />
-              <div style={{ padding: "20px" }}>
-                <div className="skel" style={{ width: "70%", height: 18, marginBottom: 10 }} />
-                <div className="skel" style={{ width: "90%", height: 12, marginBottom: 6 }} />
-                <div className="skel" style={{ width: "60%", height: 12 }} />
+          {/* Cards skeleton */}
+          <div style={{ maxWidth: 1200, margin: "48px auto", padding: "0 24px", display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 24 }}>
+            {[1, 2, 3, 4, 5, 6].map(i => (
+              <div key={i} style={{ background: "#fff", borderRadius: 24, overflow: "hidden", border: "1.5px solid #f1f5f9" }}>
+                <div className="skel" style={{ height: 165, borderRadius: 0 }} />
+                <div style={{ padding: "20px" }}>
+                  <div className="skel" style={{ width: "70%", height: 18, marginBottom: 10 }} />
+                  <div className="skel" style={{ width: "90%", height: 12, marginBottom: 6 }} />
+                  <div className="skel" style={{ width: "60%", height: 12 }} />
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
-    );
+      );
+    }
 
     if (!activeCategory) {
-      return <div style={{ padding: 180, textAlign: 'center', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
-        <h3>Category not found</h3>
-        <button onClick={() => navigate('/service')} style={{ marginTop: 20, color: '#3b82f6', background: 'none', border: 'none', fontWeight: 700, cursor: 'pointer' }}>View all services</button>
-      </div>;
+      return (
+        <div style={{ padding: "160px 24px", textAlign: 'center', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+          <h3 style={{ fontSize: "24px", fontWeight: 800, color: "#0b1f3a", marginBottom: 12 }}>
+            {fetchError ? "Unable to load service details" : "Category not found"}
+          </h3>
+          <p style={{ color: "#64748b", maxWidth: 460, margin: "0 auto 24px", fontSize: 15 }}>
+            {fetchError
+              ? "We couldn't connect to the server. Please check your connection and try again."
+              : "The requested medical specialty could not be located. You can explore all available surgical departments below."}
+          </p>
+          <div style={{ display: "flex", gap: 16, justifyContent: "center", alignItems: "center" }}>
+            {fetchError && (
+              <button
+                onClick={() => { setLoading(true); setFetchError(false); fetchServices(); }}
+                style={{ padding: "12px 24px", color: '#fff', background: '#3b82f6', border: 'none', borderRadius: 10, fontWeight: 700, cursor: 'pointer' }}
+              >
+                Retry
+              </button>
+            )}
+            <button
+              onClick={() => navigate('/service')}
+              style={{ padding: "12px 24px", color: '#3b82f6', background: '#eff6ff', border: 'none', borderRadius: 10, fontWeight: 700, cursor: 'pointer' }}
+            >
+              View all services
+            </button>
+          </div>
+        </div>
+      );
     }
 
     const IconComp = iconMap[activeCategory.icon] || Stethoscope;
@@ -405,7 +472,7 @@ export default function ServicesPage() {
       </div>
 
       <div className="grid-container">
-        {loading ? (
+        {(loading || servicesData.length === 0) && !fetchError ? (
           <>
             <style>{`
               @keyframes shimmer { 0%{background-position:-800px 0} 100%{background-position:800px 0} }

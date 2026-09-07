@@ -109,6 +109,7 @@ export default function HomePage() {
   const [showThankYou, setShowThankYou] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [services, setServices] = useState([]);
+  const [servicesLoading, setServicesLoading] = useState(true);
   const scrollRef = useRef(null);
 
   const getTodayDateStr = () => {
@@ -150,18 +151,23 @@ export default function HomePage() {
   }, [showThankYou]);
 
   useEffect(() => {
+    let isMounted = true;
     const fetchServices = async () => {
       try {
+        setServicesLoading(true);
         const response = await axios.get('/api/services/catalog');
         console.log("API Response:", response.data);
-        if (response.data.success && response.data.data.length > 0) {
+        if (response.data.success && response.data.data.length > 0 && isMounted) {
           setServices(response.data.data);
         }
       } catch (error) {
         console.error("Error fetching services:", error);
+      } finally {
+        if (isMounted) setServicesLoading(false);
       }
     };
     fetchServices();
+    return () => { isMounted = false; };
   }, []);
 
   // Auto-scroll testimonials
@@ -1453,66 +1459,93 @@ export default function HomePage() {
           </div>
 
           <div className="svc-tiles-grid">
-            {(services.length > 0 ? services : [
-              { id: "proctology", serviceName: "Proctology", description: "Piles, Fistula & more", iconUrl: proctologyIcon, color: "#3b82f6", bg: "#eff6ff" },
-              { id: "urology", serviceName: "Urology", description: "Kidney, Prostate & more", iconUrl: urology, color: "#8b5cf6", bg: "#f5f3ff" },
-              { id: "general-surgery", serviceName: "General Surgery", description: "Hernia, Gallstone & more", iconUrl: generalSurgeryIcon, color: "#10b981", bg: "#f0fdf4" },
-              { id: "gynecology", serviceName: "Gynecology", description: "IVF, Fibroid & more", iconUrl: Gynecology, color: "#ec4899", bg: "#fdf2f8" },
-              { id: "ent", serviceName: "ENT", description: "Sinus, Tonsil & more", iconUrl: ENT, color: "#f59e0b", bg: "#fffbeb" },
-              { id: "cosmetic", serviceName: "Cosmetic Surgery", description: "Gynecomastia, Lipo & more", iconUrl: cosmeticIcon, color: "#06b6d4", bg: "#ecfeff" },
-              { id: "orthopedics", serviceName: "Orthopedics", description: "Joint, Spine & more", iconUrl: orthopedics, color: "#6366f1", bg: "#eef2ff" },
-              { id: "neurosurgery", serviceName: "Neurosurgery", description: "Slip Disc, Sciatica & more", iconUrl: null, color: "#0f172a", bg: "#f8fafc" },
-            ]).map((cat, i) => (
-              <Reveal key={cat._id || cat.id} delay={i * 0.04}>
-                <Link
-                  to={`/services/${getServiceSlug(cat)}`}
-                  style={{ textDecoration: "none" }}
-                >
-                  <div style={{
+            {servicesLoading ? (
+              [1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
+                <div
+                  key={n}
+                  style={{
                     background: "#fff",
                     border: "1.5px solid #f1f5f9",
                     borderRadius: "20px",
                     padding: "28px 24px",
                     textAlign: "center",
-                    transition: "all 0.3s cubic-bezier(0.22,1,0.36,1)",
-                    cursor: "pointer",
                     height: "100%",
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
-                    justifyContent: "center"
-                  }} className="svc-tile">
+                    justifyContent: "center",
+                    minHeight: "180px",
+                    pointerEvents: "none"
+                  }}
+                  className="svc-tile"
+                >
+                  <div className="dx-skeleton" style={{ width: 64, height: 64, borderRadius: "18px", marginBottom: 16 }} />
+                  <div className="dx-skeleton" style={{ width: "65%", height: 18, marginBottom: 8, borderRadius: 6 }} />
+                  <div className="dx-skeleton" style={{ width: "85%", height: 13, borderRadius: 4 }} />
+                </div>
+              ))
+            ) : (
+              (services.length > 0 ? services : [
+                { id: "proctology", serviceName: "Proctology", description: "Piles, Fistula & more", iconUrl: proctologyIcon, color: "#3b82f6", bg: "#eff6ff" },
+                { id: "urology", serviceName: "Urology", description: "Kidney, Prostate & more", iconUrl: urology, color: "#8b5cf6", bg: "#f5f3ff" },
+                { id: "general-surgery", serviceName: "General Surgery", description: "Hernia, Gallstone & more", iconUrl: generalSurgeryIcon, color: "#10b981", bg: "#f0fdf4" },
+                { id: "gynecology", serviceName: "Gynecology", description: "IVF, Fibroid & more", iconUrl: Gynecology, color: "#ec4899", bg: "#fdf2f8" },
+                { id: "ent", serviceName: "ENT", description: "Sinus, Tonsil & more", iconUrl: ENT, color: "#f59e0b", bg: "#fffbeb" },
+                { id: "cosmetic", serviceName: "Cosmetic Surgery", description: "Gynecomastia, Lipo & more", iconUrl: cosmeticIcon, color: "#06b6d4", bg: "#ecfeff" },
+                { id: "orthopedics", serviceName: "Orthopedics", description: "Joint, Spine & more", iconUrl: orthopedics, color: "#6366f1", bg: "#eef2ff" },
+                { id: "neurosurgery", serviceName: "Neurosurgery", description: "Slip Disc, Sciatica & more", iconUrl: null, color: "#0f172a", bg: "#f8fafc" },
+              ]).map((cat, i) => (
+                <Reveal key={cat._id || cat.id} delay={i * 0.04}>
+                  <Link
+                    to={`/services/${getServiceSlug(cat)}`}
+                    style={{ textDecoration: "none" }}
+                  >
                     <div style={{
-                      width: 64, height: 64,
-                      background: cat.bg || "#f8fafc",
-                      borderRadius: "18px",
+                      background: "#fff",
+                      border: "1.5px solid #f1f5f9",
+                      borderRadius: "20px",
+                      padding: "28px 24px",
+                      textAlign: "center",
+                      transition: "all 0.3s cubic-bezier(0.22,1,0.36,1)",
+                      cursor: "pointer",
+                      height: "100%",
                       display: "flex",
+                      flexDirection: "column",
                       alignItems: "center",
-                      justifyContent: "center",
-                      color: cat.color || "#1e293b",
-                      marginBottom: 16,
-                      transition: "transform 0.3s ease"
-                    }} className="tile-icon">
-                      {cat.iconUrl ? (
-                        <img
-                          src={
-                            typeof cat.iconUrl === 'string' && cat.iconUrl.startsWith('http')
-                              ? cat.iconUrl
-                              : cat.iconUrl
-                          }
-                          alt={cat.serviceName}
-                          style={{ width: 32, height: 32, objectFit: "contain" }}
-                        />
-                      ) : (
-                        <Brain size={28} />
-                      )}
+                      justifyContent: "center"
+                    }} className="svc-tile">
+                      <div style={{
+                        width: 64, height: 64,
+                        background: cat.bg || "#f8fafc",
+                        borderRadius: "18px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: cat.color || "#1e293b",
+                        marginBottom: 16,
+                        transition: "transform 0.3s ease"
+                      }} className="tile-icon">
+                        {cat.iconUrl ? (
+                          <img
+                            src={
+                              typeof cat.iconUrl === 'string' && cat.iconUrl.startsWith('http')
+                                ? cat.iconUrl
+                                : cat.iconUrl
+                            }
+                            alt={cat.serviceName}
+                            style={{ width: 32, height: 32, objectFit: "contain" }}
+                          />
+                        ) : (
+                          <Brain size={28} />
+                        )}
+                      </div>
+                      <h3 style={{ fontSize: 17, fontWeight: 800, color: "#0b1f3a", marginBottom: 6 }}>{cat.serviceName || cat.title}</h3>
+                      <p style={{ fontSize: 13, color: "#64748b", fontWeight: 500 }}>{cat.shortDesc || cat.description || cat.desc}</p>
                     </div>
-                    <h3 style={{ fontSize: 17, fontWeight: 800, color: "#0b1f3a", marginBottom: 6 }}>{cat.serviceName || cat.title}</h3>
-                    <p style={{ fontSize: 13, color: "#64748b", fontWeight: 500 }}>{cat.shortDesc || cat.description || cat.desc}</p>
-                  </div>
-                </Link>
-              </Reveal>
-            ))}
+                  </Link>
+                </Reveal>
+              ))
+            )}
           </div>
         </div>
       </section >
