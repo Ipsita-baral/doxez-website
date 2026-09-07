@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { CATEGORY_ID_MAP } from '@/data/servicesData';
 import axios from 'axios';
+import { getServiceSlug, getTreatmentSlug, isServiceMatch } from '@/lib/serviceSlug';
 
 let cachedCatalog = null;
 
@@ -64,28 +65,35 @@ export default function ServicesPage() {
       const baseUrl = "";
       const response = await axios.get(`${baseUrl}/api/services/catalog`, { timeout: 8000 });
       if (response.data && response.data.success && Array.isArray(response.data.data)) {
-        // Map backend data to frontend structure
-        const mappedData = response.data.data.map(service => ({
-          ...service,
-          id: service._id,
-          title: service.serviceName,
-          treatments: (service.subServices || []).map(sub => ({
-            ...sub,
-            id: sub._id,
-            name: sub.name,
-            image: sub.image ? (sub.image.startsWith('http') ? sub.image : `${baseUrl}${sub.image}`) : ""
-          }))
-        }));
+        // Map backend data to frontend structure with SEO-friendly slugs
+        const mappedData = response.data.data.map(service => {
+          const catSlug = getServiceSlug(service);
+          return {
+            ...service,
+            id: service._id,
+            slug: catSlug,
+            title: service.serviceName,
+            treatments: (service.subServices || []).map(sub => ({
+              ...sub,
+              id: sub._id,
+              slug: getTreatmentSlug(sub),
+              name: sub.name,
+              image: sub.image ? (sub.image.startsWith('http') ? sub.image : `${baseUrl}${sub.image}`) : ""
+            }))
+          };
+        });
         cachedCatalog = mappedData;
         setServicesData(mappedData);
+      } else {
+        setServicesData([]);
       }
     } catch (error) {
       console.error("Error fetching services:", error);
-      // Auto-retry once on failure
       if (retryCount < 1) {
         setTimeout(() => fetchServices(retryCount + 1), 600);
       } else {
         setFetchError(true);
+        setServicesData([]);
       }
     } finally {
       setLoading(false);
@@ -96,8 +104,18 @@ export default function ServicesPage() {
     fetchServices();
   }, [fetchServices]);
 
-  // If a categoryId is present, find the category in fetched dynamic data
-  const activeCategory = categoryId ? matchCategory(servicesData, categoryId) : null;
+  // If a categoryId is present, find the category in fetched data by slug, id, or name
+  const activeCategory = categoryId ? servicesData.find(c => isServiceMatch(c, categoryId)) : null;
+
+  // If categoryId in URL was a raw MongoDB ID, replace URL with clean readable slug
+  React.useEffect(() => {
+    if (activeCategory && /^[0-9a-fA-F]{24}$/.test(categoryId)) {
+      const canonicalSlug = getServiceSlug(activeCategory);
+      if (canonicalSlug && canonicalSlug !== categoryId) {
+        navigate(`/services/${canonicalSlug}`, { replace: true });
+      }
+    }
+  }, [activeCategory, categoryId, navigate]);
 
   // ── CATEGORY DETAIL VIEW ──
   // If we have a categoryId, we ONLY show the Category Detail View (or the loader)
@@ -302,7 +320,7 @@ export default function ServicesPage() {
                 <div
                   key={t.id}
                   className="treat-card"
-                  onClick={() => navigate(`/services/${activeCategory.id}/${t.id}`)}
+                  onClick={() => navigate(`/services/${getServiceSlug(activeCategory)}/${getTreatmentSlug(t)}`)}
                 >
                   <div className="treat-card-img">
                     {t.image
@@ -514,11 +532,11 @@ export default function ServicesPage() {
                   {cat.treatments.map((t) => (
                     <a
                       key={t.id}
-                      href={`/services/${cat.id}/${t.id}`}
+                      href={`/services/${getServiceSlug(cat)}/${getTreatmentSlug(t)}`}
                       className="treatment-link-clinical"
                       onClick={(e) => {
                         e.preventDefault();
-                        navigate(`/services/${cat.id}/${t.id}`);
+                        navigate(`/services/${getServiceSlug(cat)}/${getTreatmentSlug(t)}`);
                       }}
                     >
                       {t.name} <ChevronRight size={16} />
@@ -527,7 +545,7 @@ export default function ServicesPage() {
                 </div>
 
                 <button
-                  onClick={() => navigate(`/services/${cat.id}`)}
+                  onClick={() => navigate(`/services/${getServiceSlug(cat)}`)}
                   style={{
                     width: "100%",
                     padding: "16px",
@@ -549,6 +567,17 @@ export default function ServicesPage() {
               </div>
             );
           })
+        ) : fetchError ? (
+          <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '60px' }}>
+            <h3 style={{ color: '#0b1f3a', fontSize: '20px', fontWeight: '800', marginBottom: '12px' }}>Unable to load services</h3>
+            <p style={{ color: '#64748b', marginBottom: '20px', fontSize: '15px' }}>We couldn't connect to the server. Please check your connection and try again.</p>
+            <button
+              onClick={() => { setLoading(true); setFetchError(false); fetchServices(); }}
+              style={{ padding: "12px 24px", color: '#fff', background: '#3b82f6', border: 'none', borderRadius: 10, fontWeight: 700, cursor: 'pointer' }}
+            >
+              Retry
+            </button>
+          </div>
         ) : (
           <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '60px' }}>
             <h3 style={{ color: '#64748b' }}>No treatments found for "{search}"</h3>

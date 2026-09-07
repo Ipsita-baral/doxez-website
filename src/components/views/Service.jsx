@@ -15,6 +15,7 @@ import generalSurgeryIconRaw from "@/assets/generalsurgery.png";
 import axios from "axios";
 // import { servicesData as localServicesData } from "@/data/servicesData";
 import { Link, useNavigate } from "@/lib/router-compat";
+import { getServiceSlug } from "@/lib/serviceSlug";
 import {
   ChevronRight, ChevronLeft, Stethoscope, Heart,
   Mic, Sparkles, ShieldPlus, Shield, Search, Mail, ArrowRight, Loader2
@@ -511,7 +512,7 @@ export default function DoxEZServicesPage() {
             <div className="svc-tiles-grid">
               {services.map((cat, i) => (
                 <Reveal key={cat.id} delay={i * 0.05}>
-                  <Link to={`/services/${cat.id}`} className="svc-tile">
+                  <Link to={`/services/${getServiceSlug(cat)}`} className="svc-tile">
                     <div className="tile-icon">
                       {cat.iconUrl ? (
                         <img src={cat.iconUrl} alt={cat.title} style={{ width: 32, height: 32, objectFit: "contain" }} />
