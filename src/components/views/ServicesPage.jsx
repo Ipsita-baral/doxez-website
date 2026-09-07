@@ -7,7 +7,7 @@ import {
   Stethoscope, Activity, Shield, Heart, Mic, Sparkles, ShieldCheck, Bone,
   ChevronRight, ArrowRight, Star, Loader2, Brain, Search, X, ChevronLeft
 } from 'lucide-react';
-import { CATEGORY_ID_MAP } from '@/data/servicesData';
+import { servicesData as localServicesData, CATEGORY_ID_MAP } from '@/data/servicesData';
 import axios from 'axios';
 import { getServiceSlug, getTreatmentSlug, isServiceMatch } from '@/lib/serviceSlug';
 
@@ -54,12 +54,12 @@ export default function ServicesPage() {
     });
   };
 
-  const initialList = cachedCatalog || [];
-  const initialActive = categoryId ? matchCategory(initialList, categoryId) : null;
+  const initialList = cachedCatalog || localServicesData || [];
+  const initialActive = categoryId ? (matchCategory(initialList, categoryId) || matchCategory(localServicesData, categoryId)) : null;
 
   const [search, setSearch] = useState(initialSearch);
   const [servicesData, setServicesData] = useState(initialList);
-  const [loading, setLoading] = useState(Boolean(!cachedCatalog));
+  const [loading, setLoading] = useState(Boolean(!cachedCatalog && !localServicesData?.length));
   const [fetchError, setFetchError] = useState(false);
 
   const fetchServices = React.useCallback(async (retryCount = 0) => {
@@ -67,7 +67,7 @@ export default function ServicesPage() {
       setFetchError(false);
       const baseUrl = "";
       const response = await axios.get(`${baseUrl}/api/services/catalog`, { timeout: 8000 });
-      if (response.data && response.data.success && Array.isArray(response.data.data)) {
+      if (response.data && response.data.success && Array.isArray(response.data.data) && response.data.data.length > 0) {
         // Map backend data to frontend structure with SEO-friendly slugs
         const mappedData = response.data.data.map(service => {
           const catSlug = getServiceSlug(service);
@@ -105,8 +105,8 @@ export default function ServicesPage() {
     fetchServices();
   }, [fetchServices]);
 
-  // If a categoryId is present, find the category in fetched dynamic data
-  const activeCategory = categoryId ? matchCategory(servicesData, categoryId) : null;
+  // If a categoryId is present, find the category in fetched dynamic data or fallback to local
+  const activeCategory = categoryId ? (matchCategory(servicesData, categoryId) || matchCategory(localServicesData, categoryId)) : null;
 
   // If categoryId in URL was a raw MongoDB ID, replace URL with clean readable slug
   React.useEffect(() => {
@@ -121,8 +121,8 @@ export default function ServicesPage() {
   // ── CATEGORY DETAIL VIEW ──
   // If we have a categoryId, we ONLY show the Category Detail View (or the loader)
   if (categoryId) {
-    // Show skeleton if actively loading OR if dynamic data hasn't arrived yet (and no fetch error)
-    if ((loading || servicesData.length === 0) && !fetchError) {
+    // Show skeleton ONLY if actively loading and no activeCategory can be resolved yet
+    if (loading && !activeCategory && !fetchError) {
       return (
         <div style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", background: "#f8fafc", minHeight: "100vh" }}>
           <style>{`

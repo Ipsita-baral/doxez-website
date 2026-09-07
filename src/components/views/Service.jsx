@@ -399,14 +399,13 @@ export default function DoxEZServicesPage() {
 
   const [email, setEmail] = useState("");
   const [services, setServices] = useState(defaultServices);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     let isMounted = true;
     const fetchServices = async () => {
       try {
-        setLoading(true);
         const baseUrl = "";
         const response = await axios.get(`${baseUrl}/api/services/catalog`);
         console.log("Backend Data for Services:::::::", response.data);
