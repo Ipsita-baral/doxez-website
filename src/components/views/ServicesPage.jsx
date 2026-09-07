@@ -66,7 +66,6 @@ export default function ServicesPage() {
     try {
       setFetchError(false);
       const baseUrl = "";
-      const response = await axios.get(`${baseUrl}/api/services/catalog`, { timeout: 8000 });
       if (response.data && response.data.success && Array.isArray(response.data.data) && response.data.data.length > 0) {
         // Map backend data to frontend structure with SEO-friendly slugs
         const mappedData = response.data.data.map(service => {
@@ -87,14 +86,16 @@ export default function ServicesPage() {
         });
         cachedCatalog = mappedData;
         setServicesData(mappedData);
+      } else {
+        setServicesData([]);
       }
     } catch (error) {
       console.error("Error fetching services:", error);
-      // Auto-retry once on failure
       if (retryCount < 1) {
         setTimeout(() => fetchServices(retryCount + 1), 600);
       } else {
         setFetchError(true);
+        setServicesData([]);
       }
     } finally {
       setLoading(false);
@@ -568,6 +569,17 @@ export default function ServicesPage() {
               </div>
             );
           })
+        ) : fetchError ? (
+          <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '60px' }}>
+            <h3 style={{ color: '#0b1f3a', fontSize: '20px', fontWeight: '800', marginBottom: '12px' }}>Unable to load services</h3>
+            <p style={{ color: '#64748b', marginBottom: '20px', fontSize: '15px' }}>We couldn't connect to the server. Please check your connection and try again.</p>
+            <button
+              onClick={() => { setLoading(true); setFetchError(false); fetchServices(); }}
+              style={{ padding: "12px 24px", color: '#fff', background: '#3b82f6', border: 'none', borderRadius: 10, fontWeight: 700, cursor: 'pointer' }}
+            >
+              Retry
+            </button>
+          </div>
         ) : (
           <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '60px' }}>
             <h3 style={{ color: '#64748b' }}>No treatments found for "{search}"</h3>
