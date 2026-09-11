@@ -309,21 +309,17 @@ export default function DoxEZServicesPage() {
     }
     .svc-tile:hover {
       transform: translateY(-10px);
-      border-color: #3b82f6 !important;
       box-shadow: 0 30px 60px -12px rgba(30, 75, 143, 0.15) !important;
     }
     .tile-icon {
-      width: 64px;
-      height: 64px;
-      background: #f8fafc;
-      border-radius: 18px;
+      width: 80px;
+      height: 80px;
       display: flex;
       align-items: center;
       justify-content: center;
       color: #1e293b;
       margin-bottom: 20px;
       transition: all 0.3s ease;
-      border: 1px solid #e2e8f0;
     }
     // .svc-tile:hover .tile-icon {
     //   transform: scale(1.1);
@@ -434,14 +430,15 @@ export default function DoxEZServicesPage() {
             else if (lowerTitle.includes('plastic') || lowerTitle.includes('cosmetic')) local = staticMap['cosmetic-surgery'];
             else if (lowerTitle.includes('orthopedic')) local = staticMap['orthopedics'];
 
+            const dynamicIcon = service.iconUrl || service.imageUrl || service.iconImage;
             return {
               ...service,
               id: service._id,
               title: service.serviceName,
               description: service.description || service.shortDesc || local.desc || "Specialized surgical care",
-              iconUrl: local.icon || (service.iconImage
-                ? (service.iconImage.startsWith('http') ? service.iconImage : `${baseUrl}${service.iconImage}`)
-                : null)
+              iconUrl: dynamicIcon
+                ? (dynamicIcon.startsWith('http') ? dynamicIcon : `${baseUrl}${dynamicIcon}`)
+                : (local.icon || null)
             };
           });
           setServices(mappedData);
@@ -514,11 +511,11 @@ export default function DoxEZServicesPage() {
                   <Link to={`/services/${getServiceSlug(cat)}`} className="svc-tile">
                     <div className="tile-icon">
                       {cat.iconUrl ? (
-                        <img src={cat.iconUrl} alt={cat.title} style={{ width: 32, height: 32, objectFit: "contain" }} />
+                        <img src={cat.iconUrl} alt={cat.title} style={{ width: 72, height: 72, objectFit: "contain" }} />
                       ) : cat.title.toLowerCase().includes('neuro') ? (
-                        <Brain size={32} />
+                        <Brain size={52} color="#1e3a5f" />
                       ) : (
-                        <Stethoscope size={32} />
+                        <Stethoscope size={52} color="#1e3a5f" />
                       )}
                     </div>
                     <h3>{cat.title}</h3>

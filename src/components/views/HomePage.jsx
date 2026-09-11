@@ -913,12 +913,10 @@ export default function HomePage() {
         }
         .svc-tile:hover {
           transform: translateY(-10px);
-          border-color: #3b82f6 !important;
           box-shadow: 0 30px 60px -12px rgba(30, 75, 143, 0.15) !important;
         }
         .svc-tile:hover .tile-icon {
           transform: scale(1.1);
-          box-shadow: 0 10px 20px rgba(59, 130, 246, 0.1);
         }
 
         .svc-icon-card:hover .svc-icon-box {
@@ -1502,7 +1500,7 @@ export default function HomePage() {
                   >
                     <div style={{
                       background: "#fff",
-                      border: "1.5px solid #f1f5f9",
+                      border: "none",
                       borderRadius: "20px",
                       padding: "28px 24px",
                       textAlign: "center",
@@ -1515,28 +1513,22 @@ export default function HomePage() {
                       justifyContent: "center"
                     }} className="svc-tile">
                       <div style={{
-                        width: 64, height: 64,
-                        background: cat.bg || "#f8fafc",
-                        borderRadius: "18px",
+                        width: 80,
+                        height: 80,
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        color: cat.color || "#1e293b",
                         marginBottom: 16,
                         transition: "transform 0.3s ease"
                       }} className="tile-icon">
-                        {cat.iconUrl ? (
+                        {(cat.iconUrl || cat.imageUrl) ? (
                           <img
-                            src={
-                              typeof cat.iconUrl === 'string' && cat.iconUrl.startsWith('http')
-                                ? cat.iconUrl
-                                : cat.iconUrl
-                            }
-                            alt={cat.serviceName}
-                            style={{ width: 32, height: 32, objectFit: "contain" }}
+                            src={cat.iconUrl || cat.imageUrl}
+                            alt={cat.serviceName || cat.title}
+                            style={{ width: 72, height: 72, objectFit: "contain" }}
                           />
                         ) : (
-                          <Brain size={28} />
+                          <Brain size={52} color="#1e3a5f" />
                         )}
                       </div>
                       <h3 style={{ fontSize: 17, fontWeight: 800, color: "#0b1f3a", marginBottom: 6 }}>{cat.serviceName || cat.title}</h3>

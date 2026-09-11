@@ -65,7 +65,8 @@ export default function ServicesPage() {
   const fetchServices = React.useCallback(async (retryCount = 0) => {
     try {
       setFetchError(false);
-      const baseUrl = "";
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || "";
+      const response = await axios.get(`${baseUrl}/api/services/catalog`);
       if (response.data && response.data.success && Array.isArray(response.data.data) && response.data.data.length > 0) {
         // Map backend data to frontend structure with SEO-friendly slugs
         const mappedData = response.data.data.map(service => {
@@ -296,8 +297,8 @@ export default function ServicesPage() {
             </button>
             <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 8 }}>
               <div style={{ width: 48, height: 48, background: "#eff6ff", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", color: "#3b82f6", flexShrink: 0, overflow: "hidden" }}>
-                {activeCategory.iconUrl ? (
-                  <img src={activeCategory.iconUrl} alt={activeCategory.title} style={{ width: "100%", height: "100%", objectFit: "contain", padding: 8 }} />
+                {(activeCategory.iconUrl || activeCategory.imageUrl) ? (
+                  <img src={activeCategory.iconUrl || activeCategory.imageUrl} alt={activeCategory.title} style={{ width: "100%", height: "100%", objectFit: "contain", padding: 8 }} />
                 ) : (
                   <IconComp size={22} />
                 )}

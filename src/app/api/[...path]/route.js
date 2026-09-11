@@ -4,7 +4,8 @@ import http from "http";
 
 const BACKEND_URL = (
   process.env.BACKEND_API_URL ||
-  "https://doxez.in"
+  process.env.NEXT_PUBLIC_API_URL ||
+  (process.env.NODE_ENV === "development" ? "http://localhost:8000" : "https://doxez.in")
 ).replace(/\/+$/, "").replace(/\/api$/, "");
 
 function proxyRequest({ url, method, headers, body }) {
@@ -28,8 +29,7 @@ function proxyRequest({ url, method, headers, body }) {
       path: targetUrl.pathname + targetUrl.search,
       method,
       headers: reqHeaders,
-      servername: targetHost,
-      rejectUnauthorized: false,
+      ...(isHttps ? { servername: targetHost, rejectUnauthorized: false } : {}),
     };
 
     const req = transport.request(options, (res) => {
