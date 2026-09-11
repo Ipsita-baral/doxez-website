@@ -152,7 +152,7 @@ export default function Footer() {
                 <Link to="/partner-onboard">Partner With Us</Link>
                 <Link to="/partner-onboard">Doctor Onboarding</Link>
                 <Link to="/ContactUs">Contact Us</Link>
-                <Link to="/faqs">FAQs</Link>
+
               </div>
             </div>
           </div>
