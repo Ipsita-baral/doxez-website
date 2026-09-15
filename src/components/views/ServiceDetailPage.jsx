@@ -6,7 +6,8 @@ import {
   CheckCircle2, XCircle, ShieldCheck, Clock, Activity,
   ChevronLeft, Loader2, Phone, MapPin, User, Stethoscope,
   Zap, HeartPulse, ShieldPlus, ArrowRight, MessageSquare, Calendar,
-  ChevronDown, ChevronUp, AlertCircle, FileText, Check, HelpCircle
+  ChevronDown, ChevronUp, AlertCircle, FileText, Check, HelpCircle,
+  Building2, GraduationCap
 } from 'lucide-react';
 import axios from 'axios';
 import { servicesData as localServicesData, CATEGORY_ID_MAP } from '@/data/servicesData';
@@ -318,6 +319,8 @@ export default function ServiceDetailPage() {
   const [dynamicTreatmentRaw, setDynamicTreatmentRaw] = useState(null);
   const [dynamicCategoryRaw, setDynamicCategoryRaw] = useState(null);
   const [fetching, setFetching] = useState(true);
+  const [specialistDoctors, setSpecialistDoctors] = useState([]);
+  const [fetchingDoctors, setFetchingDoctors] = useState(false);
 
   // UI state
   const [openFaq, setOpenFaq] = useState(0);
@@ -474,6 +477,48 @@ export default function ServiceDetailPage() {
   } : localCat || { id: categoryId, title: "Surgical Care", image: "/services/default.jpg" };
 
   const treatment = getTreatmentData(dynamicTreatmentRaw, categoryId, treatmentId, localTreatment);
+
+  // Fetch specialist doctors matching category and treatment
+  useEffect(() => {
+    let isMounted = true;
+    const loadSpecialists = async () => {
+      const catName = category?.title || categoryId || '';
+      const treatName = treatment?.name || treatmentId || '';
+      if (!catName && !treatName) return;
+
+      try {
+        setFetchingDoctors(true);
+        const res = await axios.get('/api/doctors/public', {
+          params: {
+            category: catName,
+            treatment: treatName,
+            categoryId,
+            treatmentId
+          }
+        });
+        if (isMounted && res.data?.success && Array.isArray(res.data.data)) {
+          setSpecialistDoctors(res.data.data);
+        }
+      } catch (err) {
+        console.warn('Failed to fetch specialist doctors:', err);
+      } finally {
+        if (isMounted) setFetchingDoctors(false);
+      }
+    };
+
+    loadSpecialists();
+    return () => { isMounted = false; };
+  }, [category?.title, treatment?.name, categoryId, treatmentId]);
+
+  const handleConsultDoctor = (doc) => {
+    const formEl = document.querySelector('.booking-card') || document.querySelector('form');
+    if (formEl) {
+      formEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    const inputEl = document.querySelector('.booking-input');
+    if (inputEl) inputEl.focus();
+    toast.success(`Selected ${doc.name}. Please enter your details to connect.`);
+  };
 
   const handleBookingClick = (e) => {
     e.preventDefault();
@@ -891,6 +936,108 @@ export default function ServiceDetailPage() {
           transition: background 0.2s;
           margin-top: 16px;
         }
+        /* SPECIALIST DOCTORS SECTION */
+        .doctor-cards-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+          gap: 18px;
+          margin-top: 18px;
+        }
+        .doctor-card {
+          background: #ffffff;
+          border: 1px solid #e2e8f0;
+          border-radius: 18px;
+          padding: 20px;
+          transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          position: relative;
+        }
+        .doctor-card:hover {
+          border-color: #3b82f6;
+          box-shadow: 0 12px 28px -6px rgba(59, 130, 246, 0.16);
+          transform: translateY(-3px);
+        }
+        .doctor-card-header {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          margin-bottom: 14px;
+        }
+        .doctor-avatar-img {
+          width: 58px;
+          height: 58px;
+          border-radius: 50%;
+          object-fit: cover;
+          border: 2px solid #e0e7ff;
+          flex-shrink: 0;
+        }
+        .doctor-avatar-placeholder {
+          width: 58px;
+          height: 58px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+          color: #1d4ed8;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 800;
+          font-size: 18px;
+          border: 2px solid #bfdbfe;
+          flex-shrink: 0;
+        }
+        .doctor-verified-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          padding: 2px 8px;
+          background: #ecfdf5;
+          color: #059669;
+          font-size: 11px;
+          font-weight: 700;
+          border-radius: 999px;
+          border: 1px solid #a7f3d0;
+          margin-top: 4px;
+        }
+        .doctor-details-list {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+          margin: 12px 0 16px;
+          padding-top: 12px;
+          border-top: 1px solid #f1f5f9;
+        }
+        .doctor-detail-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 12.5px;
+          color: #475569;
+          font-weight: 500;
+        }
+        .doctor-consult-btn {
+          width: 100%;
+          padding: 10px 14px;
+          background: #0b1f3a;
+          color: #ffffff;
+          border: none;
+          border-radius: 12px;
+          font-weight: 700;
+          font-size: 13px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+        }
+        .doctor-consult-btn:hover {
+          background: #2563eb;
+          box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25);
+        }
+
         .booking-btn:hover {
           background: #2563eb;
         }
@@ -1112,6 +1259,90 @@ export default function ServiceDetailPage() {
                         </p>
                       </div>
                     ))}
+                  </div>
+                </div>
+              )}
+
+              {/* ── SPECIALIST DOCTORS SECTION ── */}
+              {specialistDoctors && specialistDoctors.length > 0 && (
+                <div className="info-section">
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "8px", marginBottom: "4px" }}>
+                    <h3 style={{ margin: 0 }}>Specialist Doctors for {treatment.name}</h3>
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "12px", fontWeight: "700", color: "#2563eb", background: "#eff6ff", padding: "4px 10px", borderRadius: "999px", border: "1px solid #dbeafe" }}>
+                      <ShieldCheck size={14} color="#2563eb" /> Verified Specialists
+                    </span>
+                  </div>
+                  <p style={{ fontSize: "14px", color: "#64748b", margin: "4px 0 16px 0" }}>
+                    Experienced surgeons and medical specialists verified by DOXEZ for advanced care.
+                  </p>
+
+                  <div className="doctor-cards-grid">
+                    {specialistDoctors.map((doc) => {
+                      const initials = doc.name ? doc.name.replace(/^Dr\.\s*/i, '').split(' ').filter(Boolean).map(n => n[0]).slice(0, 2).join('').toUpperCase() : 'DR';
+                      const qualificationLine = [doc.primaryQualification, doc.specialization].filter(Boolean).join(', ');
+                      const specialtyLine = doc.specializationBranch || doc.doctorType || 'Specialist Surgeon';
+
+                      return (
+                        <div key={doc._id} className="doctor-card">
+                          <div>
+                            <div className="doctor-card-header">
+                              {doc.avatar ? (
+                                <img
+                                  src={doc.avatar}
+                                  alt={doc.name}
+                                  className="doctor-avatar-img"
+                                  onError={(e) => { e.target.style.display = 'none'; if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex'; }}
+                                />
+                              ) : null}
+                              <div className="doctor-avatar-placeholder" style={{ display: doc.avatar ? 'none' : 'flex' }}>
+                                {initials}
+                              </div>
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <h4 style={{ fontSize: "15.5px", fontWeight: "800", color: "#0b1f3a", margin: "0 0 2px 0", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                  {doc.name}
+                                </h4>
+                                <div style={{ fontSize: "12px", color: "#2563eb", fontWeight: "700", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                  {specialtyLine}
+                                </div>
+                                <span className="doctor-verified-badge">
+                                  <Check size={11} /> Verified Doctor
+                                </span>
+                              </div>
+                            </div>
+
+                            <div className="doctor-details-list">
+                              {qualificationLine && (
+                                <div className="doctor-detail-item">
+                                  <GraduationCap size={14} color="#3b82f6" />
+                                  <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{qualificationLine}</span>
+                                </div>
+                              )}
+                              {doc.totalExperience > 0 && (
+                                <div className="doctor-detail-item">
+                                  <Clock size={14} color="#3b82f6" />
+                                  <span>{doc.totalExperience}+ Years Experience</span>
+                                </div>
+                              )}
+                              {doc.workingHospital && (
+                                <div className="doctor-detail-item">
+                                  <Building2 size={14} color="#3b82f6" />
+                                  <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{doc.workingHospital}</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => handleConsultDoctor(doc)}
+                            className="doctor-consult-btn"
+                          >
+                            <Calendar size={14} />
+                            <span>Book Consultation</span>
+                          </button>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}
