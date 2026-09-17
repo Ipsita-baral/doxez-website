@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { NavLink, Link, useLocation } from "@/lib/router-compat";
-import { Phone, Mail, ChevronDown, X, Menu, Calendar, Building2, Home, Activity, Settings, Info, UserPlus, LogIn, ChevronRight, MessageSquare } from "lucide-react";
+import { Phone, Mail, ChevronDown, X, Menu, Calendar, Building2, Home, Activity, Settings, Info, UserPlus, LogIn, ChevronRight, MessageSquare, Stethoscope } from "lucide-react";
 import DoxeZRaw from "@/assets/relogo.png";
 const DoxeZ = typeof DoxeZRaw === 'object' && DoxeZRaw !== null && DoxeZRaw.src ? DoxeZRaw.src : DoxeZRaw;
 
@@ -475,6 +475,9 @@ export default function Header() {
             <NavLink to="/service" className={({ isActive }) => `nx-nav-link ${isActive ? "active" : ""}`}>Services</NavLink>
           </li>
           <li className="nx-nav-item">
+            <NavLink to="/doctors" className={({ isActive }) => `nx-nav-link ${isActive ? "active" : ""}`}>Our Doctors</NavLink>
+          </li>
+          <li className="nx-nav-item">
             <NavLink to="/HowItWorks" className={({ isActive }) => `nx-nav-link ${isActive ? "active" : ""}`}>How It Works</NavLink>
           </li>
           <li className="nx-nav-item" onMouseEnter={() => enterDrop("company")} onMouseLeave={leaveDrop}>
@@ -539,6 +542,9 @@ export default function Header() {
           </NavLink>
           <NavLink to="/service" className={({ isActive }) => `nx-mlink ${isActive ? "active" : ""}`}>
             <Activity size={20} /> Services
+          </NavLink>
+          <NavLink to="/doctors" className={({ isActive }) => `nx-mlink ${isActive ? "active" : ""}`}>
+            <Stethoscope size={20} /> Our Doctors
           </NavLink>
           <NavLink to="/HowItWorks" className={({ isActive }) => `nx-mlink ${isActive ? "active" : ""}`}>
             <Settings size={20} /> How It Works

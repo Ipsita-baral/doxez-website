@@ -497,7 +497,12 @@ export default function ServiceDetailPage() {
           }
         });
         if (isMounted && res.data?.success && Array.isArray(res.data.data)) {
-          setSpecialistDoctors(res.data.data);
+          // Exclude any anesthesiologists / anesthetists
+          const eligible = res.data.data.filter(doc => {
+            const s = `${doc.doctorType || ''} ${doc.specialization || ''} ${doc.specializationBranch || ''} ${doc.name || ''} ${doc.optionalExpertise || ''}`.toLowerCase();
+            return !/an[ae]sth/i.test(s);
+          });
+          setSpecialistDoctors(eligible);
         }
       } catch (err) {
         console.warn('Failed to fetch specialist doctors:', err);
@@ -1004,8 +1009,8 @@ export default function ServiceDetailPage() {
         .doctor-details-list {
           display: flex;
           flex-direction: column;
-          gap: 6px;
-          margin: 12px 0 16px;
+          gap: 8px;
+          margin: 12px 0 0;
           padding-top: 12px;
           border-top: 1px solid #f1f5f9;
         }
@@ -1283,13 +1288,19 @@ export default function ServiceDetailPage() {
                       const specialtyLine = doc.specializationBranch || doc.doctorType || 'Specialist Surgeon';
 
                       return (
-                        <div key={doc._id} className="doctor-card">
+                        <div
+                          key={doc._id}
+                          className="doctor-card"
+                          itemScope
+                          itemType="https://schema.org/Physician"
+                        >
                           <div>
                             <div className="doctor-card-header">
                               {doc.avatar ? (
                                 <img
                                   src={doc.avatar}
                                   alt={doc.name}
+                                  itemProp="image"
                                   className="doctor-avatar-img"
                                   onError={(e) => { e.target.style.display = 'none'; if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex'; }}
                                 />
@@ -1298,10 +1309,14 @@ export default function ServiceDetailPage() {
                                 {initials}
                               </div>
                               <div style={{ flex: 1, minWidth: 0 }}>
-                                <h4 style={{ fontSize: "15.5px", fontWeight: "800", color: "#0b1f3a", margin: "0 0 2px 0", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                <h4
+                                  itemProp="name"
+                                  style={{ fontSize: "15.5px", fontWeight: "800", color: "#0b1f3a", margin: "0 0 2px 0", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                                   {doc.name}
                                 </h4>
-                                <div style={{ fontSize: "12px", color: "#2563eb", fontWeight: "700", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                                <div
+                                  itemProp="medicalSpecialty"
+                                  style={{ fontSize: "12px", color: "#2563eb", fontWeight: "700", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
                                   {specialtyLine}
                                 </div>
                                 <span className="doctor-verified-badge">
@@ -1314,32 +1329,17 @@ export default function ServiceDetailPage() {
                               {qualificationLine && (
                                 <div className="doctor-detail-item">
                                   <GraduationCap size={14} color="#3b82f6" />
-                                  <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{qualificationLine}</span>
+                                  <span itemProp="hasCredential" style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{qualificationLine}</span>
                                 </div>
                               )}
                               {doc.totalExperience > 0 && (
                                 <div className="doctor-detail-item">
                                   <Clock size={14} color="#3b82f6" />
-                                  <span>{doc.totalExperience}+ Years Experience</span>
-                                </div>
-                              )}
-                              {doc.workingHospital && (
-                                <div className="doctor-detail-item">
-                                  <Building2 size={14} color="#3b82f6" />
-                                  <span style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{doc.workingHospital}</span>
+                                  <span itemProp="description">{doc.totalExperience}+ Years Experience</span>
                                 </div>
                               )}
                             </div>
                           </div>
-
-                          <button
-                            type="button"
-                            onClick={() => handleConsultDoctor(doc)}
-                            className="doctor-consult-btn"
-                          >
-                            <Calendar size={14} />
-                            <span>Book Consultation</span>
-                          </button>
                         </div>
                       );
                     })}

@@ -142,6 +142,7 @@ export default function Footer() {
               <div className="dx-ft-links">
                 <Link to="/">Home</Link>
                 <Link to="/service">Services</Link>
+                <Link to="/doctors">Our Doctors</Link>
                 <Link to="/HowItWorks">How It Works</Link>
                 <Link to="/about">About Us</Link>
               </div>
