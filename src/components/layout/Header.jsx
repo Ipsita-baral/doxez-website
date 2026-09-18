@@ -85,53 +85,60 @@ export default function Header() {
         /* ── MAIN FLOATING HEADER ── */
         .nx-header {
           position: fixed;
-          top: 60px;
+          top: 52px;
           left: 50%;
           transform: translateX(-50%);
           width: 95%;
-          max-width: 1200px;
-          height: 80px;
-          background: var(--bg-glass);
-          backdrop-filter: blur(16px);
-          -webkit-backdrop-filter: blur(16px);
-          border: 1px solid rgba(255,255,255,0.4);
-          border-radius: 20px;
-          box-shadow: 0 10px 40px -10px rgba(11, 31, 58, 0.08);
+          max-width: 1220px;
+          height: 72px;
+          background: rgba(255, 255, 255, 0.98);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid rgba(15, 23, 42, 0.08);
+          border-radius: 18px;
+          box-shadow: 0 10px 30px -5px rgba(11, 31, 58, 0.08), 0 2px 6px rgba(11, 31, 58, 0.02);
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0 24px;
+          padding: 0 20px;
           z-index: 1000;
-          transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+          transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .nx-header.scrolled {
           top: 0;
           left: 50%;
           transform: translateX(-50%);
           width: 95%;
-          max-width: 1200px;
-          height: 70px;
-          border-radius: 0 0 20px 20px;
-          box-shadow: 0 15px 50px -10px rgba(11, 31, 58, 0.12);
+          max-width: 1220px;
+          height: 64px;
+          border-radius: 0 0 18px 18px;
+          box-shadow: 0 12px 35px -5px rgba(11, 31, 58, 0.12);
         }
 
         /* LOGO */
-        .nx-logo img {
-          height: 90px;
-          display: block;
-          transition: height 0.4s;
+        .nx-logo {
+          display: flex;
+          align-items: center;
+          flex-shrink: 0;
         }
-        .nx-header.scrolled .nx-logo img { height: 76px; }
+        .nx-logo img {
+          height: 52px;
+          width: auto;
+          display: block;
+          transition: height 0.3s;
+        }
+        .nx-header.scrolled .nx-logo img { height: 44px; }
 
         /* DESKTOP NAV */
         .nx-nav {
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 4px;
           list-style: none;
           margin: 0; padding: 0;
+          flex-shrink: 0;
         }
-        @media(max-width: 1120px) {
+        @media(max-width: 1080px) {
           .nx-nav { display: none; }
         }
 
@@ -141,23 +148,29 @@ export default function Header() {
 
         .nx-nav-link {
           font-family: 'DM Sans', sans-serif;
-          font-size: 14.5px;
+          font-size: 14px;
           font-weight: 600;
-          color: var(--text-light);
+          color: #475569;
           text-decoration: none;
-          padding: 8px 16px;
-          border-radius: 12px;
-          display: flex;
+          padding: 8px 12px;
+          border-radius: 10px;
+          display: inline-flex;
           align-items: center;
           gap: 4px;
+          white-space: nowrap;
           transition: all 0.2s;
           cursor: pointer;
           background: transparent;
           border: none;
         }
-        .nx-nav-link:hover, .nx-nav-link.active {
+        .nx-nav-link:hover {
           color: var(--doxez-blue);
           background: rgba(11, 118, 255, 0.05);
+        }
+        .nx-nav-link.active {
+          color: var(--doxez-blue);
+          background: rgba(11, 118, 255, 0.08);
+          font-weight: 700;
         }
 
         /* DROPDOWN */
@@ -202,58 +215,61 @@ export default function Header() {
         .nx-right {
           display: flex;
           align-items: center;
-          gap: 12px;
+          gap: 10px;
+          flex-shrink: 0;
         }
 
         .nx-cta {
-          background: #ff8800;
+          background: linear-gradient(135deg, #ff8800 0%, #ea580c 100%);
           color: #fff;
           font-family: 'DM Sans', sans-serif;
-          font-size: 14.5px;
+          font-size: 14px;
           font-weight: 700;
           border: none;
-          border-radius: 12px;
-          padding: 0 24px;
-          height: 46px;
+          border-radius: 10px;
+          padding: 0 18px;
+          height: 42px;
           display: flex;
           align-items: center;
           gap: 8px;
           cursor: pointer;
           transition: all 0.2s;
-          box-shadow: 0 4px 15px rgba(255, 136, 0, 0.3);
+          box-shadow: 0 4px 14px rgba(255, 136, 0, 0.3);
+          white-space: nowrap;
         }
         .nx-cta:hover {
-          background: #e67a00;
-          transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(255, 136, 0, 0.4);
+          background: linear-gradient(135deg, #e67a00 0%, #c2410c 100%);
+          transform: translateY(-1px);
+          box-shadow: 0 6px 18px rgba(255, 136, 0, 0.4);
         }
 
         .nx-partner-btn {
           font-family: 'DM Sans', sans-serif;
-          font-size: 14.5px;
+          font-size: 13.5px;
           font-weight: 600;
           color: var(--doxez-dark);
           text-decoration: none;
-          padding: 0 16px;
-          height: 46px;
+          padding: 0 14px;
+          height: 42px;
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 6px;
           cursor: pointer;
           transition: all 0.2s;
-          border-radius: 12px;
+          border-radius: 10px;
           border: 1.5px solid rgba(11, 31, 58, 0.12);
+          white-space: nowrap;
         }
         .nx-partner-btn:hover {
           background: #f8fbff;
           border-color: var(--doxez-blue);
           color: var(--doxez-blue);
-          transform: translateY(-2px);
+          transform: translateY(-1px);
         }
 
         .nx-ham {
           display: none;
-          width: 46px; height: 46px;
+          width: 42px; height: 42px;
           background: transparent;
           color: var(--doxez-dark);
           border: none;
@@ -264,18 +280,18 @@ export default function Header() {
         }
         .nx-ham:hover { opacity: 0.7; }
 
-        @media(max-width: 1120px) {
+        @media(max-width: 1080px) {
           .nx-cta, .nx-partner-btn { display: none; }
           .nx-ham { display: flex; }
           .nx-header { padding: 0 16px; }
         }
         @media(max-width: 640px) {
           .nx-topbar { justify-content: center; padding: 0; font-size: 11px; height: 32px;}
-          .nx-header { top: 44px; height: 64px; width: 94%; border-radius: 16px;}
-          .nx-header.scrolled { top: 0; left: 50%; transform: translateX(-50%); height: 60px; width: 94%; border-radius: 0 0 16px 16px; }
-          .nx-logo img { height: 58px; }
-          .nx-header.scrolled .nx-logo img { height: 50px; }
-          .nx-ham { width: 40px; height: 40px; }
+          .nx-header { top: 40px; height: 60px; width: 94%; border-radius: 14px;}
+          .nx-header.scrolled { top: 0; left: 50%; transform: translateX(-50%); height: 56px; width: 94%; border-radius: 0 0 14px 14px; }
+          .nx-logo img { height: 42px; }
+          .nx-header.scrolled .nx-logo img { height: 38px; }
+          .nx-ham { width: 38px; height: 38px; }
         }
 
         /* ── MOBILE MENU ── */
@@ -433,9 +449,6 @@ export default function Header() {
         }
         .nx-pcard-text h4 { margin: 0; font-size: 15px; font-weight: 700; }
         .nx-pcard-text p { display: none; }
-          text-decoration: none;
-          padding: 12px 0;
-        }
 
         .nx-mob-foot {
           padding: 20px;

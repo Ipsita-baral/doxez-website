@@ -1272,7 +1272,7 @@ export default function ServiceDetailPage() {
               {specialistDoctors && specialistDoctors.length > 0 && (
                 <div className="info-section">
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "8px", marginBottom: "4px" }}>
-                    <h3 style={{ margin: 0 }}>Specialist Doctors for {treatment.name}</h3>
+                    <h3 style={{ margin: 0 }}>Meet Our Best Doctors for {treatment.name}</h3>
                     <span style={{ display: "inline-flex", alignItems: "center", gap: "6px", fontSize: "12px", fontWeight: "700", color: "#2563eb", background: "#eff6ff", padding: "4px 10px", borderRadius: "999px", border: "1px solid #dbeafe" }}>
                       <ShieldCheck size={14} color="#2563eb" /> Verified Specialists
                     </span>

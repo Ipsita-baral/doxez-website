@@ -97,6 +97,25 @@ function Reveal({ children, delay = 0, style = {} }) {
   );
 }
 
+const DEFAULT_TESTIMONIALS = [
+  {
+    name: "Dr. Samuel Jacob",
+    role: "Senior Anesthesiologist",
+    department: "",
+    msg: "DOXEZ brings a more connected and efficient approach to surgical care. The platform makes it easier to discover relevant surgical opportunities, coordinate professional commitments, and stay connected with the right healthcare ecosystem. I value its professional approach, flexibility, and responsive support, which help make day-to-day clinical coordination more seamless and organized.",
+    avatar: Arjun,
+    rating: 5
+  },
+  {
+    name: "Dr. Maria Jacob",
+    role: "Assistant Professor",
+    department: "Department of Pediatrics",
+    msg: "DOXEZ offers a modern and well-connected approach to healthcare coordination. I appreciate how the platform brings together healthcare professionals and opportunities through a streamlined digital experience. Its professional approach, ease of coordination, and consistent support make it a valuable platform for managing professional engagements while staying connected with the evolving healthcare ecosystem.",
+    avatar: Priya,
+    rating: 5
+  }
+];
+
 export default function HomePage() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
@@ -111,6 +130,37 @@ export default function HomePage() {
   const [services, setServices] = useState([]);
   const [servicesLoading, setServicesLoading] = useState(true);
   const scrollRef = useRef(null);
+  const [testimonials, setTestimonials] = useState(DEFAULT_TESTIMONIALS);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchTestimonials = async () => {
+      try {
+        const res = await axios.get('/api/testimonials/public');
+        if (res.data?.data && Array.isArray(res.data.data) && res.data.data.length > 0 && isMounted) {
+          const formatted = res.data.data.map(item => {
+            let avatar = item.avatar;
+            if (!avatar) {
+              avatar = item.name?.toLowerCase().includes('maria') ? Priya : Arjun;
+            }
+            return {
+              name: item.name,
+              role: item.role,
+              department: item.department || '',
+              msg: item.message || item.msg,
+              avatar: avatar,
+              rating: item.rating || 5
+            };
+          });
+          setTestimonials(formatted);
+        }
+      } catch (err) {
+        console.error('Failed to fetch testimonials from API, using default fallback:', err);
+      }
+    };
+    fetchTestimonials();
+    return () => { isMounted = false; };
+  }, []);
 
   const getTodayDateStr = () => {
     const today = new Date();
@@ -842,6 +892,9 @@ export default function HomePage() {
           min-width: 350px;
           flex-shrink: 0; 
           scroll-snap-align: start;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
         }
         .t-card:hover { border-color: #dbeafe; transform: translateY(-8px); box-shadow: 0 20px 50px -12px rgba(30,75,143,0.1); }
         .t-stars { color: #f59e0b; display: flex; gap: 4px; margin-bottom: 12px; }
@@ -1813,27 +1866,58 @@ export default function HomePage() {
             </button>
 
             <div className="testimonial-slider" ref={scrollRef}>
-              {[
-                { name: "Dr. Priya Sharma", role: "Cardiologist", msg: "The best platform for locum doctors in India. I was matched with a high-intensity department in under 4 hours.", avatar: Priya, rating: 5 },
-                { name: "Dr. Arjun Mehta", role: "Anaesthesiologist", msg: "Transparent billing and instant payouts. Doxez has completely changed how I manage my professional shifts.", avatar: Arjun, rating: 5 },
-                // { name: "Dr. Sneha Patel", role: "Pediatrician", msg: "Verified credentials mean hospitals trust me instantly. I focus on patient care while Doxez handles the rest.", avatar: sneha, rating: 5 },
-                { name: "Dr. Vikram Singh", role: "Orthopedic Surgeon", msg: "Finding high-quality surgical cases has never been easier. The platform's interface is intuitive and the support is top-notch.", avatar: Vikram, rating: 5 },
-                { name: "Dr. Ananya Iyer", role: "General Surgeon", msg: "Doxez provides the flexibility I need to balance my private practice with additional surgical opportunities.", avatar: Ananya, rating: 5 }
-              ].map((t, i) => (
-                <div className="t-card" key={i}>
-                  <div className="t-stars">
-                    {[...Array(t.rating)].map((_, j) => <Star key={j} size={16} fill="#f59e0b" />)}
-                  </div>
-                  <p className="t-msg">"{t.msg}"</p>
-                  <div className="t-user">
-                    <img src={t.avatar} alt={t.name} style={{ width: 44, height: 44, borderRadius: "50%", objectFit: "cover" }} />
+              {testimonials.map((t, i) => {
+                const avatarSrc = t.avatar
+                  ? (typeof t.avatar === 'string' && (t.avatar.startsWith('http') || t.avatar.startsWith('/')))
+                    ? t.avatar
+                    : t.avatar
+                  : null;
+
+                return (
+                  <div className="t-card" key={i}>
                     <div>
-                      <h4 style={{ fontSize: 15, fontWeight: 800, color: "#0b1f3a" }}>{t.name}</h4>
-                      <p style={{ fontSize: 12, color: "#6b7280", margin: "0px 0 2px" }}>{t.role}</p>
+                      <div className="t-stars">
+                        {[...Array(t.rating || 5)].map((_, j) => <Star key={j} size={16} fill="#f59e0b" />)}
+                      </div>
+                      <p className="t-msg">"{t.msg || t.message}"</p>
+                    </div>
+                    <div className="t-user">
+                      {avatarSrc ? (
+                        <img
+                          src={avatarSrc}
+                          alt={t.name}
+                          style={{ width: 44, height: 44, borderRadius: "50%", objectFit: "cover" }}
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(t.name) + '&background=0284c7&color=fff';
+                          }}
+                        />
+                      ) : (
+                        <div style={{
+                          width: 44,
+                          height: 44,
+                          borderRadius: "50%",
+                          background: "#0284c7",
+                          color: "#fff",
+                          fontWeight: 700,
+                          fontSize: 14,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center"
+                        }}>
+                          {t.name ? t.name.split(' ').map(n => n[0]).filter(Boolean).slice(0, 2).join('') : 'DR'}
+                        </div>
+                      )}
+                      <div>
+                        <h4 style={{ fontSize: 15, fontWeight: 800, color: "#0b1f3a" }}>{t.name}</h4>
+                        <p style={{ fontSize: 12, color: "#6b7280", margin: "0px 0 2px" }}>
+                          {t.role}{t.department ? ' • ' + t.department : ''}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>

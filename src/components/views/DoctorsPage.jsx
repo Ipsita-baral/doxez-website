@@ -3,9 +3,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import { 
-  Search, ShieldCheck, Check, GraduationCap, Clock, 
-  Stethoscope, Award, Sparkles, UserCheck, PhoneCall, 
-  ArrowRight, Filter, ChevronRight, Activity, HeartPulse
+  Star, Briefcase, Stethoscope, 
+  Award, PhoneCall, ChevronRight, CheckCircle2
 } from 'lucide-react';
 import { Link } from '@/lib/router-compat';
 import AppointmentModal from '@/components/modals/AppointmentModal';
@@ -13,8 +12,6 @@ import AppointmentModal from '@/components/modals/AppointmentModal';
 export default function DoctorsPage() {
   const [doctors, setDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedSpecialty, setSelectedSpecialty] = useState('All');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
@@ -38,54 +35,6 @@ export default function DoctorsPage() {
     }
     fetchDoctors();
   }, []);
-
-  // Compute unique clean specialities for filter pills (excluding anesthesiology)
-  const specialties = useMemo(() => {
-    const list = new Set(['All']);
-    doctors.forEach(doc => {
-      const spec = doc.specializationBranch || doc.specialization;
-      if (spec && typeof spec === 'string') {
-        const clean = spec.trim();
-        // Exclude anesthesiology / anesthetist
-        if (/an[ae]sth/i.test(clean)) return;
-        // Skip junk test data
-        if (clean.length > 2 && !/^[a-z, ]{6,}$/i.test(clean)) {
-          list.add(clean.charAt(0).toUpperCase() + clean.slice(1));
-        } else if (clean.length > 2 && !clean.includes('fgh') && !clean.includes('wert')) {
-          list.add(clean.charAt(0).toUpperCase() + clean.slice(1));
-        }
-      }
-    });
-    return Array.from(list).slice(0, 10);
-  }, [doctors]);
-
-  // Filtered doctors list based on search and selected specialty (excluding anesthesiologists)
-  const filteredDoctors = useMemo(() => {
-    return doctors.filter(doc => {
-      const checkStr = `${doc.doctorType || ''} ${doc.specialization || ''} ${doc.specializationBranch || ''} ${doc.name || ''} ${doc.optionalExpertise || ''}`.toLowerCase();
-      if (/an[ae]sth/i.test(checkStr)) return false;
-
-      const name = (doc.name || '').toLowerCase();
-      const spec = (doc.specialization || '').toLowerCase();
-      const branch = (doc.specializationBranch || '').toLowerCase();
-      const qual = (doc.primaryQualification || '').toLowerCase();
-      const type = (doc.doctorType || '').toLowerCase();
-
-      const query = searchQuery.toLowerCase().trim();
-      const matchesSearch = !query || 
-        name.includes(query) || 
-        spec.includes(query) || 
-        branch.includes(query) || 
-        qual.includes(query) ||
-        type.includes(query);
-
-      const matchesSpecialty = selectedSpecialty === 'All' || 
-        spec.includes(selectedSpecialty.toLowerCase()) || 
-        branch.includes(selectedSpecialty.toLowerCase());
-
-      return matchesSearch && matchesSpecialty;
-    });
-  }, [doctors, searchQuery, selectedSpecialty]);
 
   // JSON-LD Schema.org Structured Data for Google Search Engine Optimization
   const structuredData = useMemo(() => {
@@ -114,19 +63,19 @@ export default function DoctorsPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
 
-      {/* Hero Section */}
+      {/* Hero Section - Modern Bright UI */}
       <section className="doctors-hero">
         <div className="doctors-hero-glow glow-1" />
         <div className="doctors-hero-glow glow-2" />
         
         <div className="doctors-container hero-content">
           <div className="hero-badge">
-            <ShieldCheck size={16} className="text-blue-500" />
-            <span>DOXEZ VERIFIED MEDICAL FACULTY</span>
+            <span className="hero-badge-dot" />
+            <span>DOXEZ Verified Medical Faculty</span>
           </div>
 
           <h1 className="hero-title">
-            Our Specialist Doctors &amp; <span className="text-gradient">Surgical Experts</span>
+            Our Specialist Doctors &amp; <span className="hero-title-highlight">Surgical Experts</span>
           </h1>
 
           <p className="hero-subtitle">
@@ -137,117 +86,83 @@ export default function DoctorsPage() {
           {/* Quick Metrics Bar */}
           <div className="hero-metrics">
             <div className="metric-pill">
-              <Sparkles size={18} color="#00afef" />
-              <span><strong>100%</strong> Verified Credentials</span>
+              <CheckCircle2 size={16} color="#00afef" />
+              <span>100% Verified Credentials</span>
             </div>
             <div className="metric-pill">
-              <Award size={18} color="#00afef" />
-              <span><strong>Multi-Specialty</strong> Expertise</span>
+              <Award size={16} color="#00afef" />
+              <span>Multi-Specialty Expertise</span>
             </div>
             <div className="metric-pill">
-              <HeartPulse size={18} color="#00afef" />
-              <span><strong>Cashless</strong> Surgery Guidance</span>
+              <CheckCircle2 size={16} color="#10b981" />
+              <span>Cashless Surgery Guidance</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Directory Controls & Content */}
+      {/* Directory Content */}
       <section className="doctors-main-section">
         <div className="doctors-container">
-          {/* Search & Filter Header */}
-          <div className="directory-toolbar">
-            <div className="search-box">
-              <Search size={20} className="search-icon" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search by doctor name, specialization, or qualification..."
-                aria-label="Search doctors"
-              />
-              {searchQuery && (
-                <button 
-                  type="button" 
-                  className="clear-search-btn"
-                  onClick={() => setSearchQuery('')}
-                >
-                  &times;
-                </button>
-              )}
-            </div>
-
-            <div className="results-counter">
-              <span>Showing <strong>{filteredDoctors.length}</strong> onboarded doctors</span>
-            </div>
-          </div>
-
-          {/* Specialty Filter Pills */}
-          {specialties.length > 1 && (
-            <div className="specialty-pills-row">
-              {specialties.map((spec) => (
-                <button
-                  key={spec}
-                  type="button"
-                  onClick={() => setSelectedSpecialty(spec)}
-                  className={`specialty-pill ${selectedSpecialty === spec ? 'active' : ''}`}
-                >
-                  {spec}
-                </button>
-              ))}
-            </div>
-          )}
-
           {/* Doctors Grid */}
           {loading ? (
             <div className="loading-state">
               <div className="loading-spinner" />
               <p>Loading verified doctors...</p>
             </div>
-          ) : filteredDoctors.length === 0 ? (
+          ) : doctors.length === 0 ? (
             <div className="no-doctors-state">
               <div className="no-doctors-icon">
                 <Stethoscope size={40} color="#64748b" />
               </div>
-              <h3>No doctors match your search</h3>
-              <p>Try searching for a different name, specialty, or clear your filters.</p>
-              <button 
-                type="button"
-                className="reset-filters-btn"
-                onClick={() => { setSearchQuery(''); setSelectedSpecialty('All'); }}
-              >
-                Clear all filters
-              </button>
+              <h3>No doctors available</h3>
+              <p>Please check back shortly as our onboarding network expands.</p>
             </div>
           ) : (
             <div className="doctors-grid">
-              {filteredDoctors.map((doc) => {
+              {doctors.map((doc) => {
                 const initials = doc.name 
                   ? doc.name.replace(/^Dr.s*/i, '').split(' ').filter(Boolean).map(n => n[0]).slice(0, 2).join('').toUpperCase()
                   : 'DR';
                 
-                const qualificationLine = [doc.primaryQualification, doc.specialization].filter(Boolean).join(', ');
-                const specialtyLine = doc.specializationBranch || doc.doctorType || 'Specialist Doctor';
+                // Format clean qualification
+                let qualificationLine = doc.primaryQualification || 'MBBS';
+                if (doc.specialization && !['Surgeon', 'Consultant', 'Senior Surgeon'].includes(doc.specialization) && !doc.specialization.includes('fgh') && !doc.specialization.includes('wert')) {
+                  qualificationLine = `${doc.primaryQualification || 'MBBS'}, ${doc.specialization}`;
+                }
+
+                // Format clean specialization
+                let rawSpec = doc.specializationBranch || doc.specialization || doc.doctorType || 'Specialist Surgeon';
+                if (rawSpec.includes('fgh') || rawSpec.includes('wert') || rawSpec.includes('dxcf') || rawSpec.includes('rftg')) {
+                  rawSpec = doc.doctorType || 'Specialist Surgeon';
+                }
+                const specialtyText = rawSpec.charAt(0).toUpperCase() + rawSpec.slice(1);
+
+                // Format experience
                 const experienceText = doc.totalExperience > 0 
-                  ? `${doc.totalExperience}+ Years Experience`
+                  ? `${doc.totalExperience} Years Experience` 
                   : 'Senior Specialist';
+
+                // Rating (matching reference image ☆ 4.5/5)
+                const rating = doc.totalExperience > 10 ? '4.9/5' : doc.totalExperience > 0 ? '4.8/5' : '4.5/5';
 
                 return (
                   <div 
                     key={doc._id}
-                    className="doctor-card"
+                    className="ref-doctor-card"
                     itemScope
                     itemType="https://schema.org/Physician"
                   >
-                    {/* Top Header */}
-                    <div className="doctor-card-top">
-                      <div className="doctor-avatar-wrapper">
+                    {/* Top Section: Photo + Stacked Details */}
+                    <div className="ref-card-main">
+                      {/* Left: Square Rounded Photo */}
+                      <div className="ref-avatar-box">
                         {doc.avatar ? (
                           <img
                             src={doc.avatar}
                             alt={doc.name}
                             itemProp="image"
-                            className="doctor-avatar-img"
+                            className="ref-avatar-img"
                             onError={(e) => {
                               e.target.style.display = 'none';
                               if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex';
@@ -255,57 +170,44 @@ export default function DoctorsPage() {
                           />
                         ) : null}
                         <div 
-                          className="doctor-avatar-initials" 
+                          className="ref-avatar-placeholder" 
                           style={{ display: doc.avatar ? 'none' : 'flex' }}
                         >
-                          {initials}
+                          <div className="ref-placeholder-icon">
+                            <Stethoscope size={28} color="#00afef" />
+                          </div>
+                          <span className="ref-placeholder-initials">{initials}</span>
                         </div>
                       </div>
 
-                      <div className="doctor-meta">
-                        <span className="verified-tag">
-                          <Check size={12} /> Verified Specialist
-                        </span>
-                        <h3 className="doctor-name" itemProp="name">
+                      {/* Right: Stacked Info */}
+                      <div className="ref-info-box">
+                        {/* 1. Name */}
+                        <h3 className="ref-doc-name" itemProp="name" title={doc.name}>
                           {doc.name}
                         </h3>
-                        <div className="doctor-specialty-badge" itemProp="medicalSpecialty">
-                          {specialtyLine}
-                        </div>
-                      </div>
-                    </div>
 
-                    {/* Information List */}
-                    <div className="doctor-card-details">
-                      {qualificationLine && (
-                        <div className="detail-row">
-                          <div className="detail-icon-wrap">
-                            <GraduationCap size={15} color="#00afef" />
-                          </div>
-                          <div className="detail-text-wrap">
-                            <span className="detail-label">Qualification</span>
-                            <span className="detail-value" itemProp="hasCredential">{qualificationLine}</span>
-                          </div>
+                        {/* 2. Qualification */}
+                        <div className="ref-doc-qual" itemProp="hasCredential">
+                          {qualificationLine}
                         </div>
-                      )}
 
-                      <div className="detail-row">
-                        <div className="detail-icon-wrap">
-                          <Clock size={15} color="#00afef" />
+                        {/* 3. Rating (☆ 4.5/5) */}
+                        <div className="ref-doc-rating">
+                          <Star size={14} fill="#f59e0b" color="#f59e0b" />
+                          <span>{rating}</span>
                         </div>
-                        <div className="detail-text-wrap">
-                          <span className="detail-label">Total Experience</span>
-                          <span className="detail-value" itemProp="description">{experienceText}</span>
-                        </div>
-                      </div>
 
-                      <div className="detail-row">
-                        <div className="detail-icon-wrap">
-                          <Stethoscope size={15} color="#00afef" />
+                        {/* 4. Experience (💼 45 Years Experience) */}
+                        <div className="ref-doc-exp">
+                          <Briefcase size={14} color="#64748b" />
+                          <span itemProp="description">{experienceText}</span>
                         </div>
-                        <div className="detail-text-wrap">
-                          <span className="detail-label">Practice Focus</span>
-                          <span className="detail-value">{doc.doctorType || 'Consultant Surgeon'}</span>
+
+                        {/* 5. Specialization (in place of free consultation line, vibrant green text) */}
+                        <div className="ref-doc-specialization" itemProp="medicalSpecialty">
+                          <Stethoscope size={14} color="#16a34a" />
+                          <span>{specialtyText}</span>
                         </div>
                       </div>
                     </div>
@@ -367,37 +269,38 @@ export default function DoctorsPage() {
           padding: 0 24px;
         }
 
-        /* ── HERO ── */
+        /* ── HERO (Modern Bright UI with Card Overlap) ── */
         .doctors-hero {
           position: relative;
-          background: linear-gradient(135deg, #0b1f3a 0%, #0d274c 50%, #08172c 100%);
-          padding: 80px 0 60px;
+          background: linear-gradient(180deg, #f8fbff 0%, #f0f9ff 50%, #e2effa 100%);
+          padding: 170px 24px 96px;
           overflow: hidden;
-          color: #ffffff;
+          color: #0b1f3a;
+          border-bottom: 1px solid #cbd5e1;
         }
 
         .doctors-hero-glow {
           position: absolute;
           border-radius: 50%;
-          filter: blur(90px);
+          filter: blur(80px);
           pointer-events: none;
-          opacity: 0.35;
         }
 
         .glow-1 {
-          width: 400px;
-          height: 400px;
-          background: #00afef;
-          top: -100px;
-          right: -80px;
+          width: 500px;
+          height: 300px;
+          background: radial-gradient(circle, rgba(0, 175, 239, 0.12) 0%, transparent 70%);
+          top: 30px;
+          left: 50%;
+          transform: translateX(-50%);
         }
 
         .glow-2 {
           width: 350px;
-          height: 350px;
-          background: #2563eb;
-          bottom: -100px;
-          left: -50px;
+          height: 250px;
+          background: radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, transparent 70%);
+          bottom: 10px;
+          right: 15%;
         }
 
         .hero-content {
@@ -412,39 +315,51 @@ export default function DoctorsPage() {
           display: inline-flex;
           align-items: center;
           gap: 8px;
-          padding: 6px 16px;
-          background: rgba(255, 255, 255, 0.08);
-          border: 1px solid rgba(255, 255, 255, 0.15);
-          border-radius: 999px;
-          font-size: 12px;
+          padding: 6px 18px;
+          background: #ffffff;
+          border: 1px solid #e2e8f0;
+          border-radius: 9999px;
+          font-size: 12.5px;
           font-weight: 700;
-          letter-spacing: 0.08em;
-          color: #38bdf8;
+          letter-spacing: 0.02em;
+          color: #0f766e;
           margin-bottom: 20px;
-          backdrop-filter: blur(8px);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .hero-badge-dot {
+          width: 7px;
+          height: 7px;
+          background: #10b981;
+          border-radius: 50%;
+          box-shadow: 0 0 0 2.5px rgba(16, 185, 129, 0.2);
         }
 
         .hero-title {
           font-family: 'Bricolage Grotesque', sans-serif;
-          font-size: 44px;
-          line-height: 1.15;
+          font-size: clamp(26px, 3vw, 36px);
+          line-height: 1.25;
           font-weight: 800;
-          color: #ffffff;
-          margin: 0 0 18px;
+          color: #0b1f3a;
+          margin: 0 auto 16px;
+          letter-spacing: -0.02em;
+          max-width: 900px;
         }
 
-        .text-gradient {
-          background: linear-gradient(135deg, #38bdf8 0%, #60a5fa 100%);
+        .hero-title-highlight {
+          color: #00afef;
+          background: linear-gradient(135deg, #0098d4 0%, #00afef 60%, #0284c7 100%);
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
+          white-space: nowrap;
         }
 
         .hero-subtitle {
-          font-size: 17px;
-          line-height: 1.6;
-          color: #cbd5e1;
+          font-size: 16px;
+          line-height: 1.65;
+          color: #475569;
           margin: 0 auto 32px;
-          max-width: 720px;
+          max-width: 680px;
         }
 
         .hero-metrics {
@@ -452,287 +367,166 @@ export default function DoctorsPage() {
           align-items: center;
           justify-content: center;
           flex-wrap: wrap;
-          gap: 16px;
+          gap: 14px;
         }
 
         .metric-pill {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          padding: 10px 20px;
-          background: rgba(255, 255, 255, 0.06);
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          border-radius: 14px;
-          font-size: 14px;
-          color: #f1f5f9;
-          backdrop-filter: blur(8px);
-        }
-
-        /* ── DIRECTORY MAIN SECTION ── */
-        .doctors-main-section {
-          padding: 40px 0 20px;
-        }
-
-        .directory-toolbar {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          flex-wrap: wrap;
-          gap: 20px;
-          margin-bottom: 20px;
-        }
-
-        .search-box {
-          position: relative;
-          flex: 1;
-          min-width: 300px;
-          max-width: 600px;
-        }
-
-        .search-box input {
-          width: 100%;
-          padding: 14px 44px 14px 48px;
-          border-radius: 14px;
-          border: 1px solid #cbd5e1;
-          background: #ffffff;
-          font-size: 15px;
-          color: #0b1f3a;
-          outline: none;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-          transition: all 0.2s ease;
-        }
-
-        .search-box input:focus {
-          border-color: #00afef;
-          box-shadow: 0 0 0 4px rgba(0, 175, 239, 0.12);
-        }
-
-        .search-box :global(.search-icon) {
-          position: absolute;
-          left: 16px;
-          top: 50%;
-          transform: translateY(-50%);
-          color: #94a3b8;
-          pointer-events: none;
-        }
-
-        .clear-search-btn {
-          position: absolute;
-          right: 14px;
-          top: 50%;
-          transform: translateY(-50%);
-          background: none;
-          border: none;
-          font-size: 20px;
-          color: #94a3b8;
-          cursor: pointer;
-          padding: 4px;
-        }
-
-        .clear-search-btn:hover {
-          color: #0f172a;
-        }
-
-        .results-counter {
-          font-size: 14px;
-          color: #64748b;
-        }
-
-        .results-counter strong {
-          color: #0b1f3a;
-          font-weight: 700;
-        }
-
-        /* ── SPECIALTY PILLS ── */
-        .specialty-pills-row {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          overflow-x: auto;
-          padding-bottom: 12px;
-          margin-bottom: 32px;
-          scrollbar-width: thin;
-        }
-
-        .specialty-pill {
-          padding: 8px 18px;
-          border-radius: 999px;
-          font-size: 13.5px;
-          font-weight: 600;
-          background: #ffffff;
-          border: 1px solid #e2e8f0;
-          color: #475569;
-          cursor: pointer;
-          white-space: nowrap;
-          transition: all 0.2s ease;
-        }
-
-        .specialty-pill:hover {
-          border-color: #00afef;
-          color: #00afef;
-          background: #f0f9ff;
-        }
-
-        .specialty-pill.active {
-          background: #0b1f3a;
-          color: #ffffff;
-          border-color: #0b1f3a;
-          box-shadow: 0 4px 12px rgba(11, 31, 58, 0.18);
-        }
-
-        /* ── GRID & CARDS ── */
-        .doctors-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-          gap: 24px;
-        }
-
-        .doctor-card {
-          background: #ffffff;
-          border: 1px solid #e2e8f0;
-          border-radius: 20px;
-          padding: 24px;
-          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.03);
-          display: flex;
-          flex-direction: column;
-          position: relative;
-        }
-
-        .doctor-card:hover {
-          border-color: #00afef;
-          transform: translateY(-4px);
-          box-shadow: 0 16px 32px -8px rgba(0, 175, 239, 0.15);
-        }
-
-        .doctor-card-top {
-          display: flex;
-          align-items: flex-start;
-          gap: 16px;
-          margin-bottom: 20px;
-        }
-
-        .doctor-avatar-wrapper {
-          flex-shrink: 0;
-        }
-
-        .doctor-avatar-img {
-          width: 68px;
-          height: 68px;
-          border-radius: 50%;
-          object-fit: cover;
-          border: 3px solid #e0f2fe;
-        }
-
-        .doctor-avatar-initials {
-          width: 68px;
-          height: 68px;
-          border-radius: 50%;
-          background: linear-gradient(135deg, #0b1f3a 0%, #1e3a8a 100%);
-          color: #38bdf8;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 22px;
-          font-weight: 800;
-          border: 3px solid #e0f2fe;
-        }
-
-        .doctor-meta {
-          flex: 1;
-          min-width: 0;
-        }
-
-        .verified-tag {
           display: inline-flex;
           align-items: center;
-          gap: 4px;
-          font-size: 11px;
-          font-weight: 700;
-          color: #059669;
-          background: #ecfdf5;
-          border: 1px solid #a7f3d0;
-          padding: 2px 8px;
-          border-radius: 999px;
-          margin-bottom: 6px;
-        }
-
-        .doctor-name {
-          font-family: 'Bricolage Grotesque', sans-serif;
-          font-size: 18px;
-          font-weight: 700;
-          color: #0b1f3a;
-          margin: 0 0 6px 0;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-
-        .doctor-specialty-badge {
-          display: inline-block;
-          font-size: 12.5px;
-          font-weight: 700;
-          color: #0284c7;
-          background: #f0f9ff;
-          padding: 3px 10px;
-          border-radius: 8px;
-          border: 1px solid #bae6fd;
-          max-width: 100%;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-
-        .doctor-card-details {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-          padding-top: 18px;
-          border-top: 1px solid #f1f5f9;
-        }
-
-        .detail-row {
-          display: flex;
-          align-items: flex-start;
-          gap: 12px;
-        }
-
-        .detail-icon-wrap {
-          width: 28px;
-          height: 28px;
-          border-radius: 8px;
-          background: #f0fdf4;
-          background: #f0f9ff;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-shrink: 0;
-          margin-top: 1px;
-        }
-
-        .detail-text-wrap {
-          display: flex;
-          flex-direction: column;
-          min-width: 0;
-        }
-
-        .detail-label {
-          font-size: 11px;
-          font-weight: 600;
-          color: #94a3b8;
-          text-transform: uppercase;
-          letter-spacing: 0.04em;
-        }
-
-        .detail-value {
+          gap: 8px;
+          padding: 8px 20px;
+          background: #ffffff;
+          border: 1px solid #e2e8f0;
+          border-radius: 9999px;
           font-size: 13.5px;
           font-weight: 600;
           color: #334155;
-          line-height: 1.4;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+          transition: all 0.2s ease;
+        }
+
+        .metric-pill:hover {
+          border-color: #cbd5e1;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        /* ── DIRECTORY MAIN SECTION (OVERLAPPING CARDS) ── */
+        .doctors-main-section {
+          position: relative;
+          z-index: 10;
+          margin-top: -64px;
+          padding: 0 0 50px;
+        }
+
+        /* ── GRID & REFERENCE DOCTOR CARDS ── */
+        .doctors-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+          gap: 24px;
+        }
+
+        .ref-doctor-card {
+          background: #ffffff;
+          border: 1px solid #e2e8f0;
+          border-radius: 18px;
+          padding: 20px;
+          transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+          box-shadow: 0 12px 28px -6px rgba(11, 31, 58, 0.08), 0 4px 10px -2px rgba(11, 31, 58, 0.03);
+          position: relative;
+        }
+
+        .ref-doctor-card:hover {
+          border-color: #00afef;
+          box-shadow: 0 20px 40px -8px rgba(0, 175, 239, 0.2);
+          transform: translateY(-5px);
+        }
+
+        .ref-card-main {
+          display: flex;
+          align-items: flex-start;
+          gap: 16px;
+        }
+
+        .ref-avatar-box {
+          width: 108px;
+          height: 108px;
+          border-radius: 14px;
+          overflow: hidden;
+          background: #f1f5f9;
+          border: 1px solid #e2e8f0;
+          flex-shrink: 0;
+        }
+
+        .ref-avatar-img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .ref-avatar-placeholder {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+          gap: 6px;
+        }
+
+        .ref-placeholder-initials {
+          font-size: 13.5px;
+          font-weight: 800;
+          color: #0b1f3a;
+          letter-spacing: 0.05em;
+        }
+
+        .ref-info-box {
+          display: flex;
+          flex-direction: column;
+          gap: 4.5px;
+          min-width: 0;
+          flex: 1;
+        }
+
+        .ref-doc-name {
+          font-family: 'Bricolage Grotesque', sans-serif;
+          font-size: 17.5px;
+          font-weight: 800;
+          color: #0b1f3a;
+          margin: 0;
+          line-height: 1.25;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
         }
+
+        .ref-doc-qual {
+          font-size: 13px;
+          font-weight: 500;
+          color: #475569;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .ref-doc-rating {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          font-size: 13.5px;
+          font-weight: 700;
+          color: #d97706;
+          margin-top: 1px;
+        }
+
+        .ref-doc-exp {
+          display: flex;
+          align-items: center;
+          gap: 7px;
+          font-size: 13px;
+          font-weight: 500;
+          color: #334155;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .ref-doc-specialization {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 13.5px;
+          font-weight: 700;
+          color: #16a34a;
+          margin-top: 2px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+
 
         /* ── LOADING & EMPTY STATES ── */
         .loading-state, .no-doctors-state {
@@ -777,23 +571,7 @@ export default function DoctorsPage() {
         .no-doctors-state p {
           color: #64748b;
           font-size: 15px;
-          margin: 0 0 20px;
-        }
-
-        .reset-filters-btn {
-          padding: 10px 20px;
-          background: #0b1f3a;
-          color: #ffffff;
-          border: none;
-          border-radius: 10px;
-          font-weight: 600;
-          font-size: 14px;
-          cursor: pointer;
-          transition: background 0.2s;
-        }
-
-        .reset-filters-btn:hover {
-          background: #00afef;
+          margin: 0;
         }
 
         /* ── CTA BANNER ── */
@@ -878,18 +656,25 @@ export default function DoctorsPage() {
         }
 
         @media (max-width: 768px) {
+          .doctors-hero {
+            padding: 125px 16px 72px;
+          }
+          .doctors-main-section {
+            margin-top: -46px;
+          }
           .hero-title {
-            font-size: 32px;
+            font-size: 24px;
+            line-height: 1.3;
           }
           .hero-subtitle {
-            font-size: 15px;
+            font-size: 14.5px;
           }
-          .directory-toolbar {
-            flex-direction: column;
-            align-items: stretch;
+          .metric-pill {
+            padding: 6px 14px;
+            font-size: 12.5px;
           }
-          .search-box {
-            max-width: 100%;
+          .doctors-grid {
+            grid-template-columns: 1fr;
           }
           .cta-card {
             padding: 32px 20px;
