@@ -414,14 +414,17 @@ export default function DoctorsPage() {
                 and location to connect you with the ideal verified surgeon.
               </p>
               <div className="cta-actions">
-                <button 
-                  type="button" 
-                  onClick={() => setIsModalOpen(true)}
+                <Link 
+                  to="/book-appointment" 
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setIsModalOpen(true);
+                  }}
                   className="cta-btn-primary"
                 >
                   <PhoneCall size={16} />
                   <span>Talk to Care Coordinator</span>
-                </button>
+                </Link>
                 <Link to="/ContactUs" className="cta-btn-secondary">
                   <span>Contact DOXEZ</span>
                   <ChevronRight size={16} />
@@ -986,6 +989,7 @@ export default function DoctorsPage() {
           cursor: pointer;
           transition: all 0.2s ease;
           box-shadow: 0 4px 14px rgba(0, 175, 239, 0.35);
+          text-decoration: none;
         }
 
         .cta-btn-primary:hover {

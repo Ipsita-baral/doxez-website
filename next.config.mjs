@@ -34,9 +34,13 @@ const nextConfig = {
         destination: "/partner-onboard",
         permanent: true,
       },
+      {
+        source: "/appointment",
+        destination: "/book-appointment",
+        permanent: true,
+      },
     ];
   },
 };
-
 
 export default nextConfig;

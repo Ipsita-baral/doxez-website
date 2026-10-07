@@ -200,6 +200,31 @@ export default function HomePage() {
     }
   }, [showThankYou]);
 
+  // Handle auto-scroll to form when arriving with ?appointment=true or #hero-form
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const searchParams = new URLSearchParams(window.location.search);
+      const isAppointmentParam =
+        searchParams.get("appointment") === "true" ||
+        searchParams.get("booking") === "true" ||
+        window.location.hash === "#hero-form" ||
+        window.location.hash === "#book-appointment";
+
+      if (isAppointmentParam) {
+        setTimeout(() => {
+          const formCard = document.getElementById("hero-form");
+          if (formCard) {
+            formCard.scrollIntoView({ behavior: "smooth", block: "center" });
+            const nameInput = formCard.querySelector("input[name='name']");
+            if (nameInput) {
+              nameInput.focus();
+            }
+          }
+        }, 500);
+      }
+    }
+  }, []);
+
   useEffect(() => {
     let isMounted = true;
     const fetchServices = async () => {
@@ -1372,7 +1397,7 @@ export default function HomePage() {
 
           {/* RIGHT: Form Card */}
           <Reveal direction="right" delay={0.4} style={{ flexShrink: 0, position: "relative", zIndex: 10 }}>
-            <div className="hero-form-card" style={{
+            <div className="hero-form-card" id="hero-form" style={{
               background: "#fff", borderRadius: 24, padding: "24px 28px", width: 360,
               boxShadow: "0 24px 80px -12px rgba(30,75,143,0.18)",
               border: "1px solid rgba(226,232,240,0.8)",

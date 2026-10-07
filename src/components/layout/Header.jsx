@@ -32,6 +32,19 @@ export default function Header() {
     setMenuOpen(false); // Close menu on route change
   }, [location.pathname]);
 
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (
+        params.get("appointment") === "true" ||
+        params.get("booking") === "true" ||
+        window.location.hash === "#book-appointment"
+      ) {
+        setShowModal(true);
+      }
+    }
+  }, [location.pathname, location.search]);
+
   const enterDrop = (name) => { clearTimeout(dropTimer.current); setActiveDrop(name); };
   const leaveDrop = () => { dropTimer.current = setTimeout(() => setActiveDrop(null), 150); };
 
@@ -236,6 +249,7 @@ export default function Header() {
           transition: all 0.2s;
           box-shadow: 0 4px 14px rgba(255, 136, 0, 0.3);
           white-space: nowrap;
+          text-decoration: none;
         }
         .nx-cta:hover {
           background: linear-gradient(135deg, #e67a00 0%, #c2410c 100%);
@@ -425,6 +439,8 @@ export default function Header() {
           gap: 10px;
           box-shadow: 0 10px 25px rgba(255, 136, 0, 0.3);
           transition: all 0.2s;
+          text-decoration: none;
+          box-sizing: border-box;
         }
         .nx-mob-cta:active { transform: scale(0.98); opacity: 0.9; }
 
@@ -517,12 +533,17 @@ export default function Header() {
           >
             <Building2 size={18} /> Partner Login
           </a>
-          <button className="nx-cta" onClick={() => {
-            trackButtonClick("Header - Get Free Expert Advice");
-            setShowModal(true);
-          }}>
+          <Link
+            to="/book-appointment"
+            className="nx-cta"
+            onClick={(e) => {
+              e.preventDefault();
+              trackButtonClick("Header - Get Free Expert Advice");
+              setShowModal(true);
+            }}
+          >
             <Calendar size={18} /> Get Free Expert Advice
-          </button>
+          </Link>
           <button className="nx-ham" onClick={() => setMenuOpen(true)}>
             <Menu size={22} />
           </button>
@@ -575,13 +596,18 @@ export default function Header() {
           </NavLink>
         </div>
         <div className="nx-mob-foot">
-          <button className="nx-mob-cta" onClick={() => {
-            trackButtonClick("Mobile Header - Get Expert Advice");
-            setShowModal(true);
-            setMenuOpen(false);
-          }}>
+          <Link
+            to="/book-appointment"
+            className="nx-mob-cta"
+            onClick={(e) => {
+              e.preventDefault();
+              trackButtonClick("Mobile Header - Get Expert Advice");
+              setShowModal(true);
+              setMenuOpen(false);
+            }}
+          >
             <Calendar size={20} /> Get Expert Advice
-          </button>
+          </Link>
         </div>
       </div>
 
