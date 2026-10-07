@@ -1,4 +1,4 @@
-import BookAppointmentRedirect from "./BookAppointmentRedirect";
+import { redirect } from 'next/navigation';
 
 export const metadata = {
   title: "Book Doctor Appointment Online | Consult Specialist Doctors - DOXEZ Healthcare",
@@ -31,34 +31,5 @@ export const metadata = {
 };
 
 export default function BookAppointmentPage() {
-  const structuredData = {
-    "@context": "https://schema.org",
-    "@type": "MedicalWebPage",
-    "name": "Book Doctor Appointment Online - DOXEZ Healthcare",
-    "description": "Book a free surgical consultation and doctor appointment with verified specialist surgeons across India.",
-    "url": "https://doxez.in/book-appointment",
-    "potentialAction": {
-      "@type": "ReserveAction",
-      "target": "https://doxez.in/book-appointment",
-      "result": {
-        "@type": "Reservation",
-        "name": "Doctor Consultation Appointment"
-      }
-    },
-    "provider": {
-      "@type": "MedicalOrganization",
-      "name": "DOXEZ Healthcare Network",
-      "url": "https://doxez.in"
-    }
-  };
-
-  return (
-    <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-      />
-      <BookAppointmentRedirect />
-    </>
-  );
+  redirect('/?appointment=true#hero-form');
 }
