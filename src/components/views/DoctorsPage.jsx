@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { 
   Star, Briefcase, Stethoscope, 
-  Award, PhoneCall, ChevronRight, CheckCircle2
+  Award, PhoneCall, ChevronRight, ChevronLeft, CheckCircle2
 } from 'lucide-react';
 import { Link } from '@/lib/router-compat';
 import AppointmentModal from '@/components/modals/AppointmentModal';
@@ -14,6 +14,30 @@ export default function DoctorsPage() {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // Pagination & responsive 2-row slider state
+  const [currentPage, setCurrentPage] = useState(0);
+  const [pageSize, setPageSize] = useState(6); // 6 doctors = 3 cols x 2 rows
+  const [hoveredCardId, setHoveredCardId] = useState(null);
+  const [isAutoScrollPaused, setIsAutoScrollPaused] = useState(false);
+
+  // Responsive page size detection (always 2 rows)
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth <= 640) {
+        setPageSize(2); // 1 col x 2 rows = 2 cards
+      } else if (window.innerWidth <= 1024) {
+        setPageSize(4); // 2 cols x 2 rows = 4 cards
+      } else {
+        setPageSize(6); // 3 cols x 2 rows = 6 cards
+      }
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Fetch doctors from API
   useEffect(() => {
     async function fetchDoctors() {
       try {
@@ -36,7 +60,73 @@ export default function DoctorsPage() {
     fetchDoctors();
   }, []);
 
-  // JSON-LD Schema.org Structured Data for Google Search Engine Optimization
+  // Chunk doctors into pages based on responsive pageSize
+  const pages = useMemo(() => {
+    if (!doctors.length) return [];
+    const chunks = [];
+    for (let i = 0; i < doctors.length; i += pageSize) {
+      chunks.push(doctors.slice(i, i + pageSize));
+    }
+    return chunks;
+  }, [doctors, pageSize]);
+
+  const totalPages = Math.max(1, pages.length);
+
+  // Keep currentPage in valid range when pageSize or doctors list changes
+  useEffect(() => {
+    if (currentPage >= totalPages) {
+      setCurrentPage(Math.max(0, totalPages - 1));
+    }
+  }, [totalPages, currentPage]);
+
+  const handlePrev = useCallback(() => {
+    setCurrentPage((prev) => (prev <= 0 ? totalPages - 1 : prev - 1));
+  }, [totalPages]);
+
+  const handleNext = useCallback(() => {
+    setCurrentPage((prev) => (prev >= totalPages - 1 ? 0 : prev + 1));
+  }, [totalPages]);
+
+  // Touch Swipe gestures for mobile / touchpads
+  const touchStartX = useRef(null);
+  const touchEndX = useRef(null);
+  const minSwipeDistance = 45;
+
+  const onTouchStart = (e) => {
+    setIsAutoScrollPaused(true);
+    touchEndX.current = null;
+    touchStartX.current = e.targetTouches[0].clientX;
+  };
+
+  const onTouchMove = (e) => {
+    touchEndX.current = e.targetTouches[0].clientX;
+  };
+
+  const onTouchEnd = () => {
+    setIsAutoScrollPaused(false);
+    if (!touchStartX.current || !touchEndX.current) return;
+    const distance = touchStartX.current - touchEndX.current;
+    if (distance > minSwipeDistance) {
+      handleNext();
+    } else if (distance < -minSwipeDistance) {
+      handlePrev();
+    }
+  };
+
+  // Automatic auto-scroll every 4.5 seconds (pauses on hover, touch, or active modal)
+  useEffect(() => {
+    if (loading || totalPages <= 1 || isAutoScrollPaused || isModalOpen) return;
+
+    const autoScrollTimer = setInterval(() => {
+      setCurrentPage((prev) => (prev >= totalPages - 1 ? 0 : prev + 1));
+    }, 4500);
+
+    return () => clearInterval(autoScrollTimer);
+  }, [loading, totalPages, isAutoScrollPaused, isModalOpen, totalPages, currentPage]);
+
+
+
+  // JSON-LD Schema.org Structured Data for SEO
   const structuredData = useMemo(() => {
     return {
       "@context": "https://schema.org",
@@ -63,7 +153,7 @@ export default function DoctorsPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
       />
 
-      {/* Hero Section - Modern Bright UI */}
+      {/* Hero Section */}
       <section className="doctors-hero">
         <div className="doctors-hero-glow glow-1" />
         <div className="doctors-hero-glow glow-2" />
@@ -101,10 +191,9 @@ export default function DoctorsPage() {
         </div>
       </section>
 
-      {/* Directory Content */}
+      {/* Directory Main Section with 2-Row Paginated Horizontal Slider */}
       <section className="doctors-main-section">
         <div className="doctors-container">
-          {/* Doctors Grid */}
           {loading ? (
             <div className="loading-state">
               <div className="loading-spinner" />
@@ -119,101 +208,196 @@ export default function DoctorsPage() {
               <p>Please check back shortly as our onboarding network expands.</p>
             </div>
           ) : (
-            <div className="doctors-grid">
-              {doctors.map((doc) => {
-                const initials = doc.name 
-                  ? doc.name.replace(/^Dr.s*/i, '').split(' ').filter(Boolean).map(n => n[0]).slice(0, 2).join('').toUpperCase()
-                  : 'DR';
-                
-                // Format clean qualification
-                let qualificationLine = doc.primaryQualification || 'MBBS';
-                if (doc.specialization && !['Surgeon', 'Consultant', 'Senior Surgeon'].includes(doc.specialization) && !doc.specialization.includes('fgh') && !doc.specialization.includes('wert')) {
-                  qualificationLine = `${doc.primaryQualification || 'MBBS'}, ${doc.specialization}`;
-                }
+            <div 
+              className="paginated-slider-card"
+              onMouseEnter={() => setIsAutoScrollPaused(true)}
+              onMouseLeave={() => setIsAutoScrollPaused(false)}
+            >
+              {/* Slider Header Controls */}
+              {totalPages > 1 && (
+                <div className="slider-top-bar">
+                  <div className="slider-btn-group">
+                    <button
+                      type="button"
+                      className="slider-arrow-btn"
+                      onClick={handlePrev}
+                      aria-label="Previous doctors"
+                      title="Previous doctors"
+                    >
+                      <ChevronLeft size={18} />
+                    </button>
+                    <button
+                      type="button"
+                      className="slider-arrow-btn"
+                      onClick={handleNext}
+                      aria-label="Next doctors"
+                      title="Next doctors"
+                    >
+                      <ChevronRight size={18} />
+                    </button>
+                  </div>
+                </div>
+              )}
 
-                // Format clean specialization
-                let rawSpec = doc.specializationBranch || doc.specialization || doc.doctorType || 'Specialist Surgeon';
-                if (rawSpec.includes('fgh') || rawSpec.includes('wert') || rawSpec.includes('dxcf') || rawSpec.includes('rftg')) {
-                  rawSpec = doc.doctorType || 'Specialist Surgeon';
-                }
-                const specialtyText = rawSpec.charAt(0).toUpperCase() + rawSpec.slice(1);
-
-                // Format experience
-                const experienceText = doc.totalExperience > 0 
-                  ? `${doc.totalExperience} Years Experience` 
-                  : 'Senior Specialist';
-
-                // Rating (matching reference image ☆ 4.5/5)
-                const rating = doc.totalExperience > 10 ? '4.9/5' : doc.totalExperience > 0 ? '4.8/5' : '4.5/5';
-
-                return (
-                  <div 
-                    key={doc._id}
-                    className="ref-doctor-card"
-                    itemScope
-                    itemType="https://schema.org/Physician"
+              {/* Slider Viewport with Floating Controls */}
+              <div 
+                className="paginated-viewport"
+                onTouchStart={onTouchStart}
+                onTouchMove={onTouchMove}
+                onTouchEnd={onTouchEnd}
+              >
+                {/* Floating Left Arrow */}
+                {totalPages > 1 && (
+                  <button
+                    type="button"
+                    className="floating-side-arrow left"
+                    onClick={handlePrev}
+                    aria-label="Previous slide"
                   >
-                    {/* Top Section: Photo + Stacked Details */}
-                    <div className="ref-card-main">
-                      {/* Left: Square Rounded Photo */}
-                      <div className="ref-avatar-box">
-                        {doc.avatar ? (
-                          <img
-                            src={doc.avatar}
-                            alt={doc.name}
-                            itemProp="image"
-                            className="ref-avatar-img"
-                            onError={(e) => {
-                              e.target.style.display = 'none';
-                              if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex';
-                            }}
-                          />
-                        ) : null}
-                        <div 
-                          className="ref-avatar-placeholder" 
-                          style={{ display: doc.avatar ? 'none' : 'flex' }}
-                        >
-                          <div className="ref-placeholder-icon">
-                            <Stethoscope size={28} color="#00afef" />
-                          </div>
-                          <span className="ref-placeholder-initials">{initials}</span>
-                        </div>
-                      </div>
+                    <ChevronLeft size={22} />
+                  </button>
+                )}
 
-                      {/* Right: Stacked Info */}
-                      <div className="ref-info-box">
-                        {/* 1. Name */}
-                        <h3 className="ref-doc-name" itemProp="name" title={doc.name}>
-                          {doc.name}
-                        </h3>
+                {/* Floating Right Arrow */}
+                {totalPages > 1 && (
+                  <button
+                    type="button"
+                    className="floating-side-arrow right"
+                    onClick={handleNext}
+                    aria-label="Next slide"
+                  >
+                    <ChevronRight size={22} />
+                  </button>
+                )}
 
-                        {/* 2. Qualification */}
-                        <div className="ref-doc-qual" itemProp="hasCredential">
-                          {qualificationLine}
-                        </div>
+                {/* Sliding Track (100% per page) */}
+                <div 
+                  className="paginated-track"
+                  style={{ transform: `translateX(-${currentPage * 100}%)` }}
+                >
+                  {pages.map((pageDoctors, pageIdx) => (
+                    <div className="paginated-slide" key={pageIdx}>
+                      <div className="doctors-2row-grid">
+                        {pageDoctors.map((doc) => {
+                          const initials = doc.name 
+                            ? doc.name.replace(/^Dr\.\s*/i, '').split(' ').filter(Boolean).map(n => n[0]).slice(0, 2).join('').toUpperCase()
+                            : 'DR';
+                          
+                          // Format clean qualification
+                          let qualificationLine = doc.primaryQualification || 'MBBS';
+                          if (doc.specialization && !['Surgeon', 'Consultant', 'Senior Surgeon'].includes(doc.specialization) && !doc.specialization.includes('fgh') && !doc.specialization.includes('wert')) {
+                            qualificationLine = `${doc.primaryQualification || 'MBBS'}, ${doc.specialization}`;
+                          }
 
-                        {/* 3. Rating (☆ 4.5/5) */}
-                        <div className="ref-doc-rating">
-                          <Star size={14} fill="#f59e0b" color="#f59e0b" />
-                          <span>{rating}</span>
-                        </div>
+                          // Format clean specialization
+                          let rawSpec = doc.specializationBranch || doc.specialization || doc.doctorType || 'Specialist Surgeon';
+                          if (rawSpec.includes('fgh') || rawSpec.includes('wert') || rawSpec.includes('dxcf') || rawSpec.includes('rftg')) {
+                            rawSpec = doc.doctorType || 'Specialist Surgeon';
+                          }
+                          const specialtyText = rawSpec.charAt(0).toUpperCase() + rawSpec.slice(1);
 
-                        {/* 4. Experience (💼 45 Years Experience) */}
-                        <div className="ref-doc-exp">
-                          <Briefcase size={14} color="#64748b" />
-                          <span itemProp="description">{experienceText}</span>
-                        </div>
+                          // Format experience
+                          const experienceText = doc.totalExperience > 0 
+                            ? `${doc.totalExperience} Years Experience` 
+                            : 'Senior Specialist';
 
-                        {/* 5. Specialization (in place of free consultation line, vibrant green text) */}
-                        <div className="ref-doc-specialization" itemProp="medicalSpecialty">
-                          <Stethoscope size={14} color="#16a34a" />
-                          <span>{specialtyText}</span>
-                        </div>
+                          // Rating
+                          const rating = doc.totalExperience > 10 ? '4.9/5' : doc.totalExperience > 0 ? '4.8/5' : '4.5/5';
+
+                          const isHovered = hoveredCardId === doc._id;
+
+                          return (
+                            <div 
+                              key={doc._id}
+                              className={`ref-doctor-card ${isHovered ? 'active-border' : ''}`}
+                              onMouseEnter={() => setHoveredCardId(doc._id)}
+                              onMouseLeave={() => setHoveredCardId(null)}
+                              itemScope
+                              itemType="https://schema.org/Physician"
+                            >
+                              <div className="ref-card-main">
+                                {/* Square Rounded Photo / Placeholder */}
+                                <div className="ref-avatar-box">
+                                  {doc.avatar ? (
+                                    <img
+                                      src={doc.avatar}
+                                      alt={doc.name}
+                                      itemProp="image"
+                                      className="ref-avatar-img"
+                                      onError={(e) => {
+                                        e.target.style.display = 'none';
+                                        if (e.target.nextSibling) e.target.nextSibling.style.display = 'flex';
+                                      }}
+                                    />
+                                  ) : null}
+                                  <div 
+                                    className="ref-avatar-placeholder" 
+                                    style={{ display: doc.avatar ? 'none' : 'flex' }}
+                                  >
+                                    <div className="ref-placeholder-icon">
+                                      <Stethoscope size={26} color="#00afef" />
+                                    </div>
+                                    <span className="ref-placeholder-initials">{initials}</span>
+                                  </div>
+                                </div>
+
+                                {/* Stacked Info */}
+                                <div className="ref-info-box">
+                                  {/* Doctor Name */}
+                                  <h3 className="ref-doc-name" itemProp="name" title={doc.name}>
+                                    {doc.name}
+                                  </h3>
+
+                                  {/* Qualification */}
+                                  <div className="ref-doc-qual" itemProp="hasCredential" title={qualificationLine}>
+                                    {qualificationLine}
+                                  </div>
+
+                                  {/* Rating */}
+                                  <div className="ref-doc-rating">
+                                    <Star size={13} fill="#f59e0b" color="#f59e0b" />
+                                    <span>{rating}</span>
+                                  </div>
+
+                                  {/* Experience */}
+                                  <div className="ref-doc-exp">
+                                    <Briefcase size={13} color="#64748b" />
+                                    <span itemProp="description">{experienceText}</span>
+                                  </div>
+
+                                  {/* Specialization (Vibrant Green) */}
+                                  <div className="ref-doc-specialization" itemProp="medicalSpecialty">
+                                    <Stethoscope size={13} color="#16a34a" />
+                                    <span>{specialtyText}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Bottom Pagination Dots */}
+              {totalPages > 1 && (
+                <div className="slider-bottom-pagination">
+                  <div className="pagination-dots-container">
+                    {Array.from({ length: totalPages }).map((_, idx) => (
+                      <button
+                        key={idx}
+                        type="button"
+                        className={`pagination-dot ${idx === currentPage ? 'active' : ''}`}
+                        onClick={() => setCurrentPage(idx)}
+                        aria-label={`Go to slide ${idx + 1}`}
+                        title={`Slide ${idx + 1}`}
+                      />
+                    ))}
                   </div>
-                );
-              })}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -253,7 +437,7 @@ export default function DoctorsPage() {
         <AppointmentModal onClose={() => setIsModalOpen(false)} />
       )}
 
-      {/* STYLES */}
+      {/* COMPACT & POLISHED STYLES */}
       <style jsx>{`
         .doctors-directory-page {
           min-height: 100vh;
@@ -264,16 +448,16 @@ export default function DoctorsPage() {
         }
 
         .doctors-container {
-          max-width: 1200px;
+          max-width: 1240px;
           margin: 0 auto;
           padding: 0 24px;
         }
 
-        /* ── HERO (Modern Bright UI with Card Overlap) ── */
+        /* ── HERO SECTION ── */
         .doctors-hero {
           position: relative;
           background: linear-gradient(180deg, #f8fbff 0%, #f0f9ff 50%, #e2effa 100%);
-          padding: 170px 24px 96px;
+          padding: 165px 24px 96px;
           overflow: hidden;
           color: #0b1f3a;
           border-bottom: 1px solid #cbd5e1;
@@ -391,51 +575,178 @@ export default function DoctorsPage() {
           box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
         }
 
-        /* ── DIRECTORY MAIN SECTION (OVERLAPPING CARDS) ── */
+        /* ── DIRECTORY MAIN SECTION ── */
         .doctors-main-section {
           position: relative;
           z-index: 10;
-          margin-top: -64px;
+          margin-top: -60px;
           padding: 0 0 50px;
         }
 
-        /* ── GRID & REFERENCE DOCTOR CARDS ── */
-        .doctors-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-          gap: 24px;
+        /* ── 2-ROW PAGINATED SLIDER CARD ── */
+        .paginated-slider-card {
+          position: relative;
+          width: 100%;
         }
 
+        /* Top Bar Controls */
+        .slider-top-bar {
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+          margin-bottom: 16px;
+          padding: 0 4px;
+        }
+
+        .slider-btn-group {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .slider-arrow-btn {
+          width: 38px;
+          height: 38px;
+          border-radius: 50%;
+          background: #ffffff;
+          border: 1.5px solid #cbd5e1;
+          color: #0b1f3a;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+          box-shadow: 0 2px 6px rgba(11, 31, 58, 0.05);
+        }
+
+        .slider-arrow-btn:hover:not(:disabled) {
+          background: #00afef;
+          border-color: #00afef;
+          color: #ffffff;
+          transform: translateY(-2px);
+          box-shadow: 0 6px 16px rgba(0, 175, 239, 0.3);
+        }
+
+        .slider-arrow-btn:disabled,
+        .slider-arrow-btn.disabled {
+          opacity: 0.35;
+          cursor: not-allowed;
+          box-shadow: none;
+        }
+
+        /* Viewport & Sliding Track */
+        .paginated-viewport {
+          position: relative;
+          width: 100%;
+          overflow: hidden;
+          padding: 6px 2px 14px;
+        }
+
+        .paginated-track {
+          display: flex;
+          width: 100%;
+          transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
+          will-change: transform;
+        }
+
+        .paginated-slide {
+          flex: 0 0 100%;
+          width: 100%;
+          min-width: 100%;
+          box-sizing: border-box;
+          padding: 4px;
+        }
+
+        /* 2-Row Grid: 3 columns x 2 rows on desktop = 6 doctors */
+        .doctors-2row-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 20px;
+          width: 100%;
+        }
+
+        /* Floating Side Arrows */
+        .floating-side-arrow {
+          position: absolute;
+          top: 50%;
+          transform: translateY(-50%);
+          width: 46px;
+          height: 46px;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0.94);
+          backdrop-filter: blur(8px);
+          border: 1.5px solid #cbd5e1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          z-index: 25;
+          color: #0b1f3a;
+          box-shadow: 0 8px 24px rgba(11, 31, 58, 0.14);
+          transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .floating-side-arrow:hover {
+          background: #00afef;
+          border-color: #00afef;
+          color: #ffffff;
+          transform: translateY(-50%) scale(1.08);
+          box-shadow: 0 10px 28px rgba(0, 175, 239, 0.35);
+        }
+
+        .floating-side-arrow.left {
+          left: -14px;
+        }
+
+        .floating-side-arrow.right {
+          right: -14px;
+        }
+
+        @media (max-width: 1280px) {
+          .floating-side-arrow.left {
+            left: 8px;
+          }
+          .floating-side-arrow.right {
+            right: 8px;
+          }
+        }
+
+        /* ── DOCTOR CARD (Matching Reference Image) ── */
         .ref-doctor-card {
           background: #ffffff;
-          border: 1px solid #e2e8f0;
-          border-radius: 18px;
-          padding: 20px;
+          border: 1.5px solid #e2e8f0;
+          border-radius: 20px;
+          padding: 18px 20px;
           transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-          box-shadow: 0 12px 28px -6px rgba(11, 31, 58, 0.08), 0 4px 10px -2px rgba(11, 31, 58, 0.03);
+          box-shadow: 0 6px 18px -4px rgba(11, 31, 58, 0.05);
           position: relative;
+          cursor: default;
         }
 
-        .ref-doctor-card:hover {
+        .ref-doctor-card:hover,
+        .ref-doctor-card.active-border {
           border-color: #00afef;
-          box-shadow: 0 20px 40px -8px rgba(0, 175, 239, 0.2);
-          transform: translateY(-5px);
+          box-shadow: 0 16px 36px -6px rgba(0, 175, 239, 0.2), 0 0 0 1px #00afef;
+          transform: translateY(-4px);
         }
 
         .ref-card-main {
           display: flex;
-          align-items: flex-start;
+          align-items: center;
           gap: 16px;
         }
 
         .ref-avatar-box {
-          width: 108px;
-          height: 108px;
-          border-radius: 14px;
+          width: 96px;
+          height: 96px;
+          border-radius: 16px;
           overflow: hidden;
-          background: #f1f5f9;
-          border: 1px solid #e2e8f0;
+          background: #f0f7ff;
+          border: 1px solid #dbeafe;
           flex-shrink: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
 
         .ref-avatar-img {
@@ -451,28 +762,34 @@ export default function DoctorsPage() {
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
-          gap: 6px;
+          background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+          gap: 4px;
+        }
+
+        .ref-placeholder-icon {
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
 
         .ref-placeholder-initials {
-          font-size: 13.5px;
+          font-size: 13px;
           font-weight: 800;
-          color: #0b1f3a;
+          color: #0369a1;
           letter-spacing: 0.05em;
         }
 
         .ref-info-box {
           display: flex;
           flex-direction: column;
-          gap: 4.5px;
+          gap: 4px;
           min-width: 0;
           flex: 1;
         }
 
         .ref-doc-name {
           font-family: 'Bricolage Grotesque', sans-serif;
-          font-size: 17.5px;
+          font-size: 17px;
           font-weight: 800;
           color: #0b1f3a;
           margin: 0;
@@ -483,9 +800,9 @@ export default function DoctorsPage() {
         }
 
         .ref-doc-qual {
-          font-size: 13px;
+          font-size: 12.5px;
           font-weight: 500;
-          color: #475569;
+          color: #64748b;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -495,7 +812,7 @@ export default function DoctorsPage() {
           display: flex;
           align-items: center;
           gap: 5px;
-          font-size: 13.5px;
+          font-size: 13px;
           font-weight: 700;
           color: #d97706;
           margin-top: 1px;
@@ -504,10 +821,10 @@ export default function DoctorsPage() {
         .ref-doc-exp {
           display: flex;
           align-items: center;
-          gap: 7px;
-          font-size: 13px;
+          gap: 6px;
+          font-size: 12.5px;
           font-weight: 500;
-          color: #334155;
+          color: #475569;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -517,16 +834,56 @@ export default function DoctorsPage() {
           display: flex;
           align-items: center;
           gap: 6px;
-          font-size: 13.5px;
+          font-size: 13px;
           font-weight: 700;
           color: #16a34a;
-          margin-top: 2px;
+          margin-top: 1px;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
         }
 
+        /* ── BOTTOM PAGINATION DOTS ── */
+        .slider-bottom-pagination {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-top: 24px;
+        }
 
+        .pagination-dots-container {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 18px;
+          background: #ffffff;
+          border: 1px solid #e2e8f0;
+          border-radius: 9999px;
+          box-shadow: 0 2px 8px rgba(11, 31, 58, 0.04);
+        }
+
+        .pagination-dot {
+          width: 9px;
+          height: 9px;
+          border-radius: 50%;
+          background: #cbd5e1;
+          border: none;
+          padding: 0;
+          cursor: pointer;
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .pagination-dot:hover:not(.active) {
+          background: #94a3b8;
+          transform: scale(1.2);
+        }
+
+        .pagination-dot.active {
+          width: 30px;
+          border-radius: 9999px;
+          background: #00afef;
+          box-shadow: 0 2px 8px rgba(0, 175, 239, 0.4);
+        }
 
         /* ── LOADING & EMPTY STATES ── */
         .loading-state, .no-doctors-state {
@@ -655,6 +1012,14 @@ export default function DoctorsPage() {
           background: rgba(255, 255, 255, 0.18);
         }
 
+        /* ── RESPONSIVE BREAKPOINTS ── */
+        @media (max-width: 1024px) {
+          .doctors-2row-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+          }
+        }
+
         @media (max-width: 768px) {
           .doctors-hero {
             padding: 125px 16px 72px;
@@ -673,14 +1038,31 @@ export default function DoctorsPage() {
             padding: 6px 14px;
             font-size: 12.5px;
           }
-          .doctors-grid {
-            grid-template-columns: 1fr;
+          .floating-side-arrow {
+            display: none;
           }
           .cta-card {
             padding: 32px 20px;
           }
           .cta-content h2 {
             font-size: 24px;
+          }
+        }
+
+        @media (max-width: 640px) {
+          .doctors-2row-grid {
+            grid-template-columns: 1fr;
+            gap: 14px;
+          }
+          .ref-doctor-card {
+            padding: 14px 16px;
+          }
+          .ref-avatar-box {
+            width: 82px;
+            height: 82px;
+          }
+          .slider-top-bar {
+            margin-bottom: 12px;
           }
         }
       `}</style>
